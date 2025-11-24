@@ -1,30 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { ShoppingBag, Menu, X, LayoutDashboard, User, LogOut } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { ShoppingBag, Menu, X, LayoutDashboard, User, LogOut, Moon, Sun, ShieldCheck } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
+import { getCurrentUser, logout, isAdmin } from '../utils/auth';
 import Logo from "../images/khayali logo.png";
 
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userName, setUserName] = useState('');
+  const { isDarkMode, toggleDarkMode } = useTheme();
   const location = useLocation();
-
-  useEffect(() => {
-    // Check login status
-    const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    const name = localStorage.getItem('userName') || localStorage.getItem('userEmail') || 'User';
-    setIsLoggedIn(loggedIn);
-    setUserName(name);
-  }, [location]);
+  const navigate = useNavigate();
+  const currentUser = getCurrentUser();
+  const userIsAdmin = isAdmin();
 
   const handleLogout = () => {
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('userType');
-    localStorage.removeItem('userEmail');
-    localStorage.removeItem('userName');
-    setIsLoggedIn(false);
-    window.location.href = '/#/';
+    logout();
+    setIsOpen(false);
+    navigate('/');
   };
 
   const navLinks = [
@@ -34,7 +27,7 @@ const Navbar: React.FC = () => {
   ];
 
   return (
-    <nav className="bg-white border-b border-gray-100 sticky top-0 z-50">
+    <nav className="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 sticky top-0 z-50 transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
@@ -51,24 +44,34 @@ const Navbar: React.FC = () => {
                 to={link.path}
                 className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
                   location.pathname === link.path
-                    ? 'text-brand-600 bg-brand-50'
-                    : 'text-gray-500 hover:text-brand-600 hover:bg-gray-50'
+                    ? 'text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-900/30'
+                    : 'text-gray-500 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-gray-50 dark:hover:bg-gray-700'
                 }`}
               >
                 {link.name}
               </Link>
             ))}
-            <button className="p-2 rounded-full text-gray-400 hover:text-brand-500 transition-colors relative">
+
+            {/* Dark Mode Toggle */}
+            <button
+              onClick={toggleDarkMode}
+              className="p-2 rounded-full text-gray-400 dark:text-gray-300 hover:text-brand-500 dark:hover:text-brand-400 transition-colors"
+              aria-label="Toggle dark mode"
+            >
+              {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            </button>
+
+            <button className="p-2 rounded-full text-gray-400 dark:text-gray-300 hover:text-brand-500 dark:hover:text-brand-400 transition-colors relative">
               <ShoppingBag className="h-6 w-6" />
-              <span className="absolute top-0 right-0 block h-2 w-2 rounded-full ring-2 ring-white bg-brand-500"></span>
+              <span className="absolute top-0 right-0 block h-2 w-2 rounded-full ring-2 ring-white dark:ring-gray-800 bg-brand-500"></span>
             </button>
 
             {/* Login/Logout Button */}
-            {isLoggedIn ? (
+            {currentUser ? (
               <div className="flex items-center gap-3">
-                <span className="text-sm text-gray-700 font-medium flex items-center gap-2">
+                <span className="text-sm text-gray-700 dark:text-gray-200 font-medium flex items-center gap-2">
                   <User className="w-4 h-4" />
-                  {userName}
+                  {currentUser.name}
                 </span>
                 <button
                   onClick={handleLogout}
@@ -81,7 +84,7 @@ const Navbar: React.FC = () => {
             ) : (
               <Link
                 to="/login"
-                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-brand-600 hover:bg-brand-700 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-brand-600 hover:bg-brand-700 dark:bg-brand-500 dark:hover:bg-brand-600 transition-colors"
               >
                 <User className="w-4 h-4" />
                 Login
@@ -103,7 +106,7 @@ const Navbar: React.FC = () => {
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="sm:hidden bg-white border-b border-gray-100">
+        <div className="sm:hidden bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
           <div className="pt-2 pb-3 space-y-1">
             {navLinks.map((link) => (
               <Link
@@ -112,27 +115,35 @@ const Navbar: React.FC = () => {
                 onClick={() => setIsOpen(false)}
                 className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
                   location.pathname === link.path
-                    ? 'bg-brand-50 border-brand-500 text-brand-700'
-                    : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700'
+                    ? 'bg-brand-50 dark:bg-brand-900/30 border-brand-500 text-brand-700 dark:text-brand-400'
+                    : 'border-transparent text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:text-gray-700 dark:hover:text-gray-200'
                 }`}
               >
                 {link.name}
               </Link>
             ))}
 
+            {/* Mobile Dark Mode Toggle */}
+            <div className="px-3 py-2">
+              <button
+                onClick={toggleDarkMode}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+              >
+                {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                {isDarkMode ? 'Light Mode' : 'Dark Mode'}
+              </button>
+            </div>
+
             {/* Mobile Login/Logout */}
             <div className="px-3 py-2">
-              {isLoggedIn ? (
+              {currentUser ? (
                 <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm text-gray-700 font-medium px-2 py-1">
+                  <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200 font-medium px-2 py-1">
                     <User className="w-4 h-4" />
-                    {userName}
+                    {currentUser.name}
                   </div>
                   <button
-                    onClick={() => {
-                      handleLogout();
-                      setIsOpen(false);
-                    }}
+                    onClick={handleLogout}
                     className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-red-500 hover:bg-red-600 transition-colors"
                   >
                     <LogOut className="w-4 h-4" />
@@ -143,7 +154,7 @@ const Navbar: React.FC = () => {
                 <Link
                   to="/login"
                   onClick={() => setIsOpen(false)}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-brand-600 hover:bg-brand-700 transition-colors"
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-brand-600 hover:bg-brand-700 dark:bg-brand-500 dark:hover:bg-brand-600 transition-colors"
                 >
                   <User className="w-4 h-4" />
                   Login

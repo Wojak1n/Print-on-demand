@@ -4,16 +4,16 @@ import { ArrowRight, ShieldCheck, Heart, Users, Award, Sparkles } from 'lucide-r
 
 const About: React.FC = () => {
   return (
-    <div className="flex flex-col min-h-screen bg-white">
-      
+    <div className="flex flex-col min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
+
       {/* Hero Section */}
-      <section className="relative bg-[#f8f7f5] py-20">
+      <section className="relative bg-[#f8f7f5] dark:bg-gray-800 py-20 transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto">
-            <h1 className="text-5xl md:text-6xl font-serif font-bold text-gray-900 mb-6">
+            <h1 className="text-5xl md:text-6xl font-serif font-bold text-gray-900 dark:text-white mb-6">
               Our Story
             </h1>
-            <p className="text-xl text-gray-600 leading-relaxed">
+            <p className="text-xl text-gray-600 dark:text-gray-400 leading-relaxed">
               KHAYALI was born from a simple belief: everyone deserves to wear art that speaks to their soul.
             </p>
           </div>
@@ -21,15 +21,15 @@ const About: React.FC = () => {
       </section>
 
       {/* Mission Section */}
-      <section className="py-24 bg-white">
+      <section className="py-24 bg-white dark:bg-gray-900 transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div>
-              <h2 className="text-base text-brand-600 font-bold tracking-widest uppercase mb-3">Our Mission</h2>
-              <h3 className="text-4xl font-serif font-bold text-gray-900 mb-6">
+              <h2 className="text-base text-brand-600 dark:text-brand-400 font-bold tracking-widest uppercase mb-3">Our Mission</h2>
+              <h3 className="text-4xl font-serif font-bold text-gray-900 dark:text-white mb-6">
                 We Bridge the Gap Between Art and Apparel
               </h3>
-              <p className="text-lg text-gray-500 mb-6 leading-relaxed">
+              <p className="text-lg text-gray-500 dark:text-gray-400 mb-6 leading-relaxed">
                 KHAYALI wasn't built for mass production. It was built for the obsessed.
                 For the creators who spend hours perfecting a single vector line.
                 For the wearers who want their clothes to say something meaningful.
@@ -41,20 +41,20 @@ const About: React.FC = () => {
                   'Quality control on every single stitch'
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-3">
-                    <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center text-green-600 flex-shrink-0">
+                    <div className="w-6 h-6 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600 dark:text-green-400 flex-shrink-0">
                       <ShieldCheck size={14} />
                     </div>
-                    <span className="text-gray-700">{item}</span>
+                    <span className="text-gray-700 dark:text-gray-300">{item}</span>
                   </div>
                 ))}
               </div>
             </div>
             <div className="relative">
-              <div className="absolute -top-4 -left-4 w-24 h-24 bg-brand-100 rounded-full -z-10"></div>
-              <img 
-                src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=1000&auto=format&fit=crop" 
-                alt="Design Team" 
-                className="rounded-3xl shadow-2xl w-full object-cover h-[500px]" 
+              <div className="absolute -top-4 -left-4 w-24 h-24 bg-brand-100 dark:bg-brand-900/30 rounded-full -z-10"></div>
+              <img
+                src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=1000&auto=format&fit=crop"
+                alt="Design Team"
+                className="rounded-3xl shadow-2xl w-full object-cover h-[500px]"
               />
             </div>
           </div>
@@ -62,37 +62,37 @@ const About: React.FC = () => {
       </section>
 
       {/* Values Section */}
-      <section className="py-24 bg-gray-50">
+      <section className="py-24 bg-gray-50 dark:bg-gray-800 transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-base text-brand-600 font-bold tracking-widest uppercase mb-3">Our Values</h2>
-            <p className="text-4xl font-serif font-bold text-gray-900">What We Stand For</p>
+            <h2 className="text-base text-brand-600 dark:text-brand-400 font-bold tracking-widest uppercase mb-3">Our Values</h2>
+            <p className="text-4xl font-serif font-bold text-gray-900 dark:text-white">What We Stand For</p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             {[
-              { 
-                icon: Heart, 
-                title: 'Passion for Design', 
-                text: 'We believe every design tells a story. We treat each piece with the care and attention it deserves.' 
+              {
+                icon: Heart,
+                title: 'Passion for Design',
+                text: 'We believe every design tells a story. We treat each piece with the care and attention it deserves.'
               },
-              { 
-                icon: Users, 
-                title: 'Community First', 
-                text: 'Our artists and customers are at the heart of everything we do. Your success is our success.' 
+              {
+                icon: Users,
+                title: 'Community First',
+                text: 'Our artists and customers are at the heart of everything we do. Your success is our success.'
               },
-              { 
-                icon: Award, 
-                title: 'Quality Excellence', 
-                text: 'We never compromise on quality. From fabric selection to final print, excellence is our standard.' 
+              {
+                icon: Award,
+                title: 'Quality Excellence',
+                text: 'We never compromise on quality. From fabric selection to final print, excellence is our standard.'
               }
             ].map((value, i) => (
-              <div key={i} className="flex flex-col items-center text-center p-8 rounded-3xl bg-white border border-gray-100 hover:border-brand-200 hover:shadow-lg transition-all duration-300">
-                <div className="w-16 h-16 bg-brand-50 rounded-2xl shadow-sm flex items-center justify-center text-brand-600 mb-6">
+              <div key={i} className="flex flex-col items-center text-center p-8 rounded-3xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-700 hover:border-brand-200 dark:hover:border-brand-600 hover:shadow-lg transition-all duration-300">
+                <div className="w-16 h-16 bg-brand-50 dark:bg-brand-900/30 rounded-2xl shadow-sm flex items-center justify-center text-brand-600 dark:text-brand-400 mb-6">
                   <value.icon size={32} />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">{value.title}</h3>
-                <p className="text-gray-500 leading-relaxed">{value.text}</p>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">{value.title}</h3>
+                <p className="text-gray-500 dark:text-gray-400 leading-relaxed">{value.text}</p>
               </div>
             ))}
           </div>
@@ -100,13 +100,13 @@ const About: React.FC = () => {
       </section>
 
       {/* Team Section */}
-      <section className="py-24 bg-white">
+      <section className="py-24 bg-white dark:bg-gray-900 transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-base text-brand-600 font-bold tracking-widest uppercase mb-3">The Team</h2>
-            <p className="text-4xl font-serif font-bold text-gray-900">Meet the Creators</p>
+            <h2 className="text-base text-brand-600 dark:text-brand-400 font-bold tracking-widest uppercase mb-3">The Team</h2>
+            <p className="text-4xl font-serif font-bold text-gray-900 dark:text-white">Meet the Creators</p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               { name: 'Sarah Johnson', role: 'Founder & CEO', img: 'https://picsum.photos/seed/team1/400/400' },
@@ -115,15 +115,15 @@ const About: React.FC = () => {
             ].map((member, i) => (
               <div key={i} className="group">
                 <div className="relative overflow-hidden rounded-2xl mb-4">
-                  <img 
-                    src={member.img} 
-                    alt={member.name} 
+                  <img
+                    src={member.img}
+                    alt={member.name}
                     className="w-full h-80 object-cover transition-transform duration-700 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900">{member.name}</h3>
-                <p className="text-brand-600 font-medium">{member.role}</p>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">{member.name}</h3>
+                <p className="text-brand-600 dark:text-brand-400 font-medium">{member.role}</p>
               </div>
             ))}
           </div>
@@ -131,15 +131,15 @@ const About: React.FC = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 bg-gray-900 text-white">
+      <section className="py-24 bg-gray-900 dark:bg-black text-white transition-colors duration-200">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <Sparkles className="w-12 h-12 mx-auto mb-6 text-brand-400" />
+          <Sparkles className="w-12 h-12 mx-auto mb-6 text-brand-400 dark:text-brand-300" />
           <h2 className="text-4xl font-serif font-bold mb-6">Ready to Create Something Amazing?</h2>
-          <p className="text-xl text-gray-300 mb-8">
+          <p className="text-xl text-gray-300 dark:text-gray-400 mb-8">
             Join thousands of artists and designers who trust KHAYALI to bring their visions to life.
           </p>
-          <Link 
-            to="/studio" 
+          <Link
+            to="/studio"
             className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold rounded-full text-gray-900 bg-white hover:bg-gray-100 transition-all shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
           >
             Start Creating

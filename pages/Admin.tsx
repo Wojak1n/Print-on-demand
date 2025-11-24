@@ -2,11 +2,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { STATS_DATA, INITIAL_DESIGNS, MOCK_ORDERS, MOCKUPS, STOCK_ITEMS } from '../constants';
 import { Design, Mockup, Order, StockItem } from '../types';
-import { Plus, Loader2, Sparkles, Package, DollarSign, Users, Image as ImageIcon, Upload, Palette, TrendingUp, Box, AlertTriangle, Eye, Truck, CheckCircle, XCircle, Edit, Search } from 'lucide-react';
+import { Plus, Loader2, Sparkles, Package, DollarSign, Users, Image as ImageIcon, Upload, Palette, TrendingUp, Box, AlertTriangle, Eye, Truck, CheckCircle, XCircle, Edit, Search, UserCheck, Mail, Calendar, ShoppingCart, Ban, CheckCircle2 } from 'lucide-react';
 import { generateMarketingCopy } from '../services/geminiService';
+import { FAKE_USERS, User } from '../utils/auth';
 
 const Admin: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'designs' | 'orders' | 'mockups' | 'stock'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'designs' | 'orders' | 'mockups' | 'stock' | 'users'>('dashboard');
+  const [users, setUsers] = useState<User[]>(FAKE_USERS);
   const [designs, setDesigns] = useState<Design[]>(INITIAL_DESIGNS);
   const [orders, setOrders] = useState<Order[]>(MOCK_ORDERS);
   const [stockItems, setStockItems] = useState<StockItem[]>(STOCK_ITEMS);
@@ -144,6 +146,7 @@ const Admin: React.FC = () => {
             <option value="mockups">Mockups</option>
             <option value="orders">Orders</option>
             <option value="stock">Stock</option>
+            <option value="users">Users</option>
           </select>
         </div>
       </div>
@@ -161,6 +164,7 @@ const Admin: React.FC = () => {
             { id: 'mockups', label: 'Mockups', icon: ImageIcon },
             { id: 'orders', label: 'Orders', icon: Package },
             { id: 'stock', label: 'Stock', icon: Box },
+            { id: 'users', label: 'Users', icon: Users },
           ].map((item) => (
             <button
               key={item.id}
@@ -988,6 +992,160 @@ const Admin: React.FC = () => {
                 </div>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Users Management View */}
+        {activeTab === 'users' && (
+          <div className="space-y-8">
+            <div className="flex justify-between items-center">
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
+                <p className="text-sm text-gray-500 mt-1">Manage customer accounts and permissions</p>
+              </div>
+            </div>
+
+            {/* User Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Total Users</p>
+                    <p className="text-2xl font-bold text-gray-900 mt-1">{users.length}</p>
+                  </div>
+                  <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center">
+                    <Users className="w-6 h-6 text-blue-600" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Active Users</p>
+                    <p className="text-2xl font-bold text-gray-900 mt-1">
+                      {users.filter(u => u.status === 'active').length}
+                    </p>
+                  </div>
+                  <div className="w-12 h-12 bg-green-50 rounded-lg flex items-center justify-center">
+                    <CheckCircle2 className="w-6 h-6 text-green-600" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Admins</p>
+                    <p className="text-2xl font-bold text-gray-900 mt-1">
+                      {users.filter(u => u.role === 'admin').length}
+                    </p>
+                  </div>
+                  <div className="w-12 h-12 bg-purple-50 rounded-lg flex items-center justify-center">
+                    <UserCheck className="w-6 h-6 text-purple-600" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Total Revenue</p>
+                    <p className="text-2xl font-bold text-gray-900 mt-1">
+                      ${users.reduce((sum, u) => sum + (u.totalSpent || 0), 0).toFixed(2)}
+                    </p>
+                  </div>
+                  <div className="w-12 h-12 bg-brand-50 rounded-lg flex items-center justify-center">
+                    <DollarSign className="w-6 h-6 text-brand-600" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Users Table */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+              <div className="p-6 border-b border-gray-100">
+                <h2 className="text-lg font-bold text-gray-900">All Users</h2>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50 border-b border-gray-100">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Joined</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Designs</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Orders</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Spent</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Login</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-100">
+                    {users.map((user) => (
+                      <tr key={user.id} className="hover:bg-gray-50 transition-colors">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <img
+                              src={user.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.id}`}
+                              alt={user.name}
+                              className="w-10 h-10 rounded-full mr-3"
+                            />
+                            <div>
+                              <div className="text-sm font-medium text-gray-900">{user.name}</div>
+                              <div className="text-sm text-gray-500">{user.email}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            user.role === 'admin'
+                              ? 'bg-purple-100 text-purple-800'
+                              : 'bg-gray-100 text-gray-800'
+                          }`}>
+                            {user.role === 'admin' && <UserCheck className="w-3 h-3" />}
+                            {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            user.status === 'active'
+                              ? 'bg-green-100 text-green-800'
+                              : user.status === 'inactive'
+                              ? 'bg-gray-100 text-gray-800'
+                              : 'bg-red-100 text-red-800'
+                          }`}>
+                            {user.status === 'active' ? <CheckCircle2 className="w-3 h-3" /> : <Ban className="w-3 h-3" />}
+                            {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          <div className="flex items-center gap-1">
+                            <Calendar className="w-4 h-4" />
+                            {user.joinDate}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
+                          {user.designCount || 0}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
+                          <div className="flex items-center gap-1">
+                            <ShoppingCart className="w-4 h-4 text-gray-400" />
+                            {user.orderCount || 0}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">
+                          ${(user.totalSpent || 0).toFixed(2)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {user.lastLogin || 'Never'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         )}
       </div>
