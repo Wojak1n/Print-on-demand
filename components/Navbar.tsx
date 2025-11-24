@@ -1,21 +1,55 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { ShoppingBag, Menu, X, LayoutDashboard, User, LogOut, Moon, Sun, ShieldCheck } from 'lucide-react';
+import { ShoppingBag, Menu, X, LayoutDashboard, User, Moon, Sun, LogOut, ChevronDown } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
-import { getCurrentUser, logout, isAdmin } from '../utils/auth';
+import { getCurrentUser, isAdmin, logout } from '../utils/auth';
 import Logo from "../images/khayali logo.png";
 
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const [currentUser, setCurrentUser] = useState(getCurrentUser());
+  const [userIsAdmin, setUserIsAdmin] = useState(isAdmin());
   const { isDarkMode, toggleDarkMode } = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
-  const currentUser = getCurrentUser();
-  const userIsAdmin = isAdmin();
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
+  // Update user state when location changes (after login/logout)
+  useEffect(() => {
+    setCurrentUser(getCurrentUser());
+    setUserIsAdmin(isAdmin());
+  }, [location]);
+
+  // Listen for storage changes (login/logout events)
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setCurrentUser(getCurrentUser());
+      setUserIsAdmin(isAdmin());
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
+  // Close user menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setShowUserMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleLogout = () => {
     logout();
+    setCurrentUser(null);
+    setUserIsAdmin(false);
+    setShowUserMenu(false);
     setIsOpen(false);
     navigate('/');
   };
@@ -61,25 +95,54 @@ const Navbar: React.FC = () => {
               {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </button>
 
-            <button className="p-2 rounded-full text-gray-400 dark:text-gray-300 hover:text-brand-500 dark:hover:text-brand-400 transition-colors relative">
+            <Link to="/cart" className="p-2 rounded-full text-gray-400 dark:text-gray-300 hover:text-brand-500 dark:hover:text-brand-400 transition-colors relative">
               <ShoppingBag className="h-6 w-6" />
               <span className="absolute top-0 right-0 block h-2 w-2 rounded-full ring-2 ring-white dark:ring-gray-800 bg-brand-500"></span>
-            </button>
+            </Link>
 
-            {/* Login/Logout Button */}
+            {/* Admin Dashboard Link (only for admins) */}
+            {userIsAdmin && (
+              <Link
+                to="/admin"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600 transition-colors"
+              >
+                <LayoutDashboard className="w-4 h-4" />
+                Admin
+              </Link>
+            )}
+
+            {/* User Menu / Login Button */}
             {currentUser ? (
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-gray-700 dark:text-gray-200 font-medium flex items-center gap-2">
+              <div className="relative" ref={userMenuRef}>
+                <button
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                >
                   <User className="w-4 h-4" />
                   {currentUser.name}
-                </span>
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-red-500 hover:bg-red-600 transition-colors"
-                >
-                  <LogOut className="w-4 h-4" />
-                  Logout
+                  <ChevronDown className={`w-4 h-4 transition-transform ${showUserMenu ? 'rotate-180' : ''}`} />
                 </button>
+
+                {/* Dropdown Menu */}
+                {showUserMenu && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50">
+                    <Link
+                      to="/profile"
+                      onClick={() => setShowUserMenu(false)}
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    >
+                      <User className="w-4 h-4" />
+                      My Profile
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Logout
+                    </button>
+                  </div>
+                )}
               </div>
             ) : (
               <Link
@@ -123,6 +186,19 @@ const Navbar: React.FC = () => {
               </Link>
             ))}
 
+            {/* Mobile Shopping Cart */}
+            <div className="px-3 py-2">
+              <Link
+                to="/cart"
+                onClick={() => setIsOpen(false)}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors relative"
+              >
+                <ShoppingBag className="h-4 w-4" />
+                Shopping Cart
+                <span className="absolute top-1 right-1 block h-2 w-2 rounded-full ring-2 ring-white dark:ring-gray-800 bg-brand-500"></span>
+              </Link>
+            </div>
+
             {/* Mobile Dark Mode Toggle */}
             <div className="px-3 py-2">
               <button
@@ -134,14 +210,41 @@ const Navbar: React.FC = () => {
               </button>
             </div>
 
-            {/* Mobile Login/Logout */}
+            {/* Mobile Admin Link (only for admins) */}
+            {userIsAdmin && (
+              <div className="px-3 py-2">
+                <Link
+                  to="/admin"
+                  onClick={() => setIsOpen(false)}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600 transition-colors"
+                >
+                  <LayoutDashboard className="w-4 h-4" />
+                  Admin Dashboard
+                </Link>
+              </div>
+            )}
+
+            {/* Mobile User Section */}
             <div className="px-3 py-2">
               {currentUser ? (
                 <div className="space-y-2">
+                  {/* User Info */}
                   <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200 font-medium px-2 py-1">
                     <User className="w-4 h-4" />
                     {currentUser.name}
                   </div>
+
+                  {/* Profile Button */}
+                  <Link
+                    to="/profile"
+                    onClick={() => setIsOpen(false)}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                  >
+                    <User className="w-4 h-4" />
+                    My Profile
+                  </Link>
+
+                  {/* Logout Button */}
                   <button
                     onClick={handleLogout}
                     className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-red-500 hover:bg-red-600 transition-colors"

@@ -10,6 +10,8 @@ import Admin from './pages/Admin';
 import About from './pages/About';
 import Login from './pages/Login';
 import AdminLogin from './pages/AdminLogin';
+import Profile from './pages/Profile';
+import Cart from './pages/Cart';
 import Careers from './pages/Careers';
 import Blog from './pages/Blog';
 import Press from './pages/Press';
@@ -43,6 +45,12 @@ const AppContent: React.FC = () => {
           <Route path="/about" element={<About />} />
           <Route path="/login" element={<Login />} />
           <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/profile" element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          } />
+          <Route path="/cart" element={<Cart />} />
           <Route path="/careers" element={<Careers />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/press" element={<Press />} />

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, User, Eye, EyeOff, ArrowRight, ShieldCheck } from 'lucide-react';
-import { authenticateUser, login, isAuthenticated } from '../utils/auth';
+import { authenticateUser, login, isAuthenticated, getCurrentUser } from '../utils/auth';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -18,7 +18,12 @@ const Login: React.FC = () => {
   // Redirect if already logged in
   useEffect(() => {
     if (isAuthenticated()) {
-      navigate('/');
+      const user = getCurrentUser();
+      if (user?.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/studio');
+      }
     }
   }, [navigate]);
 
