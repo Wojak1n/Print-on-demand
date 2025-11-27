@@ -82,7 +82,7 @@ const Home: React.FC = () => {
             <div className="relative hidden lg:block h-full min-h-[600px]">
                <div className="absolute inset-0 bg-gradient-to-tr from-brand-50 to-purple-50 dark:from-brand-900/20 dark:to-purple-900/20 rounded-tl-[100px] -z-10"></div>
                <img
-                src="./images/Main Pic.jpeg"
+                src="/images/Main Pic.jpeg"
                 alt="Fashion Model"
                 className="absolute bottom-0 right-10 w-4/5 h-auto object-cover drop-shadow-2xl rounded-t-[40px]"
                />
