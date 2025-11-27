@@ -21,8 +21,8 @@ import Privacy from './pages/Privacy';
 
 const AppContent: React.FC = () => {
   const location = useLocation();
-  // Hide navbar and footer on login pages
-  const hideNavAndFooter = location.pathname === '/login' || location.pathname === '/admin/login';
+  // Hide navbar and footer on login pages and admin page
+  const hideNavAndFooter = location.pathname === '/login' || location.pathname === '/admin/login' || location.pathname === '/admin';
   // Hide footer only on studio page to maximize workspace
   const showFooter = location.pathname !== '/studio' && !hideNavAndFooter;
 

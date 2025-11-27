@@ -85,6 +85,30 @@ export const MOCKUPS: Mockup[] = [
     overlayX: 50,
     overlayY: 42,
     overlayWidth: 35,
+    zones: [
+      {
+        id: 'zone-front',
+        name: 'Front',
+        overlayX: 50,
+        overlayY: 42,
+        overlayWidth: 35,
+        designScale: 1,
+        designRotation: 0,
+        designOffsetX: 0,
+        designOffsetY: 0
+      },
+      {
+        id: 'zone-back',
+        name: 'Back',
+        overlayX: 50,
+        overlayY: 42,
+        overlayWidth: 35,
+        designScale: 1,
+        designRotation: 0,
+        designOffsetX: 0,
+        designOffsetY: 0
+      }
+    ]
   },
   {
     id: 'm2',
@@ -93,6 +117,41 @@ export const MOCKUPS: Mockup[] = [
     overlayX: 50,
     overlayY: 45,
     overlayWidth: 30,
+    zones: [
+      {
+        id: 'zone-front',
+        name: 'Front',
+        overlayX: 50,
+        overlayY: 45,
+        overlayWidth: 30,
+        designScale: 1,
+        designRotation: 0,
+        designOffsetX: 0,
+        designOffsetY: 0
+      },
+      {
+        id: 'zone-back',
+        name: 'Back',
+        overlayX: 50,
+        overlayY: 45,
+        overlayWidth: 30,
+        designScale: 1,
+        designRotation: 0,
+        designOffsetX: 0,
+        designOffsetY: 0
+      },
+      {
+        id: 'zone-hood',
+        name: 'Hood',
+        overlayX: 50,
+        overlayY: 25,
+        overlayWidth: 20,
+        designScale: 1,
+        designRotation: 0,
+        designOffsetX: 0,
+        designOffsetY: 0
+      }
+    ]
   },
   {
     id: 'm3',
@@ -101,6 +160,30 @@ export const MOCKUPS: Mockup[] = [
     overlayX: 50,
     overlayY: 45,
     overlayWidth: 32,
+    zones: [
+      {
+        id: 'zone-front',
+        name: 'Front',
+        overlayX: 50,
+        overlayY: 45,
+        overlayWidth: 32,
+        designScale: 1,
+        designRotation: 0,
+        designOffsetX: 0,
+        designOffsetY: 0
+      },
+      {
+        id: 'zone-back',
+        name: 'Back',
+        overlayX: 50,
+        overlayY: 45,
+        overlayWidth: 32,
+        designScale: 1,
+        designRotation: 0,
+        designOffsetX: 0,
+        designOffsetY: 0
+      }
+    ]
   },
   {
     id: 'm4',
@@ -109,6 +192,19 @@ export const MOCKUPS: Mockup[] = [
     overlayX: 50,
     overlayY: 35,
     overlayWidth: 25,
+    zones: [
+      {
+        id: 'zone-front',
+        name: 'Front',
+        overlayX: 50,
+        overlayY: 35,
+        overlayWidth: 25,
+        designScale: 1,
+        designRotation: 0,
+        designOffsetX: 0,
+        designOffsetY: 0
+      }
+    ]
   }
 ];
 

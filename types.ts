@@ -10,14 +10,29 @@ export interface Design {
   type?: 'raster' | 'vector';
 }
 
+export interface DesignZone {
+  id: string;
+  name: string; // e.g., "Front", "Back", "Left Sleeve", "Right Sleeve"
+  overlayX: number; // X position %
+  overlayY: number; // Y position %
+  overlayWidth: number; // Width %
+  overlayHeight?: number; // Height % (optional, defaults to width for square)
+  designId?: string; // Which design is placed in this zone
+  designScale?: number; // Scale for this zone
+  designRotation?: number; // Rotation for this zone
+  designOffsetX?: number; // Fine-tune X offset
+  designOffsetY?: number; // Fine-tune Y offset
+}
+
 export interface Mockup {
   id: string;
   name: string;
   type: 't-shirt' | 'hoodie' | 'cap' | 'sweater' | 'custom';
   baseImage?: string; // URL for custom uploaded mockups
-  overlayX: number; // Default X position %
-  overlayY: number; // Default Y position %
-  overlayWidth: number; // Default width %
+  overlayX: number; // Default X position % (for backward compatibility)
+  overlayY: number; // Default Y position % (for backward compatibility)
+  overlayWidth: number; // Default width % (for backward compatibility)
+  zones?: DesignZone[]; // Multiple design zones for this mockup
 }
 
 export interface Order {

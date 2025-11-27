@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { STATS_DATA, INITIAL_DESIGNS, MOCK_ORDERS, MOCKUPS, STOCK_ITEMS } from '../constants';
 import { Design, Mockup, Order, StockItem } from '../types';
-import { Plus, Loader2, Sparkles, Package, DollarSign, Users, Image as ImageIcon, Upload, Palette, TrendingUp, Box, AlertTriangle, Eye, Truck, CheckCircle, XCircle, Edit, Search, UserCheck, Mail, Calendar, ShoppingCart, Ban, CheckCircle2 } from 'lucide-react';
+import { Plus, Loader2, Sparkles, Package, DollarSign, Users, Image as ImageIcon, Upload, Palette, TrendingUp, Box, AlertTriangle, Eye, Truck, CheckCircle, XCircle, Edit, Search, UserCheck, Mail, Calendar, ShoppingCart, Ban, CheckCircle2, Trash2, Save, X as XIcon, LayoutDashboard, Settings, LogOut, Bell, Menu } from 'lucide-react';
 import { generateMarketingCopy } from '../services/geminiService';
 import { FAKE_USERS, User } from '../utils/auth';
 
@@ -14,6 +14,7 @@ const Admin: React.FC = () => {
   const [stockItems, setStockItems] = useState<StockItem[]>(STOCK_ITEMS);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [orderSearchQuery, setOrderSearchQuery] = useState('');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   
   // Mockup State
   const [customMockups, setCustomMockups] = useState<Mockup[]>([]);
@@ -28,7 +29,16 @@ const Admin: React.FC = () => {
   const [newDesignTitle, setNewDesignTitle] = useState('');
   const [newDesignCategory, setNewDesignCategory] = useState('');
   const [newDesignDesc, setNewDesignDesc] = useState('');
+  const [newDesignPrice, setNewDesignPrice] = useState(25);
   const [isGenerating, setIsGenerating] = useState(false);
+
+  // Edit Design State
+  const [editingDesign, setEditingDesign] = useState<Design | null>(null);
+  const [showEditDesignModal, setShowEditDesignModal] = useState(false);
+
+  // Edit Mockup State
+  const [editingMockup, setEditingMockup] = useState<Mockup | null>(null);
+  const [showEditMockupModal, setShowEditMockupModal] = useState(false);
 
   useEffect(() => {
     // Load Custom Mockups
@@ -66,7 +76,7 @@ const Admin: React.FC = () => {
       description: newDesignDesc,
       imageUrl: `https://picsum.photos/seed/${Date.now()}/600/600`,
       popularity: 0,
-      price: 25.00
+      price: newDesignPrice
     };
 
     // Update Local State
@@ -84,7 +94,55 @@ const Admin: React.FC = () => {
     setNewDesignTitle('');
     setNewDesignCategory('');
     setNewDesignDesc('');
+    setNewDesignPrice(25);
     alert('Design added successfully!');
+  };
+
+  const handleEditDesign = (design: Design) => {
+    setEditingDesign(design);
+    setShowEditDesignModal(true);
+  };
+
+  const handleUpdateDesign = () => {
+    if (!editingDesign) return;
+
+    const updatedDesigns = designs.map(d =>
+      d.id === editingDesign.id ? editingDesign : d
+    );
+    setDesigns(updatedDesigns);
+
+    // Update localStorage
+    try {
+      const catalogDesigns = JSON.parse(localStorage.getItem('catalogDesigns') || '[]');
+      const updatedCatalog = catalogDesigns.map((d: Design) =>
+        d.id === editingDesign.id ? editingDesign : d
+      );
+      localStorage.setItem('catalogDesigns', JSON.stringify(updatedCatalog));
+    } catch (err) {
+      console.error("Failed to update design in storage", err);
+    }
+
+    setShowEditDesignModal(false);
+    setEditingDesign(null);
+    alert('Design updated successfully!');
+  };
+
+  const handleDeleteDesign = (designId: string) => {
+    if (!confirm('Are you sure you want to delete this design?')) return;
+
+    const updatedDesigns = designs.filter(d => d.id !== designId);
+    setDesigns(updatedDesigns);
+
+    // Update localStorage
+    try {
+      const catalogDesigns = JSON.parse(localStorage.getItem('catalogDesigns') || '[]');
+      const updatedCatalog = catalogDesigns.filter((d: Design) => d.id !== designId);
+      localStorage.setItem('catalogDesigns', JSON.stringify(updatedCatalog));
+    } catch (err) {
+      console.error("Failed to delete design from storage", err);
+    }
+
+    alert('Design deleted successfully!');
   };
 
   const handleMockupImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -120,7 +178,7 @@ const Admin: React.FC = () => {
     const updatedMockups = [...customMockups, newMockup];
     setCustomMockups(updatedMockups);
     localStorage.setItem('customMockups', JSON.stringify(updatedMockups));
-    
+
     // Reset form
     setNewMockupName('');
     setNewMockupImage('');
@@ -130,124 +188,251 @@ const Admin: React.FC = () => {
     alert("Mockup added! Refresh Design Studio to see changes.");
   };
 
-  return (
-    <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row">
-      {/* Mobile Header */}
-      <div className="md:hidden bg-white border-b border-gray-200 p-4">
-        <div className="flex items-center justify-between">
-          <h2 className="font-serif text-xl font-bold text-gray-900">Admin Panel</h2>
-          <select
-            value={activeTab}
-            onChange={(e) => setActiveTab(e.target.value as any)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm font-medium focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-          >
-            <option value="dashboard">Dashboard</option>
-            <option value="designs">Designs</option>
-            <option value="mockups">Mockups</option>
-            <option value="orders">Orders</option>
-            <option value="stock">Stock</option>
-            <option value="users">Users</option>
-          </select>
-        </div>
-      </div>
+  const handleEditMockup = (mockup: Mockup) => {
+    setEditingMockup(mockup);
+    setShowEditMockupModal(true);
+  };
 
+  const handleUpdateMockup = () => {
+    if (!editingMockup) return;
+
+    const updatedMockups = customMockups.map(m =>
+      m.id === editingMockup.id ? editingMockup : m
+    );
+    setCustomMockups(updatedMockups);
+    localStorage.setItem('customMockups', JSON.stringify(updatedMockups));
+
+    setShowEditMockupModal(false);
+    setEditingMockup(null);
+    alert('Mockup updated successfully!');
+  };
+
+  const handleDeleteMockup = (mockupId: string) => {
+    if (!confirm('Are you sure you want to delete this mockup?')) return;
+
+    const updatedMockups = customMockups.filter(m => m.id !== mockupId);
+    setCustomMockups(updatedMockups);
+    localStorage.setItem('customMockups', JSON.stringify(updatedMockups));
+
+    alert('Mockup deleted successfully!');
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 flex">
       {/* Sidebar - Desktop */}
-      <div className="w-64 bg-white border-r border-gray-200 hidden md:flex flex-col">
-        <div className="p-6 border-b border-gray-100">
-           <h2 className="font-serif text-2xl font-bold text-gray-900">Admin Panel</h2>
-           <p className="text-xs text-gray-500 mt-1">Manage your store</p>
+      <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${
+        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+      } lg:translate-x-0`}>
+        {/* Sidebar Header */}
+        <div className="h-20 flex items-center justify-between px-6 border-b border-gray-200 bg-gradient-to-r from-brand-600 to-brand-700">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-md">
+              <LayoutDashboard className="w-6 h-6 text-brand-600" />
+            </div>
+            <div>
+              <h2 className="font-bold text-white text-lg">KHAYALI</h2>
+              <p className="text-xs text-brand-100">Admin Panel</p>
+            </div>
+          </div>
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="lg:hidden text-white hover:bg-white/20 p-2 rounded-lg transition-colors"
+          >
+            <XIcon className="w-5 h-5" />
+          </button>
         </div>
-        <nav className="flex-1 px-4 py-6 space-y-2">
+
+        {/* Navigation */}
+        <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+          <p className="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Main Menu</p>
           {[
-            { id: 'dashboard', label: 'Dashboard', icon: TrendingUp },
-            { id: 'designs', label: 'Designs', icon: Palette },
-            { id: 'mockups', label: 'Mockups', icon: ImageIcon },
-            { id: 'orders', label: 'Orders', icon: Package },
-            { id: 'stock', label: 'Stock', icon: Box },
-            { id: 'users', label: 'Users', icon: Users },
+            { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, badge: null },
+            { id: 'designs', label: 'Designs', icon: Palette, badge: designs.length },
+            { id: 'mockups', label: 'Mockups', icon: ImageIcon, badge: MOCKUPS.length + customMockups.length },
+            { id: 'orders', label: 'Orders', icon: Package, badge: orders.length },
+            { id: 'stock', label: 'Stock', icon: Box, badge: stockItems.length },
+            { id: 'users', label: 'Users', icon: Users, badge: users.length },
           ].map((item) => (
             <button
               key={item.id}
-              onClick={() => setActiveTab(item.id as any)}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
+              onClick={() => {
+                setActiveTab(item.id as any);
+                setSidebarOpen(false);
+              }}
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all group ${
                 activeTab === item.id
-                  ? 'bg-brand-50 text-brand-700 shadow-sm'
-                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                  ? 'bg-gradient-to-r from-brand-500 to-brand-600 text-white shadow-lg shadow-brand-500/30'
+                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
               }`}
             >
-              <item.icon className="w-5 h-5" />
-              <span className="font-medium">{item.label}</span>
+              <div className="flex items-center gap-3">
+                <item.icon className={`w-5 h-5 ${activeTab === item.id ? 'text-white' : 'text-gray-400 group-hover:text-brand-600'}`} />
+                <span className="font-semibold">{item.label}</span>
+              </div>
+              {item.badge !== null && (
+                <span className={`px-2.5 py-0.5 text-xs font-bold rounded-full ${
+                  activeTab === item.id
+                    ? 'bg-white/20 text-white'
+                    : 'bg-gray-200 text-gray-600 group-hover:bg-brand-100 group-hover:text-brand-700'
+                }`}>
+                  {item.badge}
+                </span>
+              )}
             </button>
           ))}
+
+          <div className="pt-6 mt-6 border-t border-gray-200">
+            <p className="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Account</p>
+            <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-all group">
+              <Settings className="w-5 h-5 text-gray-400 group-hover:text-brand-600" />
+              <span className="font-semibold">Settings</span>
+            </button>
+            <button
+              onClick={() => {
+                localStorage.removeItem('isLoggedIn');
+                localStorage.removeItem('userEmail');
+                localStorage.removeItem('userType');
+                window.location.href = '#/admin-login';
+              }}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 transition-all group"
+            >
+              <LogOut className="w-5 h-5" />
+              <span className="font-semibold">Logout</span>
+            </button>
+          </div>
         </nav>
-        <div className="p-4 border-t border-gray-100">
-          <div className="bg-brand-50 rounded-lg p-4">
-            <p className="text-xs font-semibold text-brand-900 mb-1">Need Help?</p>
-            <p className="text-xs text-brand-700">Check our documentation</p>
+
+        {/* Sidebar Footer */}
+        <div className="p-4 border-t border-gray-200">
+          <div className="bg-gradient-to-br from-brand-50 to-brand-100 rounded-xl p-4 border border-brand-200">
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                <Sparkles className="w-4 h-4 text-white" />
+              </div>
+              <div>
+                <p className="text-sm font-bold text-brand-900 mb-1">Need Help?</p>
+                <p className="text-xs text-brand-700 leading-relaxed">Access documentation and support</p>
+                <button className="mt-2 text-xs font-semibold text-brand-600 hover:text-brand-700 underline">
+                  Learn More →
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      </aside>
 
-      {/* Main Content */}
-      <div className="flex-1 p-8 overflow-y-auto">
+      {/* Overlay for mobile */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* Main Content Area */}
+      <div className="flex-1 min-h-screen flex flex-col lg:ml-72">
+        {/* Mobile Menu Button */}
+        <button
+          onClick={() => setSidebarOpen(true)}
+          className="lg:hidden fixed top-4 left-4 z-40 p-3 bg-white hover:bg-gray-100 rounded-lg shadow-lg transition-colors"
+        >
+          <Menu className="w-6 h-6 text-gray-600" />
+        </button>
+
+        {/* Page Content */}
+        <main className="flex-1 p-6 lg:p-8 pt-20 lg:pt-8">
         
         {/* Dashboard View */}
         {activeTab === 'dashboard' && (
-          <div className="space-y-8">
-            <div className="flex justify-between items-center">
-              <h1 className="text-3xl font-bold text-gray-900">Dashboard Overview</h1>
-              <div className="text-sm text-gray-500">
-                Last updated: {new Date().toLocaleDateString()}
+          <div className="space-y-6">
+            {/* Welcome Banner */}
+            <div className="bg-gradient-to-r from-brand-600 via-brand-500 to-brand-600 rounded-2xl p-8 text-white shadow-xl">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-3xl font-bold mb-2">Welcome back, Admin! 👋</h2>
+                  <p className="text-brand-100 text-lg">Here's what's happening with your store today</p>
+                </div>
+                <div className="hidden lg:block">
+                  <div className="text-right">
+                    <p className="text-sm text-brand-100">Last updated</p>
+                    <p className="text-lg font-semibold">{new Date().toLocaleDateString()}</p>
+                  </div>
+                </div>
               </div>
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="bg-gradient-to-br from-brand-500 to-brand-600 p-6 rounded-xl shadow-lg text-white">
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-sm text-brand-100">Total Revenue</p>
-                  <DollarSign className="w-5 h-5 text-brand-200" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {/* Revenue Card */}
+              <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group">
+                <div className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                      <DollarSign className="w-6 h-6 text-white" />
+                    </div>
+                    <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">
+                      ↑ 12%
+                    </span>
+                  </div>
+                  <p className="text-sm font-medium text-gray-500 mb-1">Total Revenue</p>
+                  <h3 className="text-3xl font-bold text-gray-900">$12,450</h3>
+                  <p className="text-xs text-gray-400 mt-2">from last week</p>
                 </div>
-                <h3 className="text-3xl font-bold mt-1">$12,450</h3>
-                <div className="mt-3 flex items-center text-sm">
-                  <span className="text-green-200 font-medium">↑ 12%</span>
-                  <span className="ml-2 text-brand-100">from last week</span>
-                </div>
+                <div className="h-1 bg-gradient-to-r from-green-500 to-emerald-600"></div>
               </div>
 
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-sm text-gray-500">Active Orders</p>
-                  <Package className="w-5 h-5 text-yellow-500" />
+              {/* Orders Card */}
+              <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group">
+                <div className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                      <Package className="w-6 h-6 text-white" />
+                    </div>
+                    <span className="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded-full">
+                      {orders.length}
+                    </span>
+                  </div>
+                  <p className="text-sm font-medium text-gray-500 mb-1">Active Orders</p>
+                  <h3 className="text-3xl font-bold text-gray-900">45</h3>
+                  <p className="text-xs text-gray-400 mt-2">12 pending • 33 processing</p>
                 </div>
-                <h3 className="text-3xl font-bold text-gray-900 mt-1">45</h3>
-                <div className="mt-3 flex items-center text-sm">
-                  <span className="text-yellow-600 font-medium">12 Pending</span>
-                  <span className="ml-2 text-gray-400">• 33 Processing</span>
-                </div>
+                <div className="h-1 bg-gradient-to-r from-blue-500 to-blue-600"></div>
               </div>
 
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-sm text-gray-500">Total Designs</p>
-                  <Palette className="w-5 h-5 text-brand-500" />
+              {/* Designs Card */}
+              <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group">
+                <div className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-brand-500 to-brand-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                      <Palette className="w-6 h-6 text-white" />
+                    </div>
+                    <span className="px-3 py-1 bg-brand-100 text-brand-700 text-xs font-bold rounded-full">
+                      Active
+                    </span>
+                  </div>
+                  <p className="text-sm font-medium text-gray-500 mb-1">Total Designs</p>
+                  <h3 className="text-3xl font-bold text-gray-900">{designs.length}</h3>
+                  <p className="text-xs text-gray-400 mt-2">in catalog</p>
                 </div>
-                <h3 className="text-3xl font-bold text-gray-900 mt-1">{designs.length}</h3>
-                <div className="mt-3 flex items-center text-sm">
-                  <span className="text-brand-600 font-medium">Active Catalog</span>
-                </div>
+                <div className="h-1 bg-gradient-to-r from-brand-500 to-brand-600"></div>
               </div>
 
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-sm text-gray-500">Total Customers</p>
-                  <Users className="w-5 h-5 text-green-500" />
+              {/* Customers Card */}
+              <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group">
+                <div className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                      <Users className="w-6 h-6 text-white" />
+                    </div>
+                    <span className="px-3 py-1 bg-purple-100 text-purple-700 text-xs font-bold rounded-full">
+                      ↑ 8%
+                    </span>
+                  </div>
+                  <p className="text-sm font-medium text-gray-500 mb-1">Total Users</p>
+                  <h3 className="text-3xl font-bold text-gray-900">{users.length}</h3>
+                  <p className="text-xs text-gray-400 mt-2">registered accounts</p>
                 </div>
-                <h3 className="text-3xl font-bold text-gray-900 mt-1">1,284</h3>
-                <div className="mt-3 flex items-center text-sm">
-                  <span className="text-green-600 font-medium">↑ 8%</span>
-                  <span className="ml-2 text-gray-400">this month</span>
-                </div>
+                <div className="h-1 bg-gradient-to-r from-purple-500 to-purple-600"></div>
               </div>
             </div>
 
@@ -360,23 +545,26 @@ const Admin: React.FC = () => {
 
         {/* Designs View */}
         {activeTab === 'designs' && (
-          <div className="space-y-8">
-            <div className="flex justify-between items-center">
-              <h1 className="text-2xl font-bold text-gray-900">Design Management</h1>
-            </div>
-
+          <div className="space-y-6">
             {/* Add Design Form */}
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                <Plus className="w-5 h-5 text-brand-600" /> Add New Design
-              </h3>
+            <div className="bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden">
+              <div className="bg-gradient-to-r from-brand-50 to-brand-100 px-6 py-4 border-b border-brand-200">
+                <h3 className="text-lg font-bold text-brand-900 flex items-center gap-2">
+                  <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center">
+                    <Plus className="w-5 h-5 text-white" />
+                  </div>
+                  Add New Design
+                </h3>
+                <p className="text-sm text-brand-700 mt-1">Create a new design for your catalog</p>
+              </div>
+              <div className="p-6">
               <form onSubmit={handleAddDesign} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-                    <input 
+                    <input
                       required
-                      type="text" 
+                      type="text"
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                       value={newDesignTitle}
                       onChange={(e) => setNewDesignTitle(e.target.value)}
@@ -385,13 +573,26 @@ const Admin: React.FC = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                    <input 
+                    <input
                       required
-                      type="text" 
+                      type="text"
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                       value={newDesignCategory}
                       onChange={(e) => setNewDesignCategory(e.target.value)}
                       placeholder="e.g. Abstract"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Price ($)</label>
+                    <input
+                      required
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                      value={newDesignPrice}
+                      onChange={(e) => setNewDesignPrice(Number(e.target.value))}
+                      placeholder="25.00"
                     />
                   </div>
                 </div>
@@ -426,61 +627,198 @@ const Admin: React.FC = () => {
                   </button>
                 </div>
               </form>
+              </div>
             </div>
 
             {/* List of Designs */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Design</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {designs.map((design) => (
-                    <tr key={design.id}>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="h-10 w-10 flex-shrink-0">
-                            <img className="h-10 w-10 rounded-full object-cover" src={design.imageUrl} alt="" />
-                          </div>
-                          <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">{design.title}</div>
-                            <div className="text-xs text-gray-500 truncate max-w-[200px]">{design.description}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{design.category}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${design.price}</td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                          Active
-                        </span>
-                      </td>
+            <div className="bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden">
+              <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-bold text-gray-900 text-lg">All Designs</h3>
+                    <p className="text-sm text-gray-500 mt-0.5">{designs.length} designs in catalog</p>
+                  </div>
+                  <div className="px-4 py-2 bg-brand-600 text-white rounded-lg font-semibold text-sm shadow-md">
+                    {designs.length} Total
+                  </div>
+                </div>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Design</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {designs.map((design) => (
+                      <tr key={design.id} className="hover:bg-gray-50 transition-colors">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div className="h-10 w-10 flex-shrink-0">
+                              <img className="h-10 w-10 rounded-lg object-cover" src={design.imageUrl} alt="" />
+                            </div>
+                            <div className="ml-4">
+                              <div className="text-sm font-medium text-gray-900">{design.title}</div>
+                              <div className="text-xs text-gray-500 truncate max-w-[200px]">{design.description}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className="px-2 py-1 text-xs font-medium bg-brand-100 text-brand-700 rounded-full">
+                            {design.category}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">${design.price.toFixed(2)}</td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                            Active
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              onClick={() => handleEditDesign(design)}
+                              className="p-2 text-brand-600 hover:bg-brand-50 rounded-lg transition-colors"
+                              title="Edit Design"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteDesign(design.id)}
+                              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                              title="Delete Design"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
+
+            {/* Edit Design Modal */}
+            {showEditDesignModal && editingDesign && (
+              <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+                  {/* Header */}
+                  <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Edit className="w-6 h-6 text-brand-600" />
+                      <h2 className="text-2xl font-bold text-gray-900">Edit Design</h2>
+                    </div>
+                    <button
+                      onClick={() => setShowEditDesignModal(false)}
+                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                    >
+                      <XIcon className="w-5 h-5 text-gray-500" />
+                    </button>
+                  </div>
+
+                  {/* Content */}
+                  <div className="flex-1 overflow-y-auto p-6 space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                        <input
+                          type="text"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                          value={editingDesign.title}
+                          onChange={(e) => setEditingDesign({...editingDesign, title: e.target.value})}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                        <input
+                          type="text"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                          value={editingDesign.category}
+                          onChange={(e) => setEditingDesign({...editingDesign, category: e.target.value})}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Price ($)</label>
+                      <input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                        value={editingDesign.price}
+                        onChange={(e) => setEditingDesign({...editingDesign, price: Number(e.target.value)})}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                      <textarea
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent h-32 resize-none"
+                        value={editingDesign.description}
+                        onChange={(e) => setEditingDesign({...editingDesign, description: e.target.value})}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Image URL</label>
+                      <input
+                        type="text"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                        value={editingDesign.imageUrl}
+                        onChange={(e) => setEditingDesign({...editingDesign, imageUrl: e.target.value})}
+                      />
+                      {editingDesign.imageUrl && (
+                        <div className="mt-2">
+                          <img src={editingDesign.imageUrl} alt="Preview" className="w-32 h-32 object-cover rounded-lg border border-gray-200" />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Footer */}
+                  <div className="p-6 border-t border-gray-200 flex justify-end gap-3">
+                    <button
+                      onClick={() => setShowEditDesignModal(false)}
+                      className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleUpdateDesign}
+                      className="px-6 py-2 bg-brand-600 text-white rounded-lg font-semibold hover:bg-brand-700 transition-colors flex items-center gap-2"
+                    >
+                      <Save className="w-4 h-4" />
+                      Save Changes
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
         {/* Mockups View */}
         {activeTab === 'mockups' && (
-           <div className="space-y-8">
-              <h1 className="text-2xl font-bold text-gray-900">Mockup Management</h1>
-              
+           <div className="space-y-6">
               {/* Add Mockup Form */}
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                 <div className="flex flex-col lg:flex-row gap-8">
-                    {/* Form Side */}
-                    <div className="flex-1 space-y-4">
-                       <h3 className="text-lg font-semibold flex items-center gap-2">
-                          <Upload className="w-5 h-5 text-brand-600" /> Upload New Product
-                       </h3>
+              <div className="bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden">
+                 <div className="bg-gradient-to-r from-blue-50 to-blue-100 px-6 py-4 border-b border-blue-200">
+                    <h3 className="text-lg font-bold text-blue-900 flex items-center gap-2">
+                       <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                          <Upload className="w-5 h-5 text-white" />
+                       </div>
+                       Upload New Product Mockup
+                    </h3>
+                    <p className="text-sm text-blue-700 mt-1">Add a new product template to your catalog</p>
+                 </div>
+                 <div className="p-6">
+                    <div className="flex flex-col lg:flex-row gap-8">
+                       {/* Form Side */}
+                       <div className="flex-1 space-y-4">
                        <div className="space-y-4">
                           <div>
                              <label className="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
@@ -560,29 +898,211 @@ const Admin: React.FC = () => {
                        )}
                     </div>
                  </div>
+                 </div>
               </div>
 
               {/* Existing Mockups List */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                 <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-                    <h3 className="font-bold text-gray-700">Active Mockups</h3>
+              <div className="bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden">
+                 <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100">
+                    <div className="flex items-center justify-between">
+                       <div>
+                          <h3 className="font-bold text-gray-900 text-lg">Active Mockups</h3>
+                          <p className="text-sm text-gray-500 mt-0.5">
+                             {MOCKUPS.length} default templates + {customMockups.length} custom uploads
+                          </p>
+                       </div>
+                       <div className="flex gap-2">
+                          <div className="px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg font-semibold text-sm">
+                             {MOCKUPS.length} Default
+                          </div>
+                          <div className="px-3 py-1.5 bg-brand-100 text-brand-700 rounded-lg font-semibold text-sm">
+                             {customMockups.length} Custom
+                          </div>
+                       </div>
+                    </div>
                  </div>
-                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 p-6">
-                    {[...MOCKUPS, ...customMockups].map(m => (
-                       <div key={m.id} className="bg-gray-50 rounded-lg p-4 border border-gray-100 flex flex-col items-center text-center">
-                          <div className="w-16 h-16 mb-2 flex items-center justify-center bg-white rounded-full shadow-sm overflow-hidden">
-                             {m.type === 'custom' && m.baseImage ? (
-                                <img src={m.baseImage} className="w-full h-full object-cover" />
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-6">
+                    {/* Default Mockups (Read-only) */}
+                    {MOCKUPS.map(m => (
+                       <div key={m.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200 flex items-center gap-4">
+                          <div className="w-16 h-16 flex-shrink-0 flex items-center justify-center bg-white rounded-lg shadow-sm overflow-hidden">
+                             <span className="text-xs font-bold text-gray-400 uppercase">{m.type}</span>
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-bold text-sm text-gray-900">{m.name}</p>
+                            <p className="text-xs text-gray-500 capitalize">{m.type}</p>
+                            <span className="inline-block mt-1 px-2 py-0.5 text-xs font-semibold bg-blue-100 text-blue-700 rounded-full">
+                              Default
+                            </span>
+                          </div>
+                       </div>
+                    ))}
+
+                    {/* Custom Mockups (Editable) */}
+                    {customMockups.map(m => (
+                       <div key={m.id} className="bg-white rounded-lg p-4 border-2 border-brand-200 flex items-center gap-4 hover:shadow-md transition-shadow">
+                          <div className="w-16 h-16 flex-shrink-0 flex items-center justify-center bg-gray-100 rounded-lg shadow-sm overflow-hidden">
+                             {m.baseImage ? (
+                                <img src={m.baseImage} className="w-full h-full object-cover" alt={m.name} />
                              ) : (
                                 <span className="text-xs font-bold text-gray-400 uppercase">{m.type}</span>
                              )}
                           </div>
-                          <p className="font-bold text-sm text-gray-900">{m.name}</p>
-                          <p className="text-xs text-gray-500 capitalize">{m.type}</p>
+                          <div className="flex-1">
+                            <p className="font-bold text-sm text-gray-900">{m.name}</p>
+                            <p className="text-xs text-gray-500 capitalize">{m.type}</p>
+                            <span className="inline-block mt-1 px-2 py-0.5 text-xs font-semibold bg-brand-100 text-brand-700 rounded-full">
+                              Custom
+                            </span>
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <button
+                              onClick={() => handleEditMockup(m)}
+                              className="p-2 text-brand-600 hover:bg-brand-50 rounded-lg transition-colors"
+                              title="Edit Mockup"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteMockup(m.id)}
+                              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                              title="Delete Mockup"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
                        </div>
                     ))}
+
+                    {/* Empty State */}
+                    {customMockups.length === 0 && (
+                      <div className="col-span-full text-center py-8 text-gray-400">
+                        <ImageIcon className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                        <p className="text-sm">No custom mockups yet. Upload one above!</p>
+                      </div>
+                    )}
                  </div>
               </div>
+
+              {/* Edit Mockup Modal */}
+              {showEditMockupModal && editingMockup && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                  <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+                    {/* Header */}
+                    <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <Edit className="w-6 h-6 text-brand-600" />
+                        <h2 className="text-2xl font-bold text-gray-900">Edit Mockup</h2>
+                      </div>
+                      <button
+                        onClick={() => setShowEditMockupModal(false)}
+                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                      >
+                        <XIcon className="w-5 h-5 text-gray-500" />
+                      </button>
+                    </div>
+
+                    {/* Content */}
+                    <div className="flex-1 overflow-y-auto p-6 space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
+                        <input
+                          type="text"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                          value={editingMockup.name}
+                          onChange={(e) => setEditingMockup({...editingMockup, name: e.target.value})}
+                        />
+                      </div>
+
+                      <div className="bg-gray-50 p-4 rounded-lg space-y-3">
+                        <p className="text-xs font-bold text-gray-500 uppercase">Print Area Settings</p>
+                        <div>
+                          <label className="flex justify-between text-xs text-gray-600 mb-1">
+                            <span>Horizontal Position (X)</span>
+                            <span>{editingMockup.overlayX}%</span>
+                          </label>
+                          <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            value={editingMockup.overlayX}
+                            onChange={(e) => setEditingMockup({...editingMockup, overlayX: Number(e.target.value)})}
+                            className="w-full h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer accent-brand-600"
+                          />
+                        </div>
+                        <div>
+                          <label className="flex justify-between text-xs text-gray-600 mb-1">
+                            <span>Vertical Position (Y)</span>
+                            <span>{editingMockup.overlayY}%</span>
+                          </label>
+                          <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            value={editingMockup.overlayY}
+                            onChange={(e) => setEditingMockup({...editingMockup, overlayY: Number(e.target.value)})}
+                            className="w-full h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer accent-brand-600"
+                          />
+                        </div>
+                        <div>
+                          <label className="flex justify-between text-xs text-gray-600 mb-1">
+                            <span>Print Width</span>
+                            <span>{editingMockup.overlayWidth}%</span>
+                          </label>
+                          <input
+                            type="range"
+                            min="5"
+                            max="90"
+                            value={editingMockup.overlayWidth}
+                            onChange={(e) => setEditingMockup({...editingMockup, overlayWidth: Number(e.target.value)})}
+                            className="w-full h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer accent-brand-600"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Preview */}
+                      {editingMockup.baseImage && (
+                        <div className="bg-gray-100 rounded-xl p-4 flex items-center justify-center">
+                          <div className="relative w-[300px] h-[300px] shadow-xl bg-white">
+                            <img src={editingMockup.baseImage} className="w-full h-full object-contain" alt="Preview" />
+
+                            {/* Print Area Indicator */}
+                            <div
+                              className="absolute border-2 border-brand-500 bg-brand-500/20 flex items-center justify-center text-brand-700 text-xs font-bold pointer-events-none"
+                              style={{
+                                top: `${editingMockup.overlayY}%`,
+                                left: `${editingMockup.overlayX}%`,
+                                width: `${editingMockup.overlayWidth}%`,
+                                height: `${editingMockup.overlayWidth}%`,
+                                transform: 'translate(-50%, -50%)'
+                              }}
+                            >
+                              Print Area
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Footer */}
+                    <div className="p-6 border-t border-gray-200 flex justify-end gap-3">
+                      <button
+                        onClick={() => setShowEditMockupModal(false)}
+                        className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleUpdateMockup}
+                        className="px-6 py-2 bg-brand-600 text-white rounded-lg font-semibold hover:bg-brand-700 transition-colors flex items-center gap-2"
+                      >
+                        <Save className="w-4 h-4" />
+                        Save Changes
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
            </div>
         )}
 
@@ -1148,6 +1668,7 @@ const Admin: React.FC = () => {
             </div>
           </div>
         )}
+        </main>
       </div>
     </div>
   );
