@@ -32,11 +32,7 @@ const AppContent: React.FC = () => {
       <main className="flex-grow">
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/studio" element={
-            <ProtectedRoute>
-              <DesignStudio />
-            </ProtectedRoute>
-          } />
+          <Route path="/studio" element={<DesignStudio />} />
           <Route path="/admin" element={
             <ProtectedRoute requireAdmin>
               <Admin />

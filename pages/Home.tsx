@@ -79,35 +79,26 @@ const Home: React.FC = () => {
                 </div>
               </div>
             </div>
-            <div className="relative hidden lg:block h-full min-h-[600px]">
+            <div className="relative hidden lg:block h-full min-h-[700px]">
                <div className="absolute inset-0 bg-gradient-to-tr from-brand-50 to-purple-50 dark:from-brand-900/20 dark:to-purple-900/20 rounded-tl-[100px] -z-10"></div>
                <img
-                src="/images/Main Pic.jpeg"
+                src="/images/khayali-hero.jpeg"
                 alt="Fashion Model"
-                className="absolute bottom-0 right-10 w-4/5 h-auto object-cover drop-shadow-2xl rounded-t-[40px]"
+                className="absolute -bottom-12 right-5 w-[95%] h-auto object-cover drop-shadow-2xl rounded-t-[40px]"
                />
 
-               {/* Floating Card 1 */}
-               <div className="absolute top-20 left-0 bg-white dark:bg-gray-700 p-4 rounded-2xl shadow-xl max-w-[200px] animate-bounce" style={{ animationDuration: '3s' }}>
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center text-green-600 dark:text-green-400">
-                      <ShieldCheck size={16} />
+               {/* Floating Card - New Arrival */}
+               {latestDesigns.length > 0 && (
+                 <div className="absolute bottom-40 -left-8 bg-white dark:bg-gray-700 p-4 rounded-2xl shadow-xl max-w-[220px]" >
+                    <div className="flex items-center gap-3">
+                      <img src={latestDesigns[0].imageUrl} className="w-12 h-12 rounded-lg object-cover" alt="Art" />
+                      <div>
+                        <p className="font-bold text-sm dark:text-white">New Arrival</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Limited Edition</p>
+                      </div>
                     </div>
-                    <span className="font-bold text-sm dark:text-white">Premium Cotton</span>
-                  </div>
-                  <div className="h-2 bg-gray-100 dark:bg-gray-600 rounded-full w-full"></div>
-               </div>
-
-               {/* Floating Card 2 */}
-               <div className="absolute bottom-40 -left-8 bg-white dark:bg-gray-700 p-4 rounded-2xl shadow-xl max-w-[220px]" >
-                  <div className="flex items-center gap-3">
-                    <img src={latestDesigns[0].imageUrl} className="w-12 h-12 rounded-lg object-cover" alt="Art" />
-                    <div>
-                      <p className="font-bold text-sm dark:text-white">New Arrival</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">Limited Edition</p>
-                    </div>
-                  </div>
-               </div>
+                 </div>
+               )}
             </div>
           </div>
         </div>
@@ -129,7 +120,7 @@ const Home: React.FC = () => {
                 { name: 'Sweaters', img: 'https://images.unsplash.com/photo-1620799140408-ed5341cd2431?auto=format&fit=crop&w=800&q=80', desc: 'Cozy Knit Blend' },
                 { name: 'Caps', img: 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&w=800&q=80', desc: 'Structured Snapback' }
               ].map((item, idx) => (
-                <div key={idx} className="group relative overflow-hidden rounded-2xl cursor-pointer">
+                <Link to="/studio" key={idx} className="group relative overflow-hidden rounded-2xl cursor-pointer block">
                   <div className="aspect-w-3 aspect-h-4 bg-gray-200 dark:bg-gray-700">
                     <img
                       src={item.img}
@@ -143,28 +134,29 @@ const Home: React.FC = () => {
                     <p className="text-gray-300 text-sm">{item.desc}</p>
                     <div className="mt-4 h-1 w-0 bg-white group-hover:w-12 transition-all duration-500"></div>
                   </div>
-                </div>
+                </Link>
               ))}
            </div>
         </div>
       </section>
 
       {/* Latest Designs */}
-      <section id="collections" className="py-24 bg-gray-50 dark:bg-gray-800 transition-colors duration-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-4">
-            <div>
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white font-serif">Fresh Drops</h2>
-              <div className="h-1 w-20 bg-brand-500 dark:bg-brand-400 mt-4 rounded-full"></div>
+      {latestDesigns.length > 0 && (
+        <section id="collections" className="py-24 bg-gray-50 dark:bg-gray-800 transition-colors duration-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-4">
+              <div>
+                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white font-serif">Fresh Drops</h2>
+                <div className="h-1 w-20 bg-brand-500 dark:bg-brand-400 mt-4 rounded-full"></div>
+              </div>
+              <Link to="/studio" className="group flex items-center gap-2 font-medium text-gray-900 dark:text-white hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
+                <span>View all collections</span>
+                <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" />
+              </Link>
             </div>
-            <Link to="/studio" className="group flex items-center gap-2 font-medium text-gray-900 dark:text-white hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
-              <span>View all collections</span>
-              <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" />
-            </Link>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {latestDesigns.map((design) => (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {latestDesigns.map((design) => (
               <div key={design.id} className="bg-white dark:bg-gray-700 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-600 group">
                 <div className="relative h-80 overflow-hidden">
                    <img
@@ -195,7 +187,8 @@ const Home: React.FC = () => {
             ))}
           </div>
         </div>
-      </section>
+        </section>
+      )}
 
       {/* Why Choose Us */}
       <section className="py-24 bg-white dark:bg-gray-900 relative overflow-hidden transition-colors duration-200">
@@ -228,18 +221,19 @@ const Home: React.FC = () => {
       </section>
 
       {/* Most Requested / Trending */}
-      <section className="py-24 bg-[#111827] dark:bg-black text-white transition-colors duration-200">
-         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between mb-12">
-               <h2 className="text-3xl font-serif font-bold">Community Favorites</h2>
-               <div className="flex space-x-2">
-                  <button className="p-2 rounded-full border border-gray-700 dark:border-gray-800 hover:bg-gray-800 dark:hover:bg-gray-900 text-white"><ArrowRight className="rotate-180 w-5 h-5" /></button>
-                  <button className="p-2 rounded-full border border-gray-700 dark:border-gray-800 hover:bg-gray-800 dark:hover:bg-gray-900 text-white"><ArrowRight className="w-5 h-5" /></button>
-               </div>
-            </div>
+      {mostRequested.length > 0 && (
+        <section className="py-24 bg-[#111827] dark:bg-black text-white transition-colors duration-200">
+           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="flex items-center justify-between mb-12">
+                 <h2 className="text-3xl font-serif font-bold">Community Favorites</h2>
+                 <div className="flex space-x-2">
+                    <button className="p-2 rounded-full border border-gray-700 dark:border-gray-800 hover:bg-gray-800 dark:hover:bg-gray-900 text-white"><ArrowRight className="rotate-180 w-5 h-5" /></button>
+                    <button className="p-2 rounded-full border border-gray-700 dark:border-gray-800 hover:bg-gray-800 dark:hover:bg-gray-900 text-white"><ArrowRight className="w-5 h-5" /></button>
+                 </div>
+              </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-               {mostRequested.map((design) => (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                 {mostRequested.map((design) => (
                  <div key={design.id} className="bg-gray-800 dark:bg-gray-900 rounded-xl p-4 hover:bg-gray-750 dark:hover:bg-gray-800 transition-colors border border-gray-700 dark:border-gray-800 hover:border-gray-600 dark:hover:border-gray-700">
                     <div className="flex gap-4">
                        <img src={design.imageUrl} alt={design.title} className="w-24 h-24 rounded-lg object-cover flex-shrink-0" />
@@ -261,7 +255,8 @@ const Home: React.FC = () => {
                ))}
             </div>
          </div>
-      </section>
+        </section>
+      )}
 
       {/* About Us */}
       <section className="py-24 bg-white dark:bg-gray-900 transition-colors duration-200">

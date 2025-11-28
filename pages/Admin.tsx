@@ -18,6 +18,8 @@ const Admin: React.FC = () => {
   
   // Mockup State
   const [customMockups, setCustomMockups] = useState<Mockup[]>([]);
+  const [hiddenMockups, setHiddenMockups] = useState<string[]>([]);
+  const [hiddenDesigns, setHiddenDesigns] = useState<string[]>([]);
   const [newMockupName, setNewMockupName] = useState('');
   const [newMockupImage, setNewMockupImage] = useState<string>('');
   const [newMockupX, setNewMockupX] = useState(50);
@@ -47,12 +49,30 @@ const Admin: React.FC = () => {
       setCustomMockups(JSON.parse(savedMockups));
     }
 
+    // Load Hidden Mockups
+    const savedHiddenMockups = localStorage.getItem('hiddenMockups');
+    if (savedHiddenMockups) {
+      setHiddenMockups(JSON.parse(savedHiddenMockups));
+    }
+
+    // Load Hidden Designs
+    const savedHiddenDesigns = localStorage.getItem('hiddenDesigns');
+    if (savedHiddenDesigns) {
+      setHiddenDesigns(JSON.parse(savedHiddenDesigns));
+    }
+
     // Load Catalog Designs
     const savedCatalog = localStorage.getItem('catalogDesigns');
+    const hiddenDesignIds = JSON.parse(localStorage.getItem('hiddenDesigns') || '[]');
+
+    // Filter out hidden default designs from INITIAL_DESIGNS
+    const visibleInitialDesigns = INITIAL_DESIGNS.filter(d => !hiddenDesignIds.includes(d.id));
+
     if (savedCatalog) {
-       // Merge previously saved catalog items with initial items for the view
        const parsed = JSON.parse(savedCatalog);
-       setDesigns([...parsed, ...INITIAL_DESIGNS]);
+       setDesigns([...parsed, ...visibleInitialDesigns]);
+    } else {
+       setDesigns(visibleInitialDesigns);
     }
   }, []);
 
@@ -65,6 +85,55 @@ const Admin: React.FC = () => {
     const desc = await generateMarketingCopy(newDesignTitle, newDesignCategory);
     setNewDesignDesc(desc);
     setIsGenerating(false);
+  };
+
+  const handleBulkDesignUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const fileArray = Array.from(files);
+    let processedCount = 0;
+    const newDesigns: Design[] = [];
+
+    fileArray.forEach((file, index) => {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        if (ev.target?.result) {
+          const design: Design = {
+            id: `design-${Date.now()}-${index}`,
+            title: file.name.replace(/\.[^/.]+$/, ''), // Remove file extension
+            category: 'Uploaded',
+            description: `Uploaded design: ${file.name}`,
+            imageUrl: ev.target.result as string,
+            popularity: 0,
+            price: 25.00
+          };
+          newDesigns.push(design);
+          processedCount++;
+
+          // When all files are processed
+          if (processedCount === fileArray.length) {
+            const updatedDesigns = [...newDesigns, ...designs];
+            setDesigns(updatedDesigns);
+
+            // Persist to Local Storage (Catalog)
+            try {
+              const currentCatalog = JSON.parse(localStorage.getItem('catalogDesigns') || '[]');
+              const updatedCatalog = [...newDesigns, ...currentCatalog];
+              localStorage.setItem('catalogDesigns', JSON.stringify(updatedCatalog));
+            } catch (err) {
+              console.error("Failed to save designs to catalog storage", err);
+            }
+
+            alert(`${newDesigns.length} design(s) uploaded successfully!`);
+
+            // Clear the file input
+            e.target.value = '';
+          }
+        }
+      };
+      reader.readAsDataURL(file);
+    });
   };
 
   const handleAddDesign = (e: React.FormEvent) => {
@@ -128,34 +197,72 @@ const Admin: React.FC = () => {
   };
 
   const handleDeleteDesign = (designId: string) => {
-    if (!confirm('Are you sure you want to delete this design?')) return;
+    // Check if it's a default design from INITIAL_DESIGNS
+    const isDefaultDesign = INITIAL_DESIGNS.some(d => d.id === designId);
 
-    const updatedDesigns = designs.filter(d => d.id !== designId);
-    setDesigns(updatedDesigns);
+    if (isDefaultDesign) {
+      // Add to hidden designs list
+      const updatedHiddenDesigns = [...hiddenDesigns, designId];
+      setHiddenDesigns(updatedHiddenDesigns);
+      localStorage.setItem('hiddenDesigns', JSON.stringify(updatedHiddenDesigns));
 
-    // Update localStorage
-    try {
-      const catalogDesigns = JSON.parse(localStorage.getItem('catalogDesigns') || '[]');
-      const updatedCatalog = catalogDesigns.filter((d: Design) => d.id !== designId);
-      localStorage.setItem('catalogDesigns', JSON.stringify(updatedCatalog));
-    } catch (err) {
-      console.error("Failed to delete design from storage", err);
+      // Remove from current designs state
+      const updatedDesigns = designs.filter(d => d.id !== designId);
+      setDesigns(updatedDesigns);
+    } else {
+      // It's a custom design - remove from catalog
+      const updatedDesigns = designs.filter(d => d.id !== designId);
+      setDesigns(updatedDesigns);
+
+      try {
+        const catalogDesigns = JSON.parse(localStorage.getItem('catalogDesigns') || '[]');
+        const updatedCatalog = catalogDesigns.filter((d: Design) => d.id !== designId);
+        localStorage.setItem('catalogDesigns', JSON.stringify(updatedCatalog));
+      } catch (err) {
+        console.error("Failed to delete design from storage", err);
+      }
     }
-
-    alert('Design deleted successfully!');
   };
 
   const handleMockupImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    // Handle multiple files
+    const fileArray = Array.from(files);
+    let processedCount = 0;
+    const newMockups: Mockup[] = [];
+
+    fileArray.forEach((file, index) => {
       const reader = new FileReader();
       reader.onload = (ev) => {
         if (ev.target?.result) {
-          setNewMockupImage(ev.target.result as string);
+          const mockup: Mockup = {
+            id: `custom-${Date.now()}-${index}`,
+            name: file.name.replace(/\.[^/.]+$/, ''), // Remove file extension
+            type: 'custom',
+            baseImage: ev.target.result as string,
+            overlayX: 50,
+            overlayY: 42,
+            overlayWidth: 35
+          };
+          newMockups.push(mockup);
+          processedCount++;
+
+          // When all files are processed
+          if (processedCount === fileArray.length) {
+            const updatedMockups = [...customMockups, ...newMockups];
+            setCustomMockups(updatedMockups);
+            localStorage.setItem('customMockups', JSON.stringify(updatedMockups));
+            alert(`${newMockups.length} mockup(s) uploaded successfully!`);
+
+            // Clear the file input
+            e.target.value = '';
+          }
         }
       };
       reader.readAsDataURL(file);
-    }
+    });
   };
 
   const handleAddMockup = (e: React.FormEvent) => {
@@ -208,43 +315,42 @@ const Admin: React.FC = () => {
   };
 
   const handleDeleteMockup = (mockupId: string) => {
-    if (!confirm('Are you sure you want to delete this mockup?')) return;
+    // Check if it's a custom mockup
+    const isCustom = customMockups.some(m => m.id === mockupId);
 
-    const updatedMockups = customMockups.filter(m => m.id !== mockupId);
-    setCustomMockups(updatedMockups);
-    localStorage.setItem('customMockups', JSON.stringify(updatedMockups));
-
-    alert('Mockup deleted successfully!');
+    if (isCustom) {
+      const updatedMockups = customMockups.filter(m => m.id !== mockupId);
+      setCustomMockups(updatedMockups);
+      localStorage.setItem('customMockups', JSON.stringify(updatedMockups));
+    } else {
+      // It's a default mockup - add to hidden list
+      const updatedHiddenMockups = [...hiddenMockups, mockupId];
+      setHiddenMockups(updatedHiddenMockups);
+      localStorage.setItem('hiddenMockups', JSON.stringify(updatedHiddenMockups));
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 flex">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex">
       {/* Sidebar - Desktop */}
-      <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${
+      <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 transform transition-transform duration-300 ease-in-out ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       } lg:translate-x-0`}>
-        {/* Sidebar Header */}
-        <div className="h-20 flex items-center justify-between px-6 border-b border-gray-200 bg-gradient-to-r from-brand-600 to-brand-700">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-md">
-              <LayoutDashboard className="w-6 h-6 text-brand-600" />
-            </div>
-            <div>
-              <h2 className="font-bold text-white text-lg">KHAYALI</h2>
-              <p className="text-xs text-brand-100">Admin Panel</p>
-            </div>
+        <div className="flex flex-col h-full">
+          {/* Logo */}
+          <div className="flex items-center justify-center px-5 py-8 border-b border-gray-200 dark:border-gray-800 relative">
+            <img src="./images/khayali logo.png" alt="KHAYALI" className="h-20" />
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className="lg:hidden absolute right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            >
+              <XIcon className="w-5 h-5" />
+            </button>
           </div>
-          <button
-            onClick={() => setSidebarOpen(false)}
-            className="lg:hidden text-white hover:bg-white/20 p-2 rounded-lg transition-colors"
-          >
-            <XIcon className="w-5 h-5" />
-          </button>
-        </div>
 
         {/* Navigation */}
-        <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
-          <p className="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Main Menu</p>
+        <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto custom-scrollbar">
+          <p className="px-3 text-xs font-bold text-gray-500 uppercase tracking-wider mb-4">Main Menu</p>
           {[
             { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, badge: null },
             { id: 'designs', label: 'Designs', icon: Palette, badge: designs.length },
@@ -259,21 +365,25 @@ const Admin: React.FC = () => {
                 setActiveTab(item.id as any);
                 setSidebarOpen(false);
               }}
-              className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all group ${
+              className={`w-full flex items-center justify-between px-4 py-2.5 rounded-lg transition-all duration-200 group relative ${
                 activeTab === item.id
-                  ? 'bg-gradient-to-r from-brand-500 to-brand-600 text-white shadow-lg shadow-brand-500/30'
-                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                  ? 'bg-brand-600 dark:bg-brand-500 text-white shadow-sm'
+                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
               }`}
             >
               <div className="flex items-center gap-3">
-                <item.icon className={`w-5 h-5 ${activeTab === item.id ? 'text-white' : 'text-gray-400 group-hover:text-brand-600'}`} />
-                <span className="font-semibold">{item.label}</span>
+                <item.icon className={`w-5 h-5 ${
+                  activeTab === item.id
+                    ? 'text-white'
+                    : 'text-gray-500 dark:text-gray-400 group-hover:text-brand-600 dark:group-hover:text-brand-400'
+                }`} />
+                <span className="font-medium text-sm">{item.label}</span>
               </div>
               {item.badge !== null && (
-                <span className={`px-2.5 py-0.5 text-xs font-bold rounded-full ${
+                <span className={`text-xs font-semibold ${
                   activeTab === item.id
-                    ? 'bg-white/20 text-white'
-                    : 'bg-gray-200 text-gray-600 group-hover:bg-brand-100 group-hover:text-brand-700'
+                    ? 'text-white/90'
+                    : 'text-gray-500 dark:text-gray-400 group-hover:text-brand-600 dark:group-hover:text-brand-400'
                 }`}>
                   {item.badge}
                 </span>
@@ -281,11 +391,25 @@ const Admin: React.FC = () => {
             </button>
           ))}
 
-          <div className="pt-6 mt-6 border-t border-gray-200">
-            <p className="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Account</p>
-            <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-all group">
-              <Settings className="w-5 h-5 text-gray-400 group-hover:text-brand-600" />
-              <span className="font-semibold">Settings</span>
+          <div className="px-3 pt-3 mt-3 border-t border-gray-200 dark:border-gray-800 space-y-0.5">
+            <p className="px-3 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">Account</p>
+            <button
+              onClick={() => {
+                setActiveTab('settings');
+                setSidebarOpen(false);
+              }}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group ${
+                activeTab === 'settings'
+                  ? 'bg-brand-600 text-white'
+                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+              }`}
+            >
+              <Settings className={`w-5 h-5 ${
+                activeTab === 'settings'
+                  ? 'text-white'
+                  : 'text-gray-400 dark:text-gray-500 group-hover:text-brand-600 dark:group-hover:text-brand-400'
+              }`} />
+              <span className="font-medium text-sm">Settings</span>
             </button>
             <button
               onClick={() => {
@@ -294,30 +418,28 @@ const Admin: React.FC = () => {
                 localStorage.removeItem('userType');
                 window.location.href = '#/admin-login';
               }}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 transition-all group"
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all group"
             >
               <LogOut className="w-5 h-5" />
-              <span className="font-semibold">Logout</span>
+              <span className="font-medium text-sm">Logout</span>
             </button>
           </div>
         </nav>
 
         {/* Sidebar Footer */}
-        <div className="p-4 border-t border-gray-200">
-          <div className="bg-gradient-to-br from-brand-50 to-brand-100 rounded-xl p-4 border border-brand-200">
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center flex-shrink-0">
+        <div className="p-3 border-t border-gray-200 dark:border-gray-800">
+          <div className="bg-gradient-to-br from-brand-50 to-brand-100 dark:from-brand-950/30 dark:to-brand-900/30 rounded-lg p-3 border border-brand-200 dark:border-brand-800">
+            <div className="flex items-start gap-2">
+              <div className="w-7 h-7 bg-brand-600 dark:bg-brand-500 rounded-lg flex items-center justify-center flex-shrink-0">
                 <Sparkles className="w-4 h-4 text-white" />
               </div>
               <div>
-                <p className="text-sm font-bold text-brand-900 mb-1">Need Help?</p>
-                <p className="text-xs text-brand-700 leading-relaxed">Access documentation and support</p>
-                <button className="mt-2 text-xs font-semibold text-brand-600 hover:text-brand-700 underline">
-                  Learn More →
-                </button>
+                <p className="text-xs font-bold text-brand-900 dark:text-brand-100 mb-0.5">Need Help?</p>
+                <p className="text-xs text-brand-700 dark:text-brand-300 leading-relaxed">Documentation</p>
               </div>
             </div>
           </div>
+        </div>
         </div>
       </aside>
 
@@ -330,119 +452,126 @@ const Admin: React.FC = () => {
       )}
 
       {/* Main Content Area */}
-      <div className="flex-1 min-h-screen flex flex-col lg:ml-72">
-        {/* Mobile Menu Button */}
-        <button
-          onClick={() => setSidebarOpen(true)}
-          className="lg:hidden fixed top-4 left-4 z-40 p-3 bg-white hover:bg-gray-100 rounded-lg shadow-lg transition-colors"
-        >
-          <Menu className="w-6 h-6 text-gray-600" />
-        </button>
+      <div className="flex-1 min-h-screen flex flex-col lg:ml-64">
+        {/* Top Bar */}
+        <div className="sticky top-0 z-30 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-4 lg:px-6 py-3">
+          <div className="flex items-center justify-between">
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden p-2.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+            >
+              <Menu className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+            </button>
+
+            {/* Spacer for desktop */}
+            <div className="hidden lg:block"></div>
+
+            {/* View Website Button */}
+            <a
+              href="/#/"
+              className="flex items-center gap-2 px-4 py-2 bg-brand-600 hover:bg-brand-700 dark:bg-brand-500 dark:hover:bg-brand-600 text-white rounded-lg shadow-sm hover:shadow-md transition-all text-sm font-medium"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+              View Website
+            </a>
+          </div>
+        </div>
 
         {/* Page Content */}
-        <main className="flex-1 p-6 lg:p-8 pt-20 lg:pt-8">
+        <main className="flex-1 p-4 lg:p-6">
         
         {/* Dashboard View */}
         {activeTab === 'dashboard' && (
           <div className="space-y-6">
             {/* Welcome Banner */}
-            <div className="bg-gradient-to-r from-brand-600 via-brand-500 to-brand-600 rounded-2xl p-8 text-white shadow-xl">
+            <div className="bg-white dark:bg-gray-900 rounded-xl p-6 border border-gray-200 dark:border-gray-800">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-3xl font-bold mb-2">Welcome back, Admin! 👋</h2>
-                  <p className="text-brand-100 text-lg">Here's what's happening with your store today</p>
+                  <h2 className="text-2xl font-bold mb-1 text-gray-900 dark:text-white">Welcome back, Hafsa! 👋</h2>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm">Here's what's happening with your store today</p>
                 </div>
                 <div className="hidden lg:block">
                   <div className="text-right">
-                    <p className="text-sm text-brand-100">Last updated</p>
-                    <p className="text-lg font-semibold">{new Date().toLocaleDateString()}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Last updated</p>
+                    <p className="text-sm font-semibold text-gray-900 dark:text-white">{new Date().toLocaleDateString()}</p>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Revenue Card */}
-              <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group">
-                <div className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                      <DollarSign className="w-6 h-6 text-white" />
-                    </div>
-                    <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">
-                      ↑ 12%
-                    </span>
+              <div className="bg-white dark:bg-gray-900 rounded-xl p-5 border border-gray-200 dark:border-gray-800 hover:border-green-300 dark:hover:border-green-700 transition-all group">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
+                    <DollarSign className="w-5 h-5 text-green-600 dark:text-green-400" />
                   </div>
-                  <p className="text-sm font-medium text-gray-500 mb-1">Total Revenue</p>
-                  <h3 className="text-3xl font-bold text-gray-900">$12,450</h3>
-                  <p className="text-xs text-gray-400 mt-2">from last week</p>
+                  <span className="px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-semibold rounded">
+                    ↑ 12%
+                  </span>
                 </div>
-                <div className="h-1 bg-gradient-to-r from-green-500 to-emerald-600"></div>
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Total Revenue</p>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">$12,450</h3>
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">from last week</p>
               </div>
 
               {/* Orders Card */}
-              <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group">
-                <div className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                      <Package className="w-6 h-6 text-white" />
-                    </div>
-                    <span className="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded-full">
-                      {orders.length}
-                    </span>
+              <div className="bg-white dark:bg-gray-900 rounded-xl p-5 border border-gray-200 dark:border-gray-800 hover:border-blue-300 dark:hover:border-blue-700 transition-all group">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                    <Package className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                   </div>
-                  <p className="text-sm font-medium text-gray-500 mb-1">Active Orders</p>
-                  <h3 className="text-3xl font-bold text-gray-900">45</h3>
-                  <p className="text-xs text-gray-400 mt-2">12 pending • 33 processing</p>
+                  <span className="px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs font-semibold rounded">
+                    {orders.length}
+                  </span>
                 </div>
-                <div className="h-1 bg-gradient-to-r from-blue-500 to-blue-600"></div>
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Active Orders</p>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">45</h3>
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">12 pending • 33 processing</p>
               </div>
 
               {/* Designs Card */}
-              <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group">
-                <div className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-brand-500 to-brand-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                      <Palette className="w-6 h-6 text-white" />
-                    </div>
-                    <span className="px-3 py-1 bg-brand-100 text-brand-700 text-xs font-bold rounded-full">
-                      Active
-                    </span>
+              <div className="bg-white dark:bg-gray-900 rounded-xl p-5 border border-gray-200 dark:border-gray-800 hover:border-brand-300 dark:hover:border-brand-700 transition-all group">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="w-10 h-10 bg-brand-100 dark:bg-brand-900/30 rounded-lg flex items-center justify-center">
+                    <Palette className="w-5 h-5 text-brand-600 dark:text-brand-400" />
                   </div>
-                  <p className="text-sm font-medium text-gray-500 mb-1">Total Designs</p>
-                  <h3 className="text-3xl font-bold text-gray-900">{designs.length}</h3>
-                  <p className="text-xs text-gray-400 mt-2">in catalog</p>
+                  <span className="px-2 py-0.5 bg-brand-100 dark:bg-brand-900/30 text-brand-700 dark:text-brand-400 text-xs font-semibold rounded">
+                    Active
+                  </span>
                 </div>
-                <div className="h-1 bg-gradient-to-r from-brand-500 to-brand-600"></div>
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Total Designs</p>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{designs.length}</h3>
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">in catalog</p>
               </div>
 
               {/* Customers Card */}
-              <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group">
-                <div className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                      <Users className="w-6 h-6 text-white" />
-                    </div>
-                    <span className="px-3 py-1 bg-purple-100 text-purple-700 text-xs font-bold rounded-full">
-                      ↑ 8%
-                    </span>
+              <div className="bg-white dark:bg-gray-900 rounded-xl p-5 border border-gray-200 dark:border-gray-800 hover:border-purple-300 dark:hover:border-purple-700 transition-all group">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
+                    <Users className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                   </div>
-                  <p className="text-sm font-medium text-gray-500 mb-1">Total Users</p>
-                  <h3 className="text-3xl font-bold text-gray-900">{users.length}</h3>
-                  <p className="text-xs text-gray-400 mt-2">registered accounts</p>
+                  <span className="px-2 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 text-xs font-semibold rounded">
+                    ↑ 8%
+                  </span>
                 </div>
-                <div className="h-1 bg-gradient-to-r from-purple-500 to-purple-600"></div>
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Total Users</p>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{users.length}</h3>
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">registered accounts</p>
               </div>
             </div>
 
             {/* Charts Row */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* Sales Chart */}
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-lg font-bold text-gray-900">Sales Analytics</h3>
-                  <select className="text-sm border border-gray-200 rounded-lg px-3 py-1 focus:ring-2 focus:ring-brand-500 focus:border-transparent">
+              <div className="bg-white dark:bg-gray-900 p-5 rounded-xl border border-gray-200 dark:border-gray-800">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-base font-bold text-gray-900 dark:text-white">Sales Analytics</h3>
+                  <select className="text-xs border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg px-2 py-1 focus:ring-2 focus:ring-brand-500 focus:border-transparent">
                     <option>Last 7 days</option>
                     <option>Last 30 days</option>
                     <option>Last 90 days</option>
@@ -638,8 +767,25 @@ const Admin: React.FC = () => {
                     <h3 className="font-bold text-gray-900 text-lg">All Designs</h3>
                     <p className="text-sm text-gray-500 mt-0.5">{designs.length} designs in catalog</p>
                   </div>
-                  <div className="px-4 py-2 bg-brand-600 text-white rounded-lg font-semibold text-sm shadow-md">
-                    {designs.length} Total
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="file"
+                      id="bulk-design-upload"
+                      className="hidden"
+                      accept="image/*"
+                      multiple
+                      onChange={handleBulkDesignUpload}
+                    />
+                    <label
+                      htmlFor="bulk-design-upload"
+                      className="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-lg font-medium text-sm shadow-sm cursor-pointer flex items-center gap-2 transition-colors"
+                    >
+                      <Upload className="w-4 h-4" />
+                      Bulk Upload
+                    </label>
+                    <div className="px-4 py-2 bg-brand-600 text-white rounded-lg font-semibold text-sm shadow-md">
+                      {designs.length} Total
+                    </div>
                   </div>
                 </div>
               </div>
@@ -832,11 +978,12 @@ const Admin: React.FC = () => {
                           </div>
                           <div>
                              <label className="block text-sm font-medium text-gray-700 mb-1">Product Image</label>
-                             <input 
-                                type="file" 
+                             <input
+                                type="file"
                                 ref={mockupFileInputRef}
                                 className="w-full border border-gray-300 rounded-lg p-2 text-sm"
                                 accept="image/*"
+                                multiple
                                 onChange={handleMockupImageUpload}
                              />
                           </div>
@@ -908,13 +1055,25 @@ const Admin: React.FC = () => {
                        <div>
                           <h3 className="font-bold text-gray-900 text-lg">Active Mockups</h3>
                           <p className="text-sm text-gray-500 mt-0.5">
-                             {MOCKUPS.length} default templates + {customMockups.length} custom uploads
+                             {MOCKUPS.filter(m => !hiddenMockups.includes(m.id)).length + customMockups.length} visible mockups
                           </p>
                        </div>
-                       <div className="flex gap-2">
-                          <div className="px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg font-semibold text-sm">
-                             {MOCKUPS.length} Default
-                          </div>
+                       <div className="flex items-center gap-3">
+                          <input
+                            type="file"
+                            id="bulk-mockup-upload"
+                            className="hidden"
+                            accept="image/*"
+                            multiple
+                            onChange={handleMockupImageUpload}
+                          />
+                          <label
+                            htmlFor="bulk-mockup-upload"
+                            className="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-lg font-medium text-sm shadow-sm cursor-pointer flex items-center gap-2 transition-colors"
+                          >
+                            <Upload className="w-4 h-4" />
+                            Bulk Upload
+                          </label>
                           <div className="px-3 py-1.5 bg-brand-100 text-brand-700 rounded-lg font-semibold text-sm">
                              {customMockups.length} Custom
                           </div>
@@ -922,26 +1081,32 @@ const Admin: React.FC = () => {
                     </div>
                  </div>
                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-6">
-                    {/* Default Mockups (Read-only) */}
-                    {MOCKUPS.map(m => (
-                       <div key={m.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200 flex items-center gap-4">
-                          <div className="w-16 h-16 flex-shrink-0 flex items-center justify-center bg-white rounded-lg shadow-sm overflow-hidden">
+                    {/* Default Mockups (Now Deletable) */}
+                    {MOCKUPS.filter(m => !hiddenMockups.includes(m.id)).map(m => (
+                       <div key={m.id} className="bg-white rounded-lg p-4 border border-gray-200 dark:border-gray-700 flex items-center gap-4 hover:shadow-md transition-shadow">
+                          <div className="w-16 h-16 flex-shrink-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
                              <span className="text-xs font-bold text-gray-400 uppercase">{m.type}</span>
                           </div>
                           <div className="flex-1">
-                            <p className="font-bold text-sm text-gray-900">{m.name}</p>
-                            <p className="text-xs text-gray-500 capitalize">{m.type}</p>
-                            <span className="inline-block mt-1 px-2 py-0.5 text-xs font-semibold bg-blue-100 text-blue-700 rounded-full">
-                              Default
-                            </span>
+                            <p className="font-bold text-sm text-gray-900 dark:text-white">{m.name}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">{m.type}</p>
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <button
+                              onClick={() => handleDeleteMockup(m.id)}
+                              className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition-colors"
+                              title="Delete Mockup"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
                           </div>
                        </div>
                     ))}
 
                     {/* Custom Mockups (Editable) */}
                     {customMockups.map(m => (
-                       <div key={m.id} className="bg-white rounded-lg p-4 border-2 border-brand-200 flex items-center gap-4 hover:shadow-md transition-shadow">
-                          <div className="w-16 h-16 flex-shrink-0 flex items-center justify-center bg-gray-100 rounded-lg shadow-sm overflow-hidden">
+                       <div key={m.id} className="bg-white dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700 flex items-center gap-4 hover:shadow-md transition-shadow">
+                          <div className="w-16 h-16 flex-shrink-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
                              {m.baseImage ? (
                                 <img src={m.baseImage} className="w-full h-full object-cover" alt={m.name} />
                              ) : (
@@ -949,23 +1114,20 @@ const Admin: React.FC = () => {
                              )}
                           </div>
                           <div className="flex-1">
-                            <p className="font-bold text-sm text-gray-900">{m.name}</p>
-                            <p className="text-xs text-gray-500 capitalize">{m.type}</p>
-                            <span className="inline-block mt-1 px-2 py-0.5 text-xs font-semibold bg-brand-100 text-brand-700 rounded-full">
-                              Custom
-                            </span>
+                            <p className="font-bold text-sm text-gray-900 dark:text-white">{m.name}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">{m.type}</p>
                           </div>
                           <div className="flex flex-col gap-2">
                             <button
                               onClick={() => handleEditMockup(m)}
-                              className="p-2 text-brand-600 hover:bg-brand-50 rounded-lg transition-colors"
+                              className="p-2 text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-950/30 rounded-lg transition-colors"
                               title="Edit Mockup"
                             >
                               <Edit className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => handleDeleteMockup(m.id)}
-                              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                              className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition-colors"
                               title="Delete Mockup"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -1665,6 +1827,141 @@ const Admin: React.FC = () => {
                   </tbody>
                 </table>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Settings View */}
+        {activeTab === 'settings' && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Settings</h2>
+                <p className="text-gray-600 dark:text-gray-400 mt-1">Manage your admin preferences and account settings</p>
+              </div>
+            </div>
+
+            {/* Settings Sections */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Account Settings */}
+              <div className="bg-white dark:bg-gray-900 rounded-xl p-6 border border-gray-200 dark:border-gray-800">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                  <Settings className="w-5 h-5 text-brand-600" />
+                  Account Settings
+                </h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Admin Email</label>
+                    <input
+                      type="email"
+                      value="admin@khayali.com"
+                      disabled
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Role</label>
+                    <input
+                      type="text"
+                      value="Administrator"
+                      disabled
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white"
+                    />
+                  </div>
+                  <button className="w-full px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-lg font-medium transition-colors">
+                    Change Password
+                  </button>
+                </div>
+              </div>
+
+              {/* Appearance Settings */}
+              <div className="bg-white dark:bg-gray-900 rounded-xl p-6 border border-gray-200 dark:border-gray-800">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                  <Palette className="w-5 h-5 text-brand-600" />
+                  Appearance
+                </h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Theme</label>
+                    <select className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+                      <option>Light</option>
+                      <option>Dark</option>
+                      <option>System</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Language</label>
+                    <select className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+                      <option>English</option>
+                      <option>French</option>
+                      <option>Arabic</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Notification Settings */}
+              <div className="bg-white dark:bg-gray-900 rounded-xl p-6 border border-gray-200 dark:border-gray-800">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                  <svg className="w-5 h-5 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                  </svg>
+                  Notifications
+                </h3>
+                <div className="space-y-3">
+                  <label className="flex items-center justify-between cursor-pointer">
+                    <span className="text-sm text-gray-700 dark:text-gray-300">Email notifications</span>
+                    <input type="checkbox" defaultChecked className="w-4 h-4 text-brand-600 rounded" />
+                  </label>
+                  <label className="flex items-center justify-between cursor-pointer">
+                    <span className="text-sm text-gray-700 dark:text-gray-300">Order updates</span>
+                    <input type="checkbox" defaultChecked className="w-4 h-4 text-brand-600 rounded" />
+                  </label>
+                  <label className="flex items-center justify-between cursor-pointer">
+                    <span className="text-sm text-gray-700 dark:text-gray-300">New user registrations</span>
+                    <input type="checkbox" className="w-4 h-4 text-brand-600 rounded" />
+                  </label>
+                  <label className="flex items-center justify-between cursor-pointer">
+                    <span className="text-sm text-gray-700 dark:text-gray-300">Low stock alerts</span>
+                    <input type="checkbox" defaultChecked className="w-4 h-4 text-brand-600 rounded" />
+                  </label>
+                </div>
+              </div>
+
+              {/* Store Settings */}
+              <div className="bg-white dark:bg-gray-900 rounded-xl p-6 border border-gray-200 dark:border-gray-800">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                  <svg className="w-5 h-5 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                  </svg>
+                  Store Settings
+                </h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Store Name</label>
+                    <input
+                      type="text"
+                      defaultValue="KHAYALI"
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Currency</label>
+                    <select className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+                      <option>USD ($)</option>
+                      <option>EUR (€)</option>
+                      <option>MAD (DH)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Save Button */}
+            <div className="flex justify-end">
+              <button className="px-6 py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-lg font-medium transition-colors">
+                Save Changes
+              </button>
             </div>
           </div>
         )}

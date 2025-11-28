@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingBag, Trash2, Plus, Minus, ArrowRight, Package } from 'lucide-react';
+import { isAuthenticated } from '../utils/auth';
 
 interface CartItem {
   id: string;
@@ -13,6 +14,7 @@ interface CartItem {
 }
 
 const Cart: React.FC = () => {
+  const navigate = useNavigate();
   const [cartItems, setCartItems] = useState<CartItem[]>([
     {
       id: '1',
@@ -46,6 +48,19 @@ const Cart: React.FC = () => {
 
   const removeItem = (id: string) => {
     setCartItems(items => items.filter(item => item.id !== id));
+  };
+
+  const handleCheckout = () => {
+    if (!isAuthenticated()) {
+      // Save cart state and redirect to login
+      localStorage.setItem('pendingCheckout', 'true');
+      navigate('/login?redirect=cart&action=checkout');
+      return;
+    }
+
+    // User is authenticated, proceed with checkout
+    // TODO: Implement actual checkout logic
+    alert('Proceeding to checkout... (Checkout functionality to be implemented)');
   };
 
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -161,7 +176,10 @@ const Cart: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                <button className="w-full bg-brand-600 hover:bg-brand-700 dark:bg-brand-500 dark:hover:bg-brand-600 text-white font-semibold py-3 rounded-lg transition-colors flex items-center justify-center gap-2">
+                <button
+                  onClick={handleCheckout}
+                  className="w-full bg-brand-600 hover:bg-brand-700 dark:bg-brand-500 dark:hover:bg-brand-600 text-white font-semibold py-3 rounded-lg transition-colors flex items-center justify-center gap-2"
+                >
                   Proceed to Checkout
                   <ArrowRight className="w-5 h-5" />
                 </button>

@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { INITIAL_DESIGNS, MOCKUPS } from '../constants';
 import { Design, Mockup, DesignZone } from '../types';
 import { Search, ZoomIn, Check, ShoppingCart, Sparkles, Move, RotateCw, Sliders, Loader2, Upload, ImagePlus, Layers, Plus, X, Copy, Eye } from 'lucide-react';
 import { generateSVGDesign } from '../services/geminiService';
 import { TshirtSVG, HoodieSVG, SweaterSVG, CapSVG, CustomMockup } from '../components/ProductMockups';
+import { isAuthenticated } from '../utils/auth';
 
 const DesignStudio: React.FC = () => {
+  const navigate = useNavigate();
   const [selectedDesign, setSelectedDesign] = useState<Design>(INITIAL_DESIGNS[0]);
   const [selectedMockup, setSelectedMockup] = useState<Mockup>(MOCKUPS[0]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -65,15 +68,23 @@ const DesignStudio: React.FC = () => {
 
   // Load custom data from localStorage on mount
   useEffect(() => {
-    // 1. Load Custom Mockups
+    // 1. Load Custom Mockups and filter out hidden default mockups
     const savedMockups = localStorage.getItem('customMockups');
+    const hiddenMockups = JSON.parse(localStorage.getItem('hiddenMockups') || '[]');
+
+    // Filter out hidden default mockups
+    const visibleDefaultMockups = MOCKUPS.filter(m => !hiddenMockups.includes(m.id));
+
     if (savedMockups) {
       try {
         const parsed = JSON.parse(savedMockups);
-        setAllMockups([...MOCKUPS, ...parsed]);
+        setAllMockups([...visibleDefaultMockups, ...parsed]);
       } catch (e) {
         console.error("Failed to parse custom mockups", e);
+        setAllMockups(visibleDefaultMockups);
       }
+    } else {
+      setAllMockups(visibleDefaultMockups);
     }
 
     // 2. Load Designs (User Uploads + Admin Catalog + Initial)
@@ -154,6 +165,29 @@ const DesignStudio: React.FC = () => {
 
   const assignDesignToCurrentZone = (design: Design) => {
     updateCurrentZone({ designId: design.id });
+  };
+
+  // Add to Cart Handler
+  const handleAddToCart = () => {
+    if (!isAuthenticated()) {
+      // Store the current design state before redirecting to login
+      const designState = {
+        selectedDesign,
+        selectedMockup,
+        mockupColor,
+        mockupZones,
+        timestamp: Date.now()
+      };
+      localStorage.setItem('pendingDesign', JSON.stringify(designState));
+
+      // Redirect to login with a return URL
+      navigate('/login?redirect=studio&action=addToCart');
+      return;
+    }
+
+    // User is authenticated, proceed with adding to cart
+    // TODO: Implement actual cart logic
+    alert('Design added to cart! (Cart functionality to be implemented)');
   };
 
   // Zone Templates
@@ -826,7 +860,10 @@ const DesignStudio: React.FC = () => {
                       <p className="text-xs text-gray-500">Total Price</p>
                       <p className="text-xl font-bold text-gray-900">${(selectedDesign.price + 15).toFixed(2)}</p>
                     </div>
-                    <button className="bg-gray-900 text-white px-6 py-3 rounded-xl font-bold hover:bg-gray-800 flex items-center gap-2 shadow-lg transform active:scale-95 transition-all">
+                    <button
+                      onClick={handleAddToCart}
+                      className="bg-gray-900 text-white px-6 py-3 rounded-xl font-bold hover:bg-gray-800 flex items-center gap-2 shadow-lg transform active:scale-95 transition-all"
+                    >
                       <ShoppingCart className="w-5 h-5" />
                       <span>Add to Cart</span>
                     </button>

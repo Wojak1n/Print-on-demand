@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Mail, Lock, User, Eye, EyeOff, ArrowRight, ShieldCheck } from 'lucide-react';
 import { authenticateUser, login, isAuthenticated, getCurrentUser } from '../utils/auth';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -15,6 +16,10 @@ const Login: React.FC = () => {
     confirmPassword: ''
   });
 
+  // Get redirect parameters
+  const redirectTo = searchParams.get('redirect');
+  const action = searchParams.get('action');
+
   // Redirect if already logged in
   useEffect(() => {
     if (isAuthenticated()) {
@@ -22,10 +27,17 @@ const Login: React.FC = () => {
       if (user?.role === 'admin') {
         navigate('/admin');
       } else {
-        navigate('/studio');
+        // Check if there's a redirect parameter
+        if (redirectTo === 'studio') {
+          navigate('/studio');
+        } else if (redirectTo === 'cart') {
+          navigate('/cart');
+        } else {
+          navigate('/studio');
+        }
       }
     }
-  }, [navigate]);
+  }, [navigate, redirectTo]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,9 +49,22 @@ const Login: React.FC = () => {
 
       if (user) {
         login(user);
-        // Redirect based on role
+        // Redirect based on role or redirect parameter
         if (user.role === 'admin') {
           navigate('/admin');
+        } else if (redirectTo === 'studio' && action === 'addToCart') {
+          // User was trying to add to cart, redirect back to studio
+          navigate('/studio');
+          // Show a message that they can now add to cart
+          setTimeout(() => {
+            alert('You are now logged in! Click "Add to Cart" again to add your design.');
+          }, 500);
+        } else if (redirectTo === 'cart' && action === 'checkout') {
+          // User was trying to checkout, redirect back to cart
+          navigate('/cart');
+          setTimeout(() => {
+            alert('You are now logged in! You can proceed with checkout.');
+          }, 500);
         } else {
           navigate('/studio');
         }
@@ -68,7 +93,21 @@ const Login: React.FC = () => {
       };
 
       login(newUser);
-      navigate('/studio');
+
+      // Redirect to studio (or back to where they came from)
+      if (redirectTo === 'studio' && action === 'addToCart') {
+        navigate('/studio');
+        setTimeout(() => {
+          alert('Account created! Click "Add to Cart" again to add your design.');
+        }, 500);
+      } else if (redirectTo === 'cart' && action === 'checkout') {
+        navigate('/cart');
+        setTimeout(() => {
+          alert('Account created! You can now proceed with checkout.');
+        }, 500);
+      } else {
+        navigate('/studio');
+      }
     }
   };
 
