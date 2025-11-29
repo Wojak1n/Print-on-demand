@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ShoppingBag, Menu, X, LayoutDashboard, User, Moon, Sun, LogOut, ChevronDown } from 'lucide-react';
+import { IMAGES } from '../config/cloudinary';
 import { useTheme } from '../contexts/ThemeContext';
 import { getCurrentUser, isAdmin, logout } from '../utils/auth';
 
@@ -86,7 +87,12 @@ const Navbar: React.FC = () => {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link to="/" className="flex-shrink-0 flex items-center gap-2">
-              <img src="/images/khayali logo.png" alt="KHAYALI" className="h-48 w-auto object-contain" />
+              <img
+                src={`https://res.cloudinary.com/dwm9hk3qg/image/upload/w_200,f_auto,q_auto/${IMAGES.LOGO}`}
+                alt="KHAYALI"
+                className="h-48 w-auto object-contain"
+                onError={(e) => console.error('Logo failed to load:', e)}
+              />
             </Link>
           </div>
 

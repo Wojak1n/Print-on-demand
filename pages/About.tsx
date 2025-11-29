@@ -107,11 +107,10 @@ const About: React.FC = () => {
             <p className="text-4xl font-serif font-bold text-gray-900 dark:text-white">Meet the Creators</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             {[
               { name: 'Sarah Johnson', role: 'Founder & CEO', img: 'https://picsum.photos/seed/team1/400/400' },
-              { name: 'Michael Chen', role: 'Head of Design', img: 'https://picsum.photos/seed/team2/400/400' },
-              { name: 'Emma Williams', role: 'Creative Director', img: 'https://picsum.photos/seed/team3/400/400' }
+              { name: 'Michael Chen', role: 'Head Designer & Developer', img: 'https://picsum.photos/seed/team2/400/400' }
             ].map((member, i) => (
               <div key={i} className="group">
                 <div className="relative overflow-hidden rounded-2xl mb-4">

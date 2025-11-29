@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, Star, Zap, Truck, ShieldCheck, Palette, Layers, TrendingUp, LayoutDashboard, Sparkles, ShoppingCart } from 'lucide-react';
+import { ArrowRight, Star, Zap, Truck, ShieldCheck, Palette, Layers, TrendingUp, LayoutDashboard, Sparkles, ShoppingCart, Quote } from 'lucide-react';
+import { AdvancedImage } from '@cloudinary/react';
+import { auto } from '@cloudinary/url-gen/actions/resize';
+import { autoGravity } from '@cloudinary/url-gen/qualifiers/gravity';
+import { cld, IMAGES } from '../config/cloudinary';
 import { INITIAL_DESIGNS } from '../constants';
 
 const Home: React.FC = () => {
@@ -15,24 +19,22 @@ const Home: React.FC = () => {
   useEffect(() => {
     const loadFeaturedDesigns = () => {
       const savedCatalog = localStorage.getItem('catalogDesigns');
-      const hiddenDesignIds = JSON.parse(localStorage.getItem('hiddenDesigns') || '[]');
 
-      // Get visible initial designs
-      const visibleInitialDesigns = INITIAL_DESIGNS.filter(d => !hiddenDesignIds.includes(d.id));
-
-      let allDesigns = [...visibleInitialDesigns];
+      // Always include INITIAL_DESIGNS featured items (don't filter by hidden)
+      let allDesigns = [...INITIAL_DESIGNS];
 
       // Add custom designs from localStorage
       if (savedCatalog) {
         const customDesigns = JSON.parse(savedCatalog);
-        allDesigns = [...customDesigns, ...visibleInitialDesigns];
+        allDesigns = [...customDesigns, ...INITIAL_DESIGNS];
       }
 
       // Filter only featured designs
       const featured = allDesigns.filter((d: any) => d.featured === true);
       setFeaturedDesigns(featured);
 
-      console.log('Featured designs loaded:', featured);
+      console.log('All designs:', allDesigns.length);
+      console.log('Featured designs loaded:', featured.length);
     };
 
     loadFeaturedDesigns();
@@ -115,8 +117,11 @@ const Home: React.FC = () => {
             </div>
             <div className="relative hidden lg:block h-full min-h-[700px]">
                <div className="absolute inset-0 bg-gradient-to-tr from-brand-50 to-purple-50 dark:from-brand-900/20 dark:to-purple-900/20 rounded-tl-[100px] -z-10"></div>
-               <img
-                src="/images/khayali-hero.jpeg"
+               <AdvancedImage
+                cldImg={cld.image(IMAGES.HERO)
+                  .format('auto')
+                  .quality('auto')
+                  .resize(auto().gravity(autoGravity()).width(800))}
                 alt="Fashion Model"
                 className="absolute -bottom-12 right-5 w-[95%] h-auto object-cover drop-shadow-2xl rounded-t-[40px]"
                />
@@ -159,78 +164,52 @@ const Home: React.FC = () => {
             {/* Featured Products Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {featuredDesigns.map((design) => (
-                <div key={design.id} className="group bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700">
-                  {/* Featured Tag */}
-                  {design.featuredTag && (
-                    <div className="absolute top-4 left-4 z-20 px-3 py-1.5 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full text-xs font-bold text-white shadow-lg flex items-center gap-1">
-                      <Sparkles className="w-3 h-3" />
-                      {design.featuredTag}
-                    </div>
-                  )}
-
+                <div
+                  key={design.id}
+                  onClick={() => navigate('/studio')}
+                  className="group bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700 cursor-pointer transform hover:-translate-y-1 relative"
+                >
                   {/* Product Image */}
                   <div className="relative h-96 overflow-hidden bg-gray-100 dark:bg-gray-700">
+                    {design.featuredTag && (
+                      <div className="absolute top-4 left-4 z-20 px-3 py-1.5 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full text-xs font-bold text-white shadow-lg flex items-center gap-1">
+                        <Sparkles className="w-3 h-3" />
+                        {design.featuredTag}
+                      </div>
+                    )}
                     <img
                       src={design.featuredMockup || design.imageUrl}
                       alt={design.title}
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     />
+
+                    {/* Click to Customize Overlay */}
+                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                      <div className="text-white text-center">
+                        <Palette className="w-12 h-12 mx-auto mb-2" />
+                        <p className="text-lg font-bold">Click to Customize</p>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Product Info */}
                   <div className="p-6 space-y-4">
                     <div>
-                      <p className="text-brand-600 dark:text-brand-400 text-xs font-bold uppercase tracking-wider mb-2">{design.category}</p>
+                      <p className="text-brand-600 dark:text-brand-400 text-xs font-bold uppercase tracking-wider mb-2">
+                        {design.category}
+                      </p>
                       <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
                         {design.title}
                       </h3>
-                      <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-2">{design.description}</p>
+                      <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-2">
+                        {design.description}
+                      </p>
                     </div>
 
                     {/* Price */}
                     <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
                       <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Starting at</p>
                       <p className="text-2xl font-bold text-gray-900 dark:text-white">${design.price.toFixed(2)}</p>
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="grid grid-cols-2 gap-3">
-                      <button
-                        onClick={() => {
-                          // Add to cart logic
-                          const cartItem = {
-                            id: `${design.id}-${Date.now()}`,
-                            designId: design.id,
-                            designTitle: design.title,
-                            mockupType: 't-shirt',
-                            quantity: 1,
-                            size: 'M',
-                            color: 'Black',
-                            price: design.price,
-                            imageUrl: design.featuredMockup || design.imageUrl
-                          };
-                          const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-                          cart.push(cartItem);
-                          localStorage.setItem('cart', JSON.stringify(cart));
-
-                          // Trigger cart update event
-                          window.dispatchEvent(new Event('cartUpdated'));
-
-                          // Show success message
-                          alert('✅ Added to cart!');
-                        }}
-                        className="flex items-center justify-center gap-2 px-5 py-3 bg-[#1a1a2e] hover:bg-[#16213e] dark:bg-[#0f0f1e] dark:hover:bg-[#1a1a2e] text-white rounded-lg font-semibold transition-all shadow-sm hover:shadow-md"
-                      >
-                        <ShoppingCart className="w-4 h-4" />
-                        Buy Now
-                      </button>
-                      <button
-                        onClick={() => navigate('/studio')}
-                        className="flex items-center justify-center gap-2 px-5 py-3 bg-[#b8860b] hover:bg-[#9a7209] dark:bg-[#daa520] dark:hover:bg-[#b8860b] text-white rounded-lg font-semibold transition-all shadow-sm hover:shadow-md"
-                      >
-                        <Palette className="w-4 h-4" />
-                        Customize
-                      </button>
                     </div>
                   </div>
                 </div>
@@ -252,8 +231,6 @@ const Home: React.FC = () => {
           </div>
         </section>
       )}
-
-
 
       {/* Why Choose Us */}
       <section className="py-24 bg-white dark:bg-gray-900 relative overflow-hidden transition-colors duration-200">
@@ -281,6 +258,104 @@ const Home: React.FC = () => {
                  <p className="text-gray-500 dark:text-gray-400 leading-relaxed">{feat.text}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Customer Reviews */}
+      <section className="py-24 bg-gray-50 dark:bg-gray-800 transition-colors duration-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400 mb-4">
+              <Star className="w-4 h-4 fill-current" />
+              <span className="font-bold text-sm uppercase tracking-wider">Customer Reviews</span>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-serif font-bold text-gray-900 dark:text-white mb-4">
+              What Our Customers Say
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400 text-lg max-w-2xl mx-auto">
+              Join thousands of satisfied customers who trust us with their custom designs
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              {
+                name: 'Sarah Johnson',
+                role: 'Small Business Owner',
+                image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop',
+                rating: 5,
+                review: 'The quality is outstanding! My custom t-shirts turned out exactly as I designed them. The colors are vibrant and the fabric feels premium.',
+                date: '2 weeks ago'
+              },
+              {
+                name: 'Michael Chen',
+                role: 'Graphic Designer',
+                image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop',
+                rating: 5,
+                review: 'As a designer, I\'m very picky about print quality. KHAYALI exceeded my expectations. The design studio is intuitive and the final product is flawless.',
+                date: '1 month ago'
+              },
+              {
+                name: 'Emily Rodriguez',
+                role: 'Event Organizer',
+                image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop',
+                rating: 5,
+                review: 'Ordered 50 custom hoodies for our team event. Fast delivery, consistent quality across all items, and excellent customer service. Highly recommend!',
+                date: '3 weeks ago'
+              }
+            ].map((review, idx) => (
+              <div key={idx} className="bg-white dark:bg-gray-700 rounded-2xl p-8 shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-600 relative">
+                {/* Quote Icon */}
+                <div className="absolute top-6 right-6 text-brand-100 dark:text-brand-900/30">
+                  <Quote className="w-12 h-12 fill-current" />
+                </div>
+
+                {/* Rating Stars */}
+                <div className="flex gap-1 mb-4">
+                  {[...Array(review.rating)].map((_, i) => (
+                    <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
+                  ))}
+                </div>
+
+                {/* Review Text */}
+                <p className="text-gray-700 dark:text-gray-300 mb-6 leading-relaxed relative z-10">
+                  "{review.review}"
+                </p>
+
+                {/* Reviewer Info */}
+                <div className="flex items-center gap-4 pt-4 border-t border-gray-200 dark:border-gray-600">
+                  <img
+                    src={review.image}
+                    alt={review.name}
+                    className="w-12 h-12 rounded-full object-cover ring-2 ring-brand-100 dark:ring-brand-900/30"
+                  />
+                  <div>
+                    <h4 className="font-bold text-gray-900 dark:text-white">{review.name}</h4>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{review.role}</p>
+                  </div>
+                  <div className="ml-auto text-right">
+                    <p className="text-xs text-gray-400 dark:text-gray-500">{review.date}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Overall Rating */}
+          <div className="mt-16 text-center">
+            <div className="inline-flex items-center gap-3 bg-white dark:bg-gray-700 rounded-full px-8 py-4 shadow-lg border border-gray-100 dark:border-gray-600">
+              <div className="flex gap-1">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="w-6 h-6 text-yellow-400 fill-current" />
+                ))}
+              </div>
+              <div className="h-8 w-px bg-gray-300 dark:bg-gray-600"></div>
+              <div className="text-left">
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">4.9/5</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Based on 2,547 reviews</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
