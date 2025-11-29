@@ -10,10 +10,31 @@ const Navbar: React.FC = () => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [currentUser, setCurrentUser] = useState(getCurrentUser());
   const [userIsAdmin, setUserIsAdmin] = useState(isAdmin());
+  const [cartCount, setCartCount] = useState(0);
   const { isDarkMode, toggleDarkMode } = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
   const userMenuRef = useRef<HTMLDivElement>(null);
+
+  // Update cart count
+  useEffect(() => {
+    const updateCartCount = () => {
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      const totalItems = cart.reduce((sum: number, item: any) => sum + item.quantity, 0);
+      setCartCount(totalItems);
+    };
+
+    updateCartCount();
+
+    // Listen for cart updates
+    window.addEventListener('cartUpdated', updateCartCount);
+    window.addEventListener('storage', updateCartCount);
+
+    return () => {
+      window.removeEventListener('cartUpdated', updateCartCount);
+      window.removeEventListener('storage', updateCartCount);
+    };
+  }, []);
 
   // Update user state when location changes (after login/logout)
   useEffect(() => {
@@ -96,7 +117,11 @@ const Navbar: React.FC = () => {
 
             <Link to="/cart" className="p-2 rounded-full text-gray-400 dark:text-gray-300 hover:text-brand-500 dark:hover:text-brand-400 transition-colors relative">
               <ShoppingBag className="h-6 w-6" />
-              <span className="absolute top-0 right-0 block h-2 w-2 rounded-full ring-2 ring-white dark:ring-gray-800 bg-brand-500"></span>
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 flex items-center justify-center h-5 w-5 text-xs font-bold rounded-full ring-2 ring-white dark:ring-gray-800 bg-brand-500 text-white">
+                  {cartCount > 9 ? '9+' : cartCount}
+                </span>
+              )}
             </Link>
 
             {/* Admin Dashboard Link (only for admins) */}

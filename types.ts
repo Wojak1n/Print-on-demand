@@ -8,6 +8,9 @@ export interface Design {
   price: number;
   description?: string;
   type?: 'raster' | 'vector';
+  featured?: boolean; // Mark as featured/promotional
+  featuredMockup?: string; // Full product mockup image for featured section
+  featuredTag?: string; // e.g., "Staff Pick", "Trending", "New Arrival", "Limited Edition"
 }
 
 export interface DesignZone {

@@ -12,6 +12,8 @@ import Login from './pages/Login';
 import AdminLogin from './pages/AdminLogin';
 import Profile from './pages/Profile';
 import Cart from './pages/Cart';
+import Checkout from './pages/Checkout';
+import OrderConfirmation from './pages/OrderConfirmation';
 import Careers from './pages/Careers';
 import Blog from './pages/Blog';
 import Press from './pages/Press';
@@ -47,6 +49,16 @@ const AppContent: React.FC = () => {
             </ProtectedRoute>
           } />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={
+            <ProtectedRoute>
+              <Checkout />
+            </ProtectedRoute>
+          } />
+          <Route path="/order-confirmation/:orderId" element={
+            <ProtectedRoute>
+              <OrderConfirmation />
+            </ProtectedRoute>
+          } />
           <Route path="/careers" element={<Careers />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/press" element={<Press />} />

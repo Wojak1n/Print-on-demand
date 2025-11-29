@@ -1,53 +1,62 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingBag, Trash2, Plus, Minus, ArrowRight, Package } from 'lucide-react';
 import { isAuthenticated } from '../utils/auth';
 
 interface CartItem {
   id: string;
-  name: string;
-  price: number;
+  designId: string;
+  designTitle: string;
+  mockupType: string;
   quantity: number;
   size: string;
   color: string;
-  image: string;
+  price: number;
+  imageUrl: string;
 }
 
 const Cart: React.FC = () => {
   const navigate = useNavigate();
-  const [cartItems, setCartItems] = useState<CartItem[]>([
-    {
-      id: '1',
-      name: 'Custom T-Shirt Design',
-      price: 29.99,
-      quantity: 2,
-      size: 'L',
-      color: 'Black',
-      image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400'
-    },
-    {
-      id: '2',
-      name: 'Hoodie with Logo',
-      price: 49.99,
-      quantity: 1,
-      size: 'M',
-      color: 'Navy',
-      image: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=400'
-    }
-  ]);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+
+  // Load cart from localStorage on mount
+  useEffect(() => {
+    const loadCart = () => {
+      const savedCart = localStorage.getItem('cart');
+      if (savedCart) {
+        setCartItems(JSON.parse(savedCart));
+      }
+    };
+
+    loadCart();
+
+    // Listen for storage changes (when items are added from other pages)
+    window.addEventListener('storage', loadCart);
+
+    // Custom event for same-page cart updates
+    const handleCartUpdate = () => loadCart();
+    window.addEventListener('cartUpdated', handleCartUpdate);
+
+    return () => {
+      window.removeEventListener('storage', loadCart);
+      window.removeEventListener('cartUpdated', handleCartUpdate);
+    };
+  }, []);
 
   const updateQuantity = (id: string, change: number) => {
-    setCartItems(items =>
-      items.map(item =>
-        item.id === id
-          ? { ...item, quantity: Math.max(1, item.quantity + change) }
-          : item
-      )
+    const updatedItems = cartItems.map(item =>
+      item.id === id
+        ? { ...item, quantity: Math.max(1, item.quantity + change) }
+        : item
     );
+    setCartItems(updatedItems);
+    localStorage.setItem('cart', JSON.stringify(updatedItems));
   };
 
   const removeItem = (id: string) => {
-    setCartItems(items => items.filter(item => item.id !== id));
+    const updatedItems = cartItems.filter(item => item.id !== id);
+    setCartItems(updatedItems);
+    localStorage.setItem('cart', JSON.stringify(updatedItems));
   };
 
   const handleCheckout = () => {
@@ -58,9 +67,8 @@ const Cart: React.FC = () => {
       return;
     }
 
-    // User is authenticated, proceed with checkout
-    // TODO: Implement actual checkout logic
-    alert('Proceeding to checkout... (Checkout functionality to be implemented)');
+    // User is authenticated, proceed to checkout page
+    navigate('/checkout');
   };
 
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -109,14 +117,14 @@ const Cart: React.FC = () => {
                 >
                   <div className="flex gap-6">
                     <img
-                      src={item.image}
-                      alt={item.name}
+                      src={item.imageUrl}
+                      alt={item.designTitle}
                       className="w-24 h-24 object-cover rounded-lg"
                     />
                     <div className="flex-1">
-                      <h3 className="text-lg font-bold text-gray-900 dark:text-white">{item.name}</h3>
+                      <h3 className="text-lg font-bold text-gray-900 dark:text-white">{item.designTitle}</h3>
                       <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                        Size: {item.size} • Color: {item.color}
+                        {item.mockupType.charAt(0).toUpperCase() + item.mockupType.slice(1)} • Size: {item.size} • Color: {item.color}
                       </p>
                       <p className="text-lg font-bold text-brand-600 dark:text-brand-400 mt-2">
                         ${item.price.toFixed(2)}

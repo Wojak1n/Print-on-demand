@@ -1,6 +1,43 @@
 import { Design, Mockup, Order, DailyStat, StockItem, OrderItem } from './types';
 
-export const INITIAL_DESIGNS: Design[] = [];
+export const INITIAL_DESIGNS: Design[] = [
+  {
+    id: 'featured-demo-1',
+    title: 'Sunset Vibes',
+    imageUrl: 'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?auto=format&fit=crop&w=800&q=80',
+    category: 'Nature',
+    popularity: 95,
+    price: 29.99,
+    description: 'A beautiful sunset design perfect for summer vibes',
+    featured: true,
+    featuredTag: 'Staff Pick',
+    featuredMockup: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=800&q=80'
+  },
+  {
+    id: 'featured-demo-2',
+    title: 'Urban Street',
+    imageUrl: 'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?auto=format&fit=crop&w=800&q=80',
+    category: 'Streetwear',
+    popularity: 88,
+    price: 34.99,
+    description: 'Bold urban design for the modern street style',
+    featured: true,
+    featuredTag: 'Trending',
+    featuredMockup: 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=800&q=80'
+  },
+  {
+    id: 'featured-demo-3',
+    title: 'Minimalist Wave',
+    imageUrl: 'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?auto=format&fit=crop&w=800&q=80',
+    category: 'Minimal',
+    popularity: 92,
+    price: 27.99,
+    description: 'Clean and simple wave design for minimalist lovers',
+    featured: true,
+    featuredTag: 'New Arrival',
+    featuredMockup: 'https://images.unsplash.com/photo-1620799140408-ed5341cd2431?auto=format&fit=crop&w=800&q=80'
+  }
+];
 
 export const MOCKUPS: Mockup[] = [
   {

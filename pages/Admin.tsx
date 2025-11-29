@@ -15,6 +15,14 @@ const Admin: React.FC = () => {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [orderSearchQuery, setOrderSearchQuery] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Stock Update Modal State
+  const [stockUpdateModal, setStockUpdateModal] = useState<{isOpen: boolean; item: StockItem | null; mode: 'update' | 'add'}>({
+    isOpen: false,
+    item: null,
+    mode: 'update'
+  });
+  const [stockUpdateQuantity, setStockUpdateQuantity] = useState<string>('');
   
   // Mockup State
   const [customMockups, setCustomMockups] = useState<Mockup[]>([]);
@@ -796,6 +804,7 @@ const Admin: React.FC = () => {
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Design</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Featured</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
@@ -820,6 +829,21 @@ const Admin: React.FC = () => {
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">${design.price.toFixed(2)}</td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {design.featured ? (
+                            <div className="flex items-center gap-2">
+                              <span className="px-3 py-1 inline-flex items-center gap-1 text-xs font-bold rounded-full bg-gradient-to-r from-yellow-100 to-orange-100 text-orange-800 border border-orange-200">
+                                <Sparkles className="w-3 h-3" />
+                                Featured
+                              </span>
+                              {design.featuredTag && (
+                                <span className="text-xs text-gray-500">{design.featuredTag}</span>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-xs text-gray-400">—</span>
+                          )}
+                        </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                             Active
@@ -910,7 +934,7 @@ const Admin: React.FC = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Image URL</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Design Image URL</label>
                       <input
                         type="text"
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
@@ -920,6 +944,69 @@ const Admin: React.FC = () => {
                       {editingDesign.imageUrl && (
                         <div className="mt-2">
                           <img src={editingDesign.imageUrl} alt="Preview" className="w-32 h-32 object-cover rounded-lg border border-gray-200" />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Featured Section */}
+                    <div className="border-t border-gray-200 pt-4 mt-4">
+                      <div className="flex items-center justify-between mb-4">
+                        <div>
+                          <h4 className="text-sm font-bold text-gray-900 flex items-center gap-2">
+                            <Sparkles className="w-4 h-4 text-yellow-500" />
+                            Featured Collection
+                          </h4>
+                          <p className="text-xs text-gray-500 mt-0.5">Showcase this design on homepage as a promotional product</p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            className="sr-only peer"
+                            checked={editingDesign.featured || false}
+                            onChange={(e) => setEditingDesign({...editingDesign, featured: e.target.checked})}
+                          />
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-brand-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-600"></div>
+                        </label>
+                      </div>
+
+                      {editingDesign.featured && (
+                        <div className="space-y-4 bg-brand-50 p-4 rounded-lg border border-brand-200">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Featured Tag
+                              <span className="ml-2 text-xs text-gray-500 font-normal">(e.g., "Staff Pick", "Trending", "New Arrival")</span>
+                            </label>
+                            <select
+                              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                              value={editingDesign.featuredTag || ''}
+                              onChange={(e) => setEditingDesign({...editingDesign, featuredTag: e.target.value})}
+                            >
+                              <option value="">No Tag</option>
+                              <option value="Staff Pick">⭐ Staff Pick</option>
+                              <option value="Trending">🔥 Trending</option>
+                              <option value="New Arrival">✨ New Arrival</option>
+                              <option value="Limited Edition">💎 Limited Edition</option>
+                              <option value="Best Seller">🏆 Best Seller</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Featured Product Mockup URL
+                              <span className="ml-2 text-xs text-gray-500 font-normal">(Full product photo for homepage showcase)</span>
+                            </label>
+                            <input
+                              type="text"
+                              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                              value={editingDesign.featuredMockup || ''}
+                              onChange={(e) => setEditingDesign({...editingDesign, featuredMockup: e.target.value})}
+                              placeholder="https://example.com/product-mockup.jpg"
+                            />
+                            {editingDesign.featuredMockup && (
+                              <div className="mt-2">
+                                <img src={editingDesign.featuredMockup} alt="Featured Preview" className="w-full max-w-xs h-auto object-cover rounded-lg border-2 border-brand-300 shadow-lg" />
+                              </div>
+                            )}
+                          </div>
                         </div>
                       )}
                     </div>
@@ -1501,53 +1588,80 @@ const Admin: React.FC = () => {
 
         {/* Stock Management View */}
         {activeTab === 'stock' && (
-          <div className="space-y-8">
-            <div className="flex justify-between items-center">
-              <h1 className="text-2xl font-bold text-gray-900">Stock Management</h1>
-              <button className="px-4 py-2 text-sm bg-brand-600 text-white rounded-lg hover:bg-brand-700 flex items-center gap-2">
-                <Plus className="w-4 h-4" />
+          <div className="space-y-6">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Stock Management</h1>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Monitor and manage your inventory levels</p>
+              </div>
+              <button className="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 dark:bg-brand-500 dark:hover:bg-brand-600 text-white rounded-lg font-medium shadow-sm hover:shadow-md transition-all flex items-center gap-2">
+                <Plus className="w-5 h-5" />
                 Add Stock Item
               </button>
             </div>
 
             {/* Stock Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="bg-white border border-gray-200 p-4 rounded-lg">
-                <p className="text-sm text-gray-500 font-medium">Total Items</p>
-                <p className="text-2xl font-bold text-gray-900 mt-1">{stockItems.length}</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border border-blue-200 dark:border-blue-700 p-5 rounded-xl shadow-sm">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm text-blue-700 dark:text-blue-300 font-semibold">Total Items</p>
+                  <Box className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                </div>
+                <p className="text-3xl font-bold text-blue-900 dark:text-blue-100">{stockItems.length}</p>
+                <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">Product variants</p>
               </div>
-              <div className="bg-white border border-gray-200 p-4 rounded-lg">
-                <p className="text-sm text-gray-500 font-medium">Total Stock</p>
-                <p className="text-2xl font-bold text-gray-900 mt-1">{stockItems.reduce((sum, item) => sum + item.quantity, 0)}</p>
+              <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border border-purple-200 dark:border-purple-700 p-5 rounded-xl shadow-sm">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm text-purple-700 dark:text-purple-300 font-semibold">Total Units</p>
+                  <Package className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                </div>
+                <p className="text-3xl font-bold text-purple-900 dark:text-purple-100">{stockItems.reduce((sum, item) => sum + item.quantity, 0)}</p>
+                <p className="text-xs text-purple-600 dark:text-purple-400 mt-1">In warehouse</p>
               </div>
-              <div className="bg-red-50 border border-red-200 p-4 rounded-lg">
-                <p className="text-sm text-red-700 font-medium flex items-center gap-1">
-                  <AlertTriangle className="w-4 h-4" />
-                  Low Stock
-                </p>
-                <p className="text-2xl font-bold text-red-900 mt-1">
+              <div className="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 border border-red-200 dark:border-red-700 p-5 rounded-xl shadow-sm">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm text-red-700 dark:text-red-300 font-semibold flex items-center gap-1">
+                    <AlertTriangle className="w-4 h-4" />
+                    Low Stock
+                  </p>
+                </div>
+                <p className="text-3xl font-bold text-red-900 dark:text-red-100">
                   {stockItems.filter(item => item.quantity <= item.reorderLevel).length}
                 </p>
+                <p className="text-xs text-red-600 dark:text-red-400 mt-1">Needs reorder</p>
               </div>
-              <div className="bg-green-50 border border-green-200 p-4 rounded-lg">
-                <p className="text-sm text-green-700 font-medium">Well Stocked</p>
-                <p className="text-2xl font-bold text-green-900 mt-1">
+              <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border border-green-200 dark:border-green-700 p-5 rounded-xl shadow-sm">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm text-green-700 dark:text-green-300 font-semibold">Well Stocked</p>
+                  <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
+                </div>
+                <p className="text-3xl font-bold text-green-900 dark:text-green-100">
                   {stockItems.filter(item => item.quantity > item.reorderLevel).length}
                 </p>
+                <p className="text-xs text-green-600 dark:text-green-400 mt-1">Healthy levels</p>
               </div>
             </div>
 
-            {/* Stock Filters */}
-            <div className="bg-white p-4 rounded-lg border border-gray-200">
-              <div className="flex flex-wrap gap-4">
-                <select className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-brand-500">
+            {/* Stock Filters & Search */}
+            <div className="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex-1 relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search products..."
+                    className="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                  />
+                </div>
+                <select className="px-4 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent">
                   <option value="">All Products</option>
                   <option value="t-shirt">T-Shirts</option>
                   <option value="hoodie">Hoodies</option>
                   <option value="sweater">Sweaters</option>
                   <option value="cap">Caps</option>
                 </select>
-                <select className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-brand-500">
+                <select className="px-4 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent">
                   <option value="">All Sizes</option>
                   <option value="S">Small</option>
                   <option value="M">Medium</option>
@@ -1555,7 +1669,7 @@ const Admin: React.FC = () => {
                   <option value="XL">X-Large</option>
                   <option value="XXL">XX-Large</option>
                 </select>
-                <select className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-brand-500">
+                <select className="px-4 py-2.5 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent">
                   <option value="">All Status</option>
                   <option value="low">Low Stock</option>
                   <option value="good">Well Stocked</option>
@@ -1564,82 +1678,111 @@ const Admin: React.FC = () => {
             </div>
 
             {/* Stock Table */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-              <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-                <h3 className="font-bold text-gray-700">Inventory ({stockItems.length} items)</h3>
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-750">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                    <Package className="w-5 h-5 text-brand-600 dark:text-brand-400" />
+                    Inventory Overview
+                  </h3>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">{stockItems.length} items</span>
+                </div>
               </div>
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                  <thead className="bg-gray-50 dark:bg-gray-750">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Size</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Color</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reorder Level</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Supplier</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Restocked</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Product</th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Size</th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Color</th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Quantity</th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Reorder Level</th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Supplier</th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Last Restocked</th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                     {stockItems.map((item) => {
                       const isLowStock = item.quantity <= item.reorderLevel;
+                      const isCritical = item.quantity <= item.reorderLevel / 2;
                       return (
-                        <tr key={item.id} className={`hover:bg-gray-50 transition-colors ${isLowStock ? 'bg-red-50/30' : ''}`}>
+                        <tr key={item.id} className={`hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors ${isLowStock ? 'bg-red-50/50 dark:bg-red-900/10' : ''}`}>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center">
-                              <Box className="w-5 h-5 text-gray-400 mr-2" />
-                              <span className="text-sm font-medium text-gray-900 capitalize">{item.productType.replace('-', ' ')}</span>
+                            <div className="flex items-center gap-3">
+                              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${isLowStock ? 'bg-red-100 dark:bg-red-900/30' : 'bg-gray-100 dark:bg-gray-700'}`}>
+                                <Box className={`w-5 h-5 ${isLowStock ? 'text-red-600 dark:text-red-400' : 'text-gray-500 dark:text-gray-400'}`} />
+                              </div>
+                              <span className="text-sm font-semibold text-gray-900 dark:text-white capitalize">{item.productType.replace('-', ' ')}</span>
                             </div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.size}</td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className="px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md text-xs font-semibold">{item.size}</span>
+                          </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center gap-2">
                               <div
-                                className="w-4 h-4 rounded-full border border-gray-300"
+                                className="w-5 h-5 rounded-full border-2 border-gray-300 dark:border-gray-600 shadow-sm"
                                 style={{backgroundColor: item.color.toLowerCase()}}
                               />
-                              <span className="text-sm text-gray-500">{item.color}</span>
+                              <span className="text-sm text-gray-700 dark:text-gray-300 font-medium">{item.color}</span>
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`text-sm font-bold ${isLowStock ? 'text-red-600' : 'text-gray-900'}`}>
-                              {item.quantity}
-                            </span>
+                            <div className="flex items-center gap-2">
+                              <span className={`text-lg font-bold ${isCritical ? 'text-red-700 dark:text-red-400' : isLowStock ? 'text-orange-600 dark:text-orange-400' : 'text-gray-900 dark:text-white'}`}>
+                                {item.quantity}
+                              </span>
+                              {isCritical && <AlertTriangle className="w-4 h-4 text-red-600 dark:text-red-400 animate-pulse" />}
+                            </div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.reorderLevel}</td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            {isLowStock ? (
-                              <span className="px-3 py-1 inline-flex items-center gap-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
-                                <AlertTriangle className="w-3 h-3" />
+                            <span className="text-sm text-gray-500 dark:text-gray-400">{item.reorderLevel}</span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            {isCritical ? (
+                              <span className="px-3 py-1.5 inline-flex items-center gap-1.5 text-xs font-bold rounded-lg bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800">
+                                <AlertTriangle className="w-3.5 h-3.5" />
+                                Critical
+                              </span>
+                            ) : isLowStock ? (
+                              <span className="px-3 py-1.5 inline-flex items-center gap-1.5 text-xs font-bold rounded-lg bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300 border border-orange-200 dark:border-orange-800">
+                                <AlertTriangle className="w-3.5 h-3.5" />
                                 Low Stock
                               </span>
                             ) : (
-                              <span className="px-3 py-1 inline-flex items-center gap-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                                <CheckCircle className="w-3 h-3" />
+                              <span className="px-3 py-1.5 inline-flex items-center gap-1.5 text-xs font-bold rounded-lg bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border border-green-200 dark:border-green-800">
+                                <CheckCircle className="w-3.5 h-3.5" />
                                 In Stock
                               </span>
                             )}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.supplier}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.lastRestocked}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm">
-                            <button
-                              onClick={() => {
-                                const newQty = prompt(`Update quantity for ${item.productType} (${item.size}, ${item.color}):`, item.quantity.toString());
-                                if (newQty) {
-                                  setStockItems(stockItems.map(s =>
-                                    s.id === item.id ? {...s, quantity: parseInt(newQty), lastRestocked: new Date().toISOString().split('T')[0]} : s
-                                  ));
-                                }
-                              }}
-                              className="text-brand-600 hover:text-brand-700 font-medium flex items-center gap-1"
-                            >
-                              <Edit className="w-4 h-4" />
-                              Update
-                            </button>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">{item.supplier}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{item.lastRestocked}</td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => {
+                                  setStockUpdateModal({isOpen: true, item, mode: 'update'});
+                                  setStockUpdateQuantity(item.quantity.toString());
+                                }}
+                                className="p-2 text-brand-600 dark:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded-lg transition-colors"
+                                title="Update quantity"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setStockUpdateModal({isOpen: true, item, mode: 'add'});
+                                  setStockUpdateQuantity('50');
+                                }}
+                                className="p-2 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors"
+                                title="Add stock"
+                              >
+                                <Plus className="w-4 h-4" />
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       );
@@ -1651,25 +1794,213 @@ const Admin: React.FC = () => {
 
             {/* Low Stock Alert */}
             {stockItems.filter(item => item.quantity <= item.reorderLevel).length > 0 && (
-              <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
-                <div className="flex items-start">
-                  <AlertTriangle className="w-5 h-5 text-red-500 mt-0.5 mr-3" />
-                  <div>
-                    <h3 className="text-sm font-bold text-red-800">Low Stock Alert</h3>
-                    <p className="text-sm text-red-700 mt-1">
-                      {stockItems.filter(item => item.quantity <= item.reorderLevel).length} items are running low on stock.
-                      Consider reordering soon to avoid stockouts.
+              <div className="bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 border-l-4 border-red-500 dark:border-red-600 p-6 rounded-xl shadow-sm">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-red-100 dark:bg-red-900/40 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <AlertTriangle className="w-6 h-6 text-red-600 dark:text-red-400" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="text-lg font-bold text-red-900 dark:text-red-100">Low Stock Alert</h3>
+                      <span className="px-3 py-1 bg-red-200 dark:bg-red-800 text-red-900 dark:text-red-100 rounded-full text-xs font-bold">
+                        {stockItems.filter(item => item.quantity <= item.reorderLevel).length} Items
+                      </span>
+                    </div>
+                    <p className="text-sm text-red-700 dark:text-red-300 mb-4">
+                      The following items are running low on stock. Consider reordering soon to avoid stockouts.
                     </p>
-                    <div className="mt-3 space-y-1">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       {stockItems
                         .filter(item => item.quantity <= item.reorderLevel)
-                        .slice(0, 5)
-                        .map(item => (
-                          <p key={item.id} className="text-xs text-red-600">
-                            • {item.productType.replace('-', ' ')} - {item.size} - {item.color}: {item.quantity} units left
-                          </p>
-                        ))}
+                        .slice(0, 6)
+                        .map(item => {
+                          const isCritical = item.quantity <= item.reorderLevel / 2;
+                          return (
+                            <div key={item.id} className="flex items-center justify-between bg-white dark:bg-gray-800 p-3 rounded-lg border border-red-200 dark:border-red-800">
+                              <div className="flex items-center gap-3">
+                                <div className={`w-2 h-2 rounded-full ${isCritical ? 'bg-red-600 animate-pulse' : 'bg-orange-500'}`}></div>
+                                <div>
+                                  <p className="text-sm font-semibold text-gray-900 dark:text-white capitalize">
+                                    {item.productType.replace('-', ' ')} - {item.size}
+                                  </p>
+                                  <p className="text-xs text-gray-500 dark:text-gray-400">{item.color}</p>
+                                </div>
+                              </div>
+                              <span className={`text-sm font-bold ${isCritical ? 'text-red-700 dark:text-red-400' : 'text-orange-600 dark:text-orange-400'}`}>
+                                {item.quantity} left
+                              </span>
+                            </div>
+                          );
+                        })}
                     </div>
+                    {stockItems.filter(item => item.quantity <= item.reorderLevel).length > 6 && (
+                      <p className="text-xs text-red-600 dark:text-red-400 mt-3">
+                        + {stockItems.filter(item => item.quantity <= item.reorderLevel).length - 6} more items need attention
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Stock Update Modal */}
+            {stockUpdateModal.isOpen && stockUpdateModal.item && (
+              <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full transform transition-all">
+                  {/* Modal Header */}
+                  <div className={`px-6 py-5 border-b border-gray-200 dark:border-gray-700 ${
+                    stockUpdateModal.mode === 'add'
+                      ? 'bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20'
+                      : 'bg-gradient-to-r from-brand-50 to-purple-50 dark:from-brand-900/20 dark:to-purple-900/20'
+                  }`}>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                          stockUpdateModal.mode === 'add'
+                            ? 'bg-green-100 dark:bg-green-900/40'
+                            : 'bg-brand-100 dark:bg-brand-900/40'
+                        }`}>
+                          {stockUpdateModal.mode === 'add' ? (
+                            <Plus className="w-6 h-6 text-green-600 dark:text-green-400" />
+                          ) : (
+                            <Edit className="w-6 h-6 text-brand-600 dark:text-brand-400" />
+                          )}
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                            {stockUpdateModal.mode === 'add' ? 'Add Stock' : 'Update Stock'}
+                          </h3>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                            {stockUpdateModal.item.productType.replace('-', ' ')} - {stockUpdateModal.item.size}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setStockUpdateModal({isOpen: false, item: null, mode: 'update'})}
+                        className="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                      >
+                        <XIcon className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Modal Body */}
+                  <div className="px-6 py-6 space-y-5">
+                    {/* Product Info */}
+                    <div className="bg-gray-50 dark:bg-gray-750 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mb-1">Product</p>
+                          <p className="text-sm font-semibold text-gray-900 dark:text-white capitalize">
+                            {stockUpdateModal.item.productType.replace('-', ' ')}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mb-1">Size</p>
+                          <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                            {stockUpdateModal.item.size}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mb-1">Color</p>
+                          <div className="flex items-center gap-2">
+                            <div
+                              className="w-4 h-4 rounded-full border-2 border-gray-300 dark:border-gray-600"
+                              style={{backgroundColor: stockUpdateModal.item.color.toLowerCase()}}
+                            />
+                            <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                              {stockUpdateModal.item.color}
+                            </p>
+                          </div>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mb-1">Current Stock</p>
+                          <p className="text-sm font-bold text-brand-600 dark:text-brand-400">
+                            {stockUpdateModal.item.quantity} units
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Quantity Input */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        {stockUpdateModal.mode === 'add' ? 'Quantity to Add' : 'New Quantity'}
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          value={stockUpdateQuantity}
+                          onChange={(e) => setStockUpdateQuantity(e.target.value)}
+                          className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl text-lg font-bold focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all"
+                          placeholder="Enter quantity"
+                          min="0"
+                          autoFocus
+                        />
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-400 dark:text-gray-500 font-medium">
+                          units
+                        </div>
+                      </div>
+                      {stockUpdateModal.mode === 'add' && (
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                          New total: <span className="font-bold text-brand-600 dark:text-brand-400">
+                            {stockUpdateModal.item.quantity + (parseInt(stockUpdateQuantity) || 0)} units
+                          </span>
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Quick Actions */}
+                    {stockUpdateModal.mode === 'add' && (
+                      <div>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mb-2">Quick Add</p>
+                        <div className="flex gap-2">
+                          {[10, 25, 50, 100].map(qty => (
+                            <button
+                              key={qty}
+                              onClick={() => setStockUpdateQuantity(qty.toString())}
+                              className="flex-1 px-3 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-brand-100 dark:hover:bg-brand-900/30 hover:text-brand-600 dark:hover:text-brand-400 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-semibold transition-all"
+                            >
+                              +{qty}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Modal Footer */}
+                  <div className="px-6 py-4 bg-gray-50 dark:bg-gray-750 border-t border-gray-200 dark:border-gray-700 rounded-b-2xl flex gap-3">
+                    <button
+                      onClick={() => setStockUpdateModal({isOpen: false, item: null, mode: 'update'})}
+                      className="flex-1 px-4 py-2.5 bg-white dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-600 transition-all"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={() => {
+                        const qty = parseInt(stockUpdateQuantity);
+                        if (!isNaN(qty) && qty >= 0) {
+                          setStockItems(stockItems.map(s =>
+                            s.id === stockUpdateModal.item!.id
+                              ? {
+                                  ...s,
+                                  quantity: stockUpdateModal.mode === 'add' ? s.quantity + qty : qty,
+                                  lastRestocked: new Date().toISOString().split('T')[0]
+                                }
+                              : s
+                          ));
+                          setStockUpdateModal({isOpen: false, item: null, mode: 'update'});
+                        }
+                      }}
+                      className={`flex-1 px-4 py-2.5 rounded-xl font-semibold text-white shadow-lg hover:shadow-xl transition-all ${
+                        stockUpdateModal.mode === 'add'
+                          ? 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700'
+                          : 'bg-gradient-to-r from-brand-600 to-purple-600 hover:from-brand-700 hover:to-purple-700'
+                      }`}
+                    >
+                      {stockUpdateModal.mode === 'add' ? 'Add Stock' : 'Update Stock'}
+                    </button>
                   </div>
                 </div>
               </div>

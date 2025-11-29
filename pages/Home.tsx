@@ -1,12 +1,46 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowRight, Star, Zap, Truck, ShieldCheck, Palette, Layers, TrendingUp, LayoutDashboard } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ArrowRight, Star, Zap, Truck, ShieldCheck, Palette, Layers, TrendingUp, LayoutDashboard, Sparkles, ShoppingCart } from 'lucide-react';
 import { INITIAL_DESIGNS } from '../constants';
 
 const Home: React.FC = () => {
+  const navigate = useNavigate();
   const latestDesigns = INITIAL_DESIGNS.slice(0, 3);
   const mostRequested = INITIAL_DESIGNS.slice(3, 6);
   const [showAdminButton, setShowAdminButton] = useState(false);
+
+  // Get featured designs from localStorage and INITIAL_DESIGNS
+  const [featuredDesigns, setFeaturedDesigns] = useState<any[]>([]);
+
+  useEffect(() => {
+    const loadFeaturedDesigns = () => {
+      const savedCatalog = localStorage.getItem('catalogDesigns');
+      const hiddenDesignIds = JSON.parse(localStorage.getItem('hiddenDesigns') || '[]');
+
+      // Get visible initial designs
+      const visibleInitialDesigns = INITIAL_DESIGNS.filter(d => !hiddenDesignIds.includes(d.id));
+
+      let allDesigns = [...visibleInitialDesigns];
+
+      // Add custom designs from localStorage
+      if (savedCatalog) {
+        const customDesigns = JSON.parse(savedCatalog);
+        allDesigns = [...customDesigns, ...visibleInitialDesigns];
+      }
+
+      // Filter only featured designs
+      const featured = allDesigns.filter((d: any) => d.featured === true);
+      setFeaturedDesigns(featured);
+
+      console.log('Featured designs loaded:', featured);
+    };
+
+    loadFeaturedDesigns();
+
+    // Reload when storage changes (e.g., when admin updates designs)
+    window.addEventListener('storage', loadFeaturedDesigns);
+    return () => window.removeEventListener('storage', loadFeaturedDesigns);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -104,91 +138,122 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Product Showcase (Mockups Models) */}
-      <section className="py-24 bg-white dark:bg-gray-900 transition-colors duration-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-           <div className="text-center max-w-3xl mx-auto mb-16">
-             <h2 className="text-base text-brand-600 dark:text-brand-400 font-bold tracking-widest uppercase mb-3">The Collection</h2>
-             <p className="text-4xl font-serif font-bold text-gray-900 dark:text-white mb-4">Choose Your Canvas</p>
-             <p className="text-gray-500 dark:text-gray-400 text-lg">We focus on the essentials. Four premium base products, infinite possibilities.</p>
-           </div>
+      {/* Featured Collection */}
+      {featuredDesigns.length > 0 && (
+        <section className="py-24 bg-white dark:bg-gray-900 transition-colors duration-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {/* Section Header */}
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-100 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 mb-4">
+                <Sparkles className="w-4 h-4" />
+                <span className="font-bold text-sm uppercase tracking-wider">Featured Collection</span>
+              </div>
+              <h2 className="text-4xl md:text-5xl font-serif font-bold text-gray-900 dark:text-white mb-4">
+                Handpicked for You
+              </h2>
+              <p className="text-gray-600 dark:text-gray-400 text-lg max-w-2xl mx-auto">
+                Our curated selection of premium designs. Ready to wear or customize to your style.
+              </p>
+            </div>
 
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {[
-                { name: 'T-Shirts', img: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=800&q=80', desc: '100% Organic Cotton' },
-                { name: 'Hoodies', img: 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=800&q=80', desc: 'Heavyweight Fleece' },
-                { name: 'Sweaters', img: 'https://images.unsplash.com/photo-1620799140408-ed5341cd2431?auto=format&fit=crop&w=800&q=80', desc: 'Cozy Knit Blend' },
-                { name: 'Caps', img: 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&w=800&q=80', desc: 'Structured Snapback' }
-              ].map((item, idx) => (
-                <Link to="/studio" key={idx} className="group relative overflow-hidden rounded-2xl cursor-pointer block">
-                  <div className="aspect-w-3 aspect-h-4 bg-gray-200 dark:bg-gray-700">
+            {/* Featured Products Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {featuredDesigns.map((design) => (
+                <div key={design.id} className="group bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700">
+                  {/* Featured Tag */}
+                  {design.featuredTag && (
+                    <div className="absolute top-4 left-4 z-20 px-3 py-1.5 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full text-xs font-bold text-white shadow-lg flex items-center gap-1">
+                      <Sparkles className="w-3 h-3" />
+                      {design.featuredTag}
+                    </div>
+                  )}
+
+                  {/* Product Image */}
+                  <div className="relative h-96 overflow-hidden bg-gray-100 dark:bg-gray-700">
                     <img
-                      src={item.img}
-                      alt={item.name}
+                      src={design.featuredMockup || design.imageUrl}
+                      alt={design.title}
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     />
                   </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity"></div>
-                  <div className="absolute bottom-0 left-0 p-6 text-white transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-                    <h3 className="text-2xl font-bold font-serif mb-1">{item.name}</h3>
-                    <p className="text-gray-300 text-sm">{item.desc}</p>
-                    <div className="mt-4 h-1 w-0 bg-white group-hover:w-12 transition-all duration-500"></div>
-                  </div>
-                </Link>
-              ))}
-           </div>
-        </div>
-      </section>
 
-      {/* Latest Designs */}
-      {latestDesigns.length > 0 && (
-        <section id="collections" className="py-24 bg-gray-50 dark:bg-gray-800 transition-colors duration-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-4">
-              <div>
-                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white font-serif">Fresh Drops</h2>
-                <div className="h-1 w-20 bg-brand-500 dark:bg-brand-400 mt-4 rounded-full"></div>
-              </div>
-              <Link to="/studio" className="group flex items-center gap-2 font-medium text-gray-900 dark:text-white hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
-                <span>View all collections</span>
-                <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" />
-              </Link>
+                  {/* Product Info */}
+                  <div className="p-6 space-y-4">
+                    <div>
+                      <p className="text-brand-600 dark:text-brand-400 text-xs font-bold uppercase tracking-wider mb-2">{design.category}</p>
+                      <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
+                        {design.title}
+                      </h3>
+                      <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-2">{design.description}</p>
+                    </div>
+
+                    {/* Price */}
+                    <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Starting at</p>
+                      <p className="text-2xl font-bold text-gray-900 dark:text-white">${design.price.toFixed(2)}</p>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        onClick={() => {
+                          // Add to cart logic
+                          const cartItem = {
+                            id: `${design.id}-${Date.now()}`,
+                            designId: design.id,
+                            designTitle: design.title,
+                            mockupType: 't-shirt',
+                            quantity: 1,
+                            size: 'M',
+                            color: 'Black',
+                            price: design.price,
+                            imageUrl: design.featuredMockup || design.imageUrl
+                          };
+                          const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+                          cart.push(cartItem);
+                          localStorage.setItem('cart', JSON.stringify(cart));
+
+                          // Trigger cart update event
+                          window.dispatchEvent(new Event('cartUpdated'));
+
+                          // Show success message
+                          alert('✅ Added to cart!');
+                        }}
+                        className="flex items-center justify-center gap-2 px-5 py-3 bg-[#1a1a2e] hover:bg-[#16213e] dark:bg-[#0f0f1e] dark:hover:bg-[#1a1a2e] text-white rounded-lg font-semibold transition-all shadow-sm hover:shadow-md"
+                      >
+                        <ShoppingCart className="w-4 h-4" />
+                        Buy Now
+                      </button>
+                      <button
+                        onClick={() => navigate('/studio')}
+                        className="flex items-center justify-center gap-2 px-5 py-3 bg-[#b8860b] hover:bg-[#9a7209] dark:bg-[#daa520] dark:hover:bg-[#b8860b] text-white rounded-lg font-semibold transition-all shadow-sm hover:shadow-md"
+                      >
+                        <Palette className="w-4 h-4" />
+                        Customize
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {latestDesigns.map((design) => (
-              <div key={design.id} className="bg-white dark:bg-gray-700 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-600 group">
-                <div className="relative h-80 overflow-hidden">
-                   <img
-                    src={design.imageUrl}
-                    alt={design.title}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
-                  <div className="absolute top-4 right-4 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide text-gray-900 dark:text-white shadow-sm">
-                    New
-                  </div>
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                     <Link to="/studio" className="px-6 py-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-full font-bold transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 hover:bg-brand-50 dark:hover:bg-brand-900/30">
-                       Customize
-                     </Link>
-                  </div>
-                </div>
-                <div className="p-6">
-                   <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <p className="text-sm text-brand-600 dark:text-brand-400 font-semibold uppercase tracking-wide">{design.category}</p>
-                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-1">{design.title}</h3>
-                      </div>
-                      <span className="text-lg font-serif font-bold text-gray-900 dark:text-white">${design.price}</span>
-                   </div>
-                   <p className="text-gray-500 dark:text-gray-400 text-sm line-clamp-2">{design.description}</p>
-                </div>
+            {/* View All Button */}
+            {featuredDesigns.length > 3 && (
+              <div className="text-center mt-12">
+                <Link
+                  to="/studio"
+                  className="inline-flex items-center gap-2 px-8 py-4 bg-brand-600 hover:bg-brand-700 dark:bg-brand-500 dark:hover:bg-brand-600 text-white rounded-full font-bold text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+                >
+                  View All Featured Designs
+                  <ArrowRight className="w-5 h-5" />
+                </Link>
               </div>
-            ))}
+            )}
           </div>
-        </div>
         </section>
       )}
+
+
 
       {/* Why Choose Us */}
       <section className="py-24 bg-white dark:bg-gray-900 relative overflow-hidden transition-colors duration-200">
