@@ -4,9 +4,11 @@ import { ShoppingBag, Menu, X, LayoutDashboard, User, Moon, Sun, LogOut, Chevron
 import { IMAGES } from '../config/cloudinary';
 import { useTheme } from '../contexts/ThemeContext';
 import { getCurrentUser, isAdmin, logout } from '../utils/auth';
+import useTranslation from '../hooks/useTranslation';
 
 
 const Navbar: React.FC = () => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [currentUser, setCurrentUser] = useState(getCurrentUser());
@@ -76,9 +78,9 @@ const Navbar: React.FC = () => {
   };
 
   const navLinks = [
-    { name: 'Home', path: '/' },
-    { name: 'Design Studio', path: '/studio' },
-    { name: 'About', path: '/about' },
+    { name: t.nav.home, path: '/' },
+    { name: t.nav.studio, path: '/studio' },
+    { name: t.nav.about, path: '/about' },
   ];
 
   return (
@@ -162,14 +164,14 @@ const Navbar: React.FC = () => {
                       className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                     >
                       <User className="w-4 h-4" />
-                      My Profile
+                      {t.nav.profile}
                     </Link>
                     <button
                       onClick={handleLogout}
                       className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                     >
                       <LogOut className="w-4 h-4" />
-                      Logout
+                      {t.nav.logout}
                     </button>
                   </div>
                 )}
@@ -180,7 +182,7 @@ const Navbar: React.FC = () => {
                 className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-brand-600 hover:bg-brand-700 dark:bg-brand-500 dark:hover:bg-brand-600 transition-colors"
               >
                 <User className="w-4 h-4" />
-                Login
+                {t.nav.login}
               </Link>
             )}
           </div>
@@ -224,7 +226,7 @@ const Navbar: React.FC = () => {
                 className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors relative"
               >
                 <ShoppingBag className="h-4 w-4" />
-                Shopping Cart
+                {t.nav.cart}
                 <span className="absolute top-1 right-1 block h-2 w-2 rounded-full ring-2 ring-white dark:ring-gray-800 bg-brand-500"></span>
               </Link>
             </div>
@@ -236,7 +238,7 @@ const Navbar: React.FC = () => {
                 className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
               >
                 {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-                {isDarkMode ? 'Light Mode' : 'Dark Mode'}
+                {isDarkMode ? t.nav.lightMode : t.nav.darkMode}
               </button>
             </div>
 
@@ -249,7 +251,7 @@ const Navbar: React.FC = () => {
                   className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600 transition-colors"
                 >
                   <LayoutDashboard className="w-4 h-4" />
-                  Admin Dashboard
+                  {t.nav.admin}
                 </Link>
               </div>
             )}
@@ -271,7 +273,7 @@ const Navbar: React.FC = () => {
                     className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                   >
                     <User className="w-4 h-4" />
-                    My Profile
+                    {t.nav.profile}
                   </Link>
 
                   {/* Logout Button */}
@@ -280,7 +282,7 @@ const Navbar: React.FC = () => {
                     className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-red-500 hover:bg-red-600 transition-colors"
                   >
                     <LogOut className="w-4 h-4" />
-                    Logout
+                    {t.nav.logout}
                   </button>
                 </div>
               ) : (
@@ -290,7 +292,7 @@ const Navbar: React.FC = () => {
                   className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-brand-600 hover:bg-brand-700 dark:bg-brand-500 dark:hover:bg-brand-600 transition-colors"
                 >
                   <User className="w-4 h-4" />
-                  Login
+                  {t.nav.login}
                 </Link>
               )}
             </div>

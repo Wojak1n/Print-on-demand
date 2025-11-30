@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Mail, Lock, User, Eye, EyeOff, ArrowRight, ShieldCheck } from 'lucide-react';
 import { authenticateUser, login, isAuthenticated, getCurrentUser } from '../utils/auth';
+import useTranslation from '../hooks/useTranslation';
 
 const Login: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [isLogin, setIsLogin] = useState(true);
@@ -69,12 +71,12 @@ const Login: React.FC = () => {
           navigate('/studio');
         }
       } else {
-        setError('Invalid email or password');
+        setError(t.auth.invalidCredentials);
       }
     } else {
       // Signup logic
       if (formData.password !== formData.confirmPassword) {
-        setError('Passwords do not match');
+        setError(t.auth.passwordMismatch);
         return;
       }
 
@@ -128,10 +130,10 @@ const Login: React.FC = () => {
             <img src="./images/khayali logo.png" alt="KHAYALI" className="h-44 mx-auto" />
           </Link>
           <h2 className="mt-6 text-3xl font-serif font-bold text-gray-900 dark:text-white">
-            {isLogin ? 'Welcome Back' : 'Create Account'}
+            {isLogin ? t.auth.welcomeBack : t.auth.createAccount}
           </h2>
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            {isLogin ? 'Sign in to your account' : 'Join our creative community'}
+            {isLogin ? t.auth.signInToAccount : t.auth.joinCommunity}
           </p>
         </div>
 
@@ -149,7 +151,7 @@ const Login: React.FC = () => {
             {!isLogin && (
               <div>
                 <label htmlFor="name" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                  Full Name
+                  {t.auth.fullName}
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -163,7 +165,7 @@ const Login: React.FC = () => {
                     value={formData.name}
                     onChange={handleChange}
                     className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-brand-500 dark:focus:ring-brand-400 focus:border-brand-500 dark:focus:border-brand-400 transition-all"
-                    placeholder="John Doe"
+                    placeholder={t.auth.namePlaceholder}
                   />
                 </div>
               </div>
@@ -172,7 +174,7 @@ const Login: React.FC = () => {
             {/* Email field */}
             <div>
               <label htmlFor="email" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                Email Address
+                {t.auth.emailAddress}
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -186,7 +188,7 @@ const Login: React.FC = () => {
                   value={formData.email}
                   onChange={handleChange}
                   className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-brand-500 dark:focus:ring-brand-400 focus:border-brand-500 dark:focus:border-brand-400 transition-all"
-                  placeholder="you@example.com"
+                  placeholder={t.auth.emailPlaceholder}
                 />
               </div>
             </div>
@@ -194,7 +196,7 @@ const Login: React.FC = () => {
             {/* Password field */}
             <div>
               <label htmlFor="password" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                Password
+                {t.auth.password}
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -228,7 +230,7 @@ const Login: React.FC = () => {
             {!isLogin && (
               <div>
                 <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                  Confirm Password
+                  {t.auth.confirmPassword}
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -255,7 +257,7 @@ const Login: React.FC = () => {
               type="submit"
               className="w-full flex items-center justify-center gap-2 py-3 px-4 border border-transparent rounded-lg shadow-lg text-white bg-gradient-to-r from-brand-600 to-brand-500 dark:from-brand-500 dark:to-brand-400 hover:from-brand-500 hover:to-brand-400 dark:hover:from-brand-400 dark:hover:to-brand-300 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-brand-500 dark:focus:ring-brand-400 font-bold text-lg transition-all transform hover:-translate-y-0.5"
             >
-              {isLogin ? 'Sign In' : 'Create Account'}
+              {isLogin ? t.auth.signIn : t.auth.createAccount}
               <ArrowRight className="w-5 h-5" />
             </button>
           </form>
@@ -267,7 +269,7 @@ const Login: React.FC = () => {
               onClick={() => setIsLogin(!isLogin)}
               className="text-sm text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 font-semibold"
             >
-              {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
+              {isLogin ? t.auth.noAccount : t.auth.haveAccount}
             </button>
           </div>
 
@@ -278,7 +280,7 @@ const Login: React.FC = () => {
                 type="button"
                 className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
               >
-                Forgot your password?
+                {t.auth.forgotPassword}
               </button>
             </div>
           )}
@@ -290,7 +292,7 @@ const Login: React.FC = () => {
             to="/"
             className="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400 font-medium transition-colors"
           >
-            ← Back to Home
+            ← {t.auth.backToHome}
           </Link>
         </div>
 
@@ -311,7 +313,7 @@ const Login: React.FC = () => {
             {/* Tooltip */}
             <div className="absolute right-16 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
               <div className="bg-gray-900 dark:bg-gray-800 text-white text-sm font-medium px-3 py-2 rounded-lg shadow-xl whitespace-nowrap">
-                Admin Login
+                {t.auth.adminLogin}
                 <div className="absolute right-[-6px] top-1/2 -translate-y-1/2 w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-l-[6px] border-l-gray-900 dark:border-l-gray-800"></div>
               </div>
             </div>

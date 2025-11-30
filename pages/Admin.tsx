@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { STATS_DATA, INITIAL_DESIGNS, MOCK_ORDERS, MOCKUPS, STOCK_ITEMS } from '../constants';
+import { STATS_DATA, FEATURED_DESIGNS, MOCK_ORDERS, MOCKUPS, STOCK_ITEMS } from '../constants';
 import { Design, Mockup, Order, StockItem } from '../types';
 import { Plus, Loader2, Sparkles, Package, DollarSign, Users, Image as ImageIcon, Upload, Palette, TrendingUp, Box, AlertTriangle, Eye, Truck, CheckCircle, XCircle, Edit, Search, UserCheck, Mail, Calendar, ShoppingCart, Ban, CheckCircle2, Trash2, Save, X as XIcon, LayoutDashboard, Settings, LogOut, Bell, Menu } from 'lucide-react';
 import { generateMarketingCopy } from '../services/geminiService';
@@ -9,7 +9,7 @@ import { FAKE_USERS, User } from '../utils/auth';
 const Admin: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'designs' | 'orders' | 'mockups' | 'stock' | 'users'>('dashboard');
   const [users, setUsers] = useState<User[]>(FAKE_USERS);
-  const [designs, setDesigns] = useState<Design[]>(INITIAL_DESIGNS);
+  const [designs, setDesigns] = useState<Design[]>([]);
   const [orders, setOrders] = useState<Order[]>(MOCK_ORDERS);
   const [stockItems, setStockItems] = useState<StockItem[]>(STOCK_ITEMS);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -73,14 +73,14 @@ const Admin: React.FC = () => {
     const savedCatalog = localStorage.getItem('catalogDesigns');
     const hiddenDesignIds = JSON.parse(localStorage.getItem('hiddenDesigns') || '[]');
 
-    // Filter out hidden default designs from INITIAL_DESIGNS
-    const visibleInitialDesigns = INITIAL_DESIGNS.filter(d => !hiddenDesignIds.includes(d.id));
+    // Filter out hidden featured designs from FEATURED_DESIGNS
+    const visibleFeaturedDesigns = FEATURED_DESIGNS.filter((d: Design) => !hiddenDesignIds.includes(d.id));
 
     if (savedCatalog) {
        const parsed = JSON.parse(savedCatalog);
-       setDesigns([...parsed, ...visibleInitialDesigns]);
+       setDesigns([...parsed, ...visibleFeaturedDesigns]);
     } else {
-       setDesigns(visibleInitialDesigns);
+       setDesigns(visibleFeaturedDesigns);
     }
   }, []);
 
@@ -205,10 +205,10 @@ const Admin: React.FC = () => {
   };
 
   const handleDeleteDesign = (designId: string) => {
-    // Check if it's a default design from INITIAL_DESIGNS
-    const isDefaultDesign = INITIAL_DESIGNS.some(d => d.id === designId);
+    // Check if it's a featured design from FEATURED_DESIGNS
+    const isFeaturedDesign = FEATURED_DESIGNS.some((d: Design) => d.id === designId);
 
-    if (isDefaultDesign) {
+    if (isFeaturedDesign) {
       // Add to hidden designs list
       const updatedHiddenDesigns = [...hiddenDesigns, designId];
       setHiddenDesigns(updatedHiddenDesigns);
@@ -2185,7 +2185,7 @@ const Admin: React.FC = () => {
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Admin Email</label>
                     <input
                       type="email"
-                      value="admin@khayali.com"
+                      value="hafsa@admin.com"
                       disabled
                       className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white"
                     />

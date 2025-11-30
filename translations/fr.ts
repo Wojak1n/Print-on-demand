@@ -1,0 +1,356 @@
+// French translations for the entire website
+
+export const fr = {
+  // Navigation
+  nav: {
+    home: 'Accueil',
+    studio: 'Studio de Design',
+    about: 'À Propos',
+    contact: 'Contact',
+    cart: 'Panier',
+    profile: 'Mon Profil',
+    login: 'Connexion',
+    logout: 'Déconnexion',
+    admin: 'Tableau de Bord Admin',
+    lightMode: 'Mode Clair',
+    darkMode: 'Mode Sombre',
+  },
+
+  // Hero Section
+  hero: {
+    badge: 'Impression Premium à la Demande',
+    title: 'Art Sélectionné.',
+    subtitle: 'Toile Portable.',
+    description: 'Créez des T-shirts, Sweats à Capuche, Pulls et Casquettes exclusifs. Où le design haut de gamme rencontre le confort quotidien.',
+    ctaPrimary: 'Commencer à Créer',
+    ctaSecondary: 'Explorer les Designs',
+    newArrival: 'Nouvelle Arrivée',
+    limitedEdition: 'Édition Limitée',
+    artistsJoined: 'Artistes inscrits',
+  },
+
+  // Features
+  features: {
+    badge: 'Notre Promesse',
+    title: 'Pourquoi les Designers Nous Choisissent',
+    subtitle: 'Tout ce dont vous avez besoin pour créer des designs incroyables',
+    feature1Title: 'Couleurs Fidèles à la Réalité',
+    feature1Text: 'Notre technologie d\'impression DTG avancée garantit que votre design ressemble exactement à ce que vous avez imaginé.',
+    feature2Title: 'Matériaux Premium',
+    feature2Text: 'Nous ne stockons que du coton haute densité, des mélanges doux et des tissus durables.',
+    feature3Title: 'Échelle Mondiale',
+    feature3Text: 'D\'une unité à mille. Nous évoluons avec votre ambition de manière transparente.',
+    aiPowered: {
+      title: 'Design Alimenté par IA',
+      description: 'Générez des designs uniques avec notre technologie IA avancée',
+    },
+    customization: {
+      title: 'Personnalisation Complète',
+      description: 'Contrôle total sur chaque aspect de votre design',
+    },
+    quality: {
+      title: 'Impression de Qualité',
+      description: 'Impression haute résolution sur des produits premium',
+    },
+    shipping: {
+      title: 'Livraison Rapide',
+      description: 'Expédition mondiale avec suivi en temps réel',
+    },
+  },
+
+  // Handpicked Section
+  handpicked: {
+    badge: 'Collection en Vedette',
+    title: 'Sélectionnés Pour Vous',
+    description: 'Notre sélection de designs premium. Prêts à porter ou à personnaliser selon votre style.',
+    viewAll: 'Voir Tous les Designs Sélectionnés',
+    clickToCustomize: 'Cliquer pour Personnaliser',
+    staffPick: 'Choix du Personnel',
+    trending: 'Tendance',
+    newArrival: 'Nouvelle Arrivée',
+    startingAt: 'À partir de',
+  },
+
+  // Community Favorites
+  community: {
+    title: 'Favoris de la Communauté',
+    mostRequested: 'Les Plus Demandés',
+  },
+
+  // Customer Reviews
+  reviews: {
+    badge: 'Avis Clients',
+    title: 'Ce Que Disent Nos Clients',
+    description: 'Rejoignez des milliers de clients satisfaits qui nous font confiance pour leurs designs personnalisés',
+    viewAll: 'Voir Tous les Avis',
+    basedOn: 'Basé sur 2 547 avis',
+    review1Name: 'Fatima Zahra El Amrani',
+    review1Role: 'Propriétaire de Boutique à Casablanca',
+    review1Text: 'La qualité est exceptionnelle ! Mes t-shirts personnalisés avec des motifs marocains sont magnifiques. Les couleurs sont vives et le tissu est de qualité premium. Mes clients adorent !',
+    review1Date: 'Il y a 2 semaines',
+    review2Name: 'Youssef Bennani',
+    review2Role: 'Designer Graphique à Marrakech',
+    review2Text: 'En tant que designer marocain, je suis très exigeant sur la qualité d\'impression. KHAYALI a dépassé mes attentes. Le studio de design est intuitif et le produit final est impeccable. Parfait pour mes créations berbères !',
+    review2Date: 'Il y a 1 mois',
+    review3Name: 'Amina Idrissi',
+    review3Role: 'Organisatrice d\'Événements à Rabat',
+    review3Text: 'J\'ai commandé 50 sweats à capuche personnalisés pour notre festival culturel. Livraison rapide à Rabat, qualité constante sur tous les articles, et excellent service client. Je recommande vivement !',
+    review3Date: 'Il y a 3 semaines',
+  },
+
+  // About Section (Who We Are)
+  about: {
+    badge: 'Qui Nous Sommes',
+    title: 'Nous Faisons le Lien Entre l\'Art et le Vêtement.',
+    description: 'Ink & Thread n\'a pas été conçu pour la production de masse. Il a été conçu pour les passionnés. Pour les créateurs qui passent des heures à perfectionner une seule ligne vectorielle. Pour ceux qui veulent que leurs vêtements disent quelque chose de significatif.',
+    feature1: 'Encres écologiques et emballages durables',
+    feature2: 'Modèle de royalties axé sur les artistes',
+    feature3: 'Contrôle qualité sur chaque point de couture',
+    quote: '"Le design est l\'intelligence rendue visible."',
+    quoteAuthor: '- Alina Wheeler',
+    readStory: 'Lire notre histoire complète',
+    designTeamAlt: 'Équipe de Design',
+  },
+
+  // Footer
+  footer: {
+    tagline: 'Créez votre style unique',
+    description: 'Transformez vos idées en designs personnalisés avec notre studio de design alimenté par IA.',
+    company: {
+      title: 'Entreprise',
+      about: 'À Propos',
+      careers: 'Carrières',
+      press: 'Presse',
+      blog: 'Blog',
+    },
+    support: {
+      title: 'Support',
+      help: 'Centre d\'Aide',
+      shipping: 'Livraison',
+      returns: 'Retours',
+      contact: 'Contact',
+    },
+    legal: {
+      title: 'Légal',
+      privacy: 'Confidentialité',
+      terms: 'Conditions',
+      cookies: 'Cookies',
+    },
+    newsletter: {
+      title: 'Restez Informé',
+      description: 'Abonnez-vous à notre newsletter pour les dernières mises à jour',
+      placeholder: 'Entrez votre email',
+      button: 'S\'abonner',
+    },
+    copyright: '© 2024 Khayali. Tous droits réservés.',
+  },
+
+  // Design Studio
+  studio: {
+    title: 'Studio de Design',
+    library: 'Bibliothèque',
+    searchPlaceholder: 'Rechercher...',
+    uploadDesign: 'Télécharger Votre Design',
+    generateAI: 'Générer un Design IA',
+    aiPromptPlaceholder: 'Décrivez votre design de rêve... (ex: "Un chat cyberpunk en couleurs néon")',
+    generate: 'Générer',
+    generating: 'Génération...',
+    noDesigns: 'Aucun Design Pour le Moment',
+    noDesignsDescription: 'Téléchargez votre propre design ou générez-en un avec l\'IA',
+    noDesignsDesc: 'Téléchargez votre propre design ou générez-en un avec IA',
+    productColor: 'Couleur du Produit',
+    mockups: 'Maquettes',
+    uploadProduct: 'Télécharger une Maquette',
+    customize: 'Personnaliser',
+    zones: 'Zones',
+    addZone: 'Ajouter une Zone',
+    position: 'Position',
+    scale: 'Échelle',
+    rotation: 'Rotation',
+    totalPrice: 'Prix Total',
+    addToCart: 'Ajouter au Panier',
+  },
+
+  // Cart
+  cart: {
+    title: 'Panier',
+    item: 'article',
+    items: 'articles',
+    inYourCart: 'dans votre panier',
+    emptyCart: 'Votre panier est vide',
+    emptyCartDescription: 'Commencez à créer vos vêtements personnalisés !',
+    goToStudio: 'Aller au Studio de Design',
+    size: 'Taille',
+    color: 'Couleur',
+    orderSummary: 'Résumé de la Commande',
+    subtotal: 'Sous-total',
+    shipping: 'Livraison',
+    tax: 'Taxe',
+    total: 'Total',
+    proceedToCheckout: 'Passer à la Caisse',
+    empty: 'Votre panier est vide',
+    emptyDesc: 'Commencez à créer des designs incroyables',
+    continueShopping: 'Continuer les Achats',
+    quantity: 'Quantité',
+    price: 'Prix',
+    checkout: 'Passer la Commande',
+    remove: 'Retirer',
+  },
+
+  // Auth
+  auth: {
+    login: 'Connexion',
+    signup: 'Inscription',
+    email: 'Email',
+    password: 'Mot de passe',
+    confirmPassword: 'Confirmer le mot de passe',
+    name: 'Nom',
+    forgotPassword: 'Mot de passe oublié?',
+    noAccount: 'Pas de compte? Inscrivez-vous',
+    haveAccount: 'Vous avez déjà un compte? Connectez-vous',
+    loginButton: 'Se Connecter',
+    signupButton: 'S\'inscrire',
+    or: 'ou',
+    adminLogin: 'Connexion Administrateur',
+    adminAccess: 'Accès Administrateur Requis',
+    accessDenied: 'Accès refusé. Identifiants administrateur requis.',
+    invalidCredentials: 'Email ou mot de passe invalide',
+    passwordMismatch: 'Les mots de passe ne correspondent pas',
+    welcomeBack: 'Bon Retour',
+    createAccount: 'Créer un Compte',
+    signInToAccount: 'Connectez-vous à votre compte',
+    joinCommunity: 'Rejoignez notre communauté créative',
+    fullName: 'Nom Complet',
+    namePlaceholder: 'Jean Dupont',
+    emailAddress: 'Adresse Email',
+    emailPlaceholder: 'vous@exemple.com',
+    signIn: 'Se Connecter',
+    backToHome: 'Retour à l\'Accueil',
+    adminPortal: 'Portail Administrateur',
+    authorizedOnly: 'Accès autorisé uniquement',
+    adminEmail: 'Email Administrateur',
+    signInAsAdmin: 'Se Connecter en tant qu\'Administrateur',
+    notAdmin: 'Pas un administrateur?',
+    signInAsUser: 'Se connecter en tant qu\'utilisateur',
+  },
+
+  // Admin Panel
+  admin: {
+    dashboard: 'Tableau de Bord',
+    designs: 'Designs',
+    orders: 'Commandes',
+    mockups: 'Maquettes',
+    stock: 'Stock',
+    users: 'Utilisateurs',
+    settings: 'Paramètres',
+    logout: 'Déconnexion',
+
+    // Dashboard
+    totalRevenue: 'Revenu Total',
+    totalOrders: 'Commandes Totales',
+    activeUsers: 'Utilisateurs Actifs',
+    totalDesigns: 'Designs Totaux',
+    revenueOverview: 'Aperçu des Revenus',
+    recentOrders: 'Commandes Récentes',
+    lowStock: 'Stock Faible',
+
+    // Designs
+    addDesign: 'Ajouter un Design',
+    uploadDesigns: 'Télécharger des Designs',
+    designTitle: 'Titre du Design',
+    category: 'Catégorie',
+    description: 'Description',
+    price: 'Prix',
+    featured: 'En Vedette',
+    generateDescription: 'Générer une Description',
+    save: 'Enregistrer',
+    cancel: 'Annuler',
+    delete: 'Supprimer',
+    edit: 'Modifier',
+
+    // Orders
+    orderId: 'ID Commande',
+    customer: 'Client',
+    date: 'Date',
+    status: 'Statut',
+    total: 'Total',
+    pending: 'En Attente',
+    processing: 'En Traitement',
+    shipped: 'Expédié',
+    delivered: 'Livré',
+    cancelled: 'Annulé',
+    viewDetails: 'Voir les Détails',
+
+    // Users
+    userName: 'Nom',
+    userEmail: 'Email',
+    role: 'Rôle',
+    joinDate: 'Date d\'Inscription',
+    lastLogin: 'Dernière Connexion',
+    userStatus: 'Statut',
+    active: 'Actif',
+    inactive: 'Inactif',
+    banned: 'Banni',
+
+    // Stock
+    productName: 'Nom du Produit',
+    sku: 'SKU',
+    quantity: 'Quantité',
+    reorderLevel: 'Niveau de Réapprovisionnement',
+    supplier: 'Fournisseur',
+  },
+
+  // Common
+  common: {
+    loading: 'Chargement...',
+    save: 'Enregistrer',
+    cancel: 'Annuler',
+    delete: 'Supprimer',
+    edit: 'Modifier',
+    view: 'Voir',
+    search: 'Rechercher',
+    filter: 'Filtrer',
+    sort: 'Trier',
+    close: 'Fermer',
+    back: 'Retour',
+    next: 'Suivant',
+    previous: 'Précédent',
+    submit: 'Soumettre',
+    confirm: 'Confirmer',
+    yes: 'Oui',
+    no: 'Non',
+  },
+
+  // About Page
+  aboutPage: {
+    title: 'À Propos de Nous',
+    subtitle: 'Notre Histoire',
+    description: 'Nous sommes passionnés par la création de designs uniques',
+  },
+
+  // Profile Page
+  profile: {
+    title: 'Mon Profil',
+    personalInfo: 'Informations Personnelles',
+    orderHistory: 'Historique des Commandes',
+    savedDesigns: 'Designs Sauvegardés',
+    settings: 'Paramètres',
+  },
+
+  // Checkout
+  checkout: {
+    title: 'Finaliser la Commande',
+    shippingInfo: 'Informations de Livraison',
+    paymentMethod: 'Méthode de Paiement',
+    orderSummary: 'Résumé de la Commande',
+    placeOrder: 'Passer la Commande',
+    firstName: 'Prénom',
+    lastName: 'Nom',
+    address: 'Adresse',
+    city: 'Ville',
+    postalCode: 'Code Postal',
+    country: 'Pays',
+    phone: 'Téléphone',
+  },
+};
+

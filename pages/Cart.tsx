@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingBag, Trash2, Plus, Minus, ArrowRight, Package } from 'lucide-react';
 import { isAuthenticated } from '../utils/auth';
+import useTranslation from '../hooks/useTranslation';
 
 interface CartItem {
   id: string;
@@ -16,6 +17,7 @@ interface CartItem {
 }
 
 const Cart: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
@@ -83,10 +85,10 @@ const Cart: React.FC = () => {
         <div className="mb-8">
           <h1 className="text-3xl font-serif font-bold text-gray-900 dark:text-white flex items-center gap-3">
             <ShoppingBag className="w-8 h-8 text-brand-600 dark:text-brand-400" />
-            Shopping Cart
+            {t.cart.title}
           </h1>
           <p className="mt-2 text-gray-600 dark:text-gray-400">
-            {cartItems.length} {cartItems.length === 1 ? 'item' : 'items'} in your cart
+            {cartItems.length} {cartItems.length === 1 ? t.cart.item : t.cart.items} {t.cart.inYourCart}
           </p>
         </div>
 
@@ -94,15 +96,15 @@ const Cart: React.FC = () => {
           /* Empty Cart */
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-12 text-center border border-gray-100 dark:border-gray-700">
             <Package className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Your cart is empty</h2>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{t.cart.emptyCart}</h2>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Start designing your custom apparel!
+              {t.cart.emptyCartDescription}
             </p>
             <Link
               to="/studio"
               className="inline-flex items-center gap-2 px-6 py-3 bg-brand-600 hover:bg-brand-700 dark:bg-brand-500 dark:hover:bg-brand-600 text-white font-semibold rounded-lg transition-colors"
             >
-              Go to Design Studio
+              {t.cart.goToStudio}
               <ArrowRight className="w-5 h-5" />
             </Link>
           </div>
@@ -124,7 +126,7 @@ const Cart: React.FC = () => {
                     <div className="flex-1">
                       <h3 className="text-lg font-bold text-gray-900 dark:text-white">{item.designTitle}</h3>
                       <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                        {item.mockupType.charAt(0).toUpperCase() + item.mockupType.slice(1)} • Size: {item.size} • Color: {item.color}
+                        {item.mockupType.charAt(0).toUpperCase() + item.mockupType.slice(1)} • {t.cart.size}: {item.size} • {t.cart.color}: {item.color}
                       </p>
                       <p className="text-lg font-bold text-brand-600 dark:text-brand-400 mt-2">
                         ${item.price.toFixed(2)}
@@ -163,23 +165,23 @@ const Cart: React.FC = () => {
             {/* Order Summary */}
             <div className="lg:col-span-1">
               <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 sticky top-24">
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Order Summary</h2>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">{t.cart.orderSummary}</h2>
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between text-gray-600 dark:text-gray-400">
-                    <span>Subtotal</span>
+                    <span>{t.cart.subtotal}</span>
                     <span>${subtotal.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-gray-600 dark:text-gray-400">
-                    <span>Shipping</span>
+                    <span>{t.cart.shipping}</span>
                     <span>${shipping.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-gray-600 dark:text-gray-400">
-                    <span>Tax</span>
+                    <span>{t.cart.tax}</span>
                     <span>${tax.toFixed(2)}</span>
                   </div>
                   <div className="border-t border-gray-200 dark:border-gray-700 pt-3">
                     <div className="flex justify-between text-lg font-bold text-gray-900 dark:text-white">
-                      <span>Total</span>
+                      <span>{t.cart.total}</span>
                       <span>${total.toFixed(2)}</span>
                     </div>
                   </div>
@@ -188,7 +190,7 @@ const Cart: React.FC = () => {
                   onClick={handleCheckout}
                   className="w-full bg-brand-600 hover:bg-brand-700 dark:bg-brand-500 dark:hover:bg-brand-600 text-white font-semibold py-3 rounded-lg transition-colors flex items-center justify-center gap-2"
                 >
-                  Proceed to Checkout
+                  {t.cart.proceedToCheckout}
                   <ArrowRight className="w-5 h-5" />
                 </button>
               </div>

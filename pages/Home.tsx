@@ -5,36 +5,33 @@ import { AdvancedImage } from '@cloudinary/react';
 import { auto } from '@cloudinary/url-gen/actions/resize';
 import { autoGravity } from '@cloudinary/url-gen/qualifiers/gravity';
 import { cld, IMAGES } from '../config/cloudinary';
-import { INITIAL_DESIGNS } from '../constants';
+import { FEATURED_DESIGNS } from '../constants';
+import { isAuthenticated, isAdmin } from '../utils/auth';
+import useTranslation from '../hooks/useTranslation';
 
 const Home: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
-  const latestDesigns = INITIAL_DESIGNS.slice(0, 3);
-  const mostRequested = INITIAL_DESIGNS.slice(3, 6);
   const [showAdminButton, setShowAdminButton] = useState(false);
 
-  // Get featured designs from localStorage and INITIAL_DESIGNS
-  const [featuredDesigns, setFeaturedDesigns] = useState<any[]>([]);
+  // Get featured designs - always use FEATURED_DESIGNS from Cloudinary
+  const [featuredDesigns, setFeaturedDesigns] = useState<any[]>(FEATURED_DESIGNS);
 
   useEffect(() => {
     const loadFeaturedDesigns = () => {
       const savedCatalog = localStorage.getItem('catalogDesigns');
 
-      // Always include INITIAL_DESIGNS featured items (don't filter by hidden)
-      let allDesigns = [...INITIAL_DESIGNS];
+      // Start with FEATURED_DESIGNS from Cloudinary
+      let allDesigns = [...FEATURED_DESIGNS];
 
-      // Add custom designs from localStorage
+      // Add custom featured designs from admin catalog if any
       if (savedCatalog) {
         const customDesigns = JSON.parse(savedCatalog);
-        allDesigns = [...customDesigns, ...INITIAL_DESIGNS];
+        const customFeatured = customDesigns.filter((d: any) => d.featured === true);
+        allDesigns = [...customFeatured, ...FEATURED_DESIGNS];
       }
 
-      // Filter only featured designs
-      const featured = allDesigns.filter((d: any) => d.featured === true);
-      setFeaturedDesigns(featured);
-
-      console.log('All designs:', allDesigns.length);
-      console.log('Featured designs loaded:', featured.length);
+      setFeaturedDesigns(allDesigns);
     };
 
     loadFeaturedDesigns();
@@ -58,13 +55,24 @@ const Home: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const handleAdminClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+
+    // Check if user is authenticated and is admin
+    if (isAuthenticated() && isAdmin()) {
+      navigate('/admin');
+    } else {
+      navigate('/admin/login');
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
 
       {/* Floating Admin Button */}
       {showAdminButton && (
-        <Link
-          to="/admin"
+        <button
+          onClick={handleAdminClick}
           className="fixed bottom-8 right-8 z-50 bg-brand-600 dark:bg-brand-500 text-white p-4 rounded-full shadow-2xl hover:bg-brand-700 dark:hover:bg-brand-600 transition-all transform hover:scale-110 animate-popup group"
           title="Admin Dashboard"
         >
@@ -72,7 +80,7 @@ const Home: React.FC = () => {
           <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-gray-900 dark:bg-gray-700 text-white text-sm px-3 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
             Admin Dashboard
           </span>
-        </Link>
+        </button>
       )}
 
       {/* Hero Section */}
@@ -81,25 +89,24 @@ const Home: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
             <div className="space-y-8 text-center lg:text-left pt-10 lg:pt-0">
               <div className="inline-block px-4 py-1 rounded-full bg-brand-100 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 font-medium text-sm tracking-wide uppercase">
-                Premium Print on Demand
+                {t.hero.badge}
               </div>
               <h1 className="text-5xl md:text-7xl font-serif font-bold text-gray-900 dark:text-white leading-tight">
-                Curated Art. <br />
+                {t.hero.title} <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-purple-600 dark:from-brand-400 dark:to-purple-400">
-                  Wearable Canvas.
+                  {t.hero.subtitle}
                 </span>
               </h1>
               <p className="text-xl text-gray-600 dark:text-gray-300 max-w-lg mx-auto lg:mx-0 leading-relaxed">
-                Create exclusive T-shirts, Hoodies, Sweaters, and Caps.
-                Where high-end design meets everyday comfort.
+                {t.hero.description}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                 <Link to="/studio" className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold rounded-full text-white bg-gray-900 dark:bg-brand-600 hover:bg-gray-800 dark:hover:bg-brand-700 transition-all shadow-xl hover:shadow-2xl transform hover:-translate-y-1">
-                  Start Creating
+                  {t.hero.ctaPrimary}
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
                 <a href="#collections" className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold rounded-full text-gray-900 dark:text-white bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 transition-all shadow-sm hover:shadow-md">
-                  Explore Designs
+                  {t.hero.ctaSecondary}
                 </a>
               </div>
               <div className="flex items-center justify-center lg:justify-start gap-8 pt-4">
@@ -111,7 +118,7 @@ const Home: React.FC = () => {
                    ))}
                 </div>
                 <div className="text-sm text-gray-500 dark:text-gray-400">
-                  <span className="font-bold text-gray-900 dark:text-white">10k+</span> Artists joined
+                  <span className="font-bold text-gray-900 dark:text-white">10k+</span> {t.hero.artistsJoined}
                 </div>
               </div>
             </div>
@@ -127,13 +134,13 @@ const Home: React.FC = () => {
                />
 
                {/* Floating Card - New Arrival */}
-               {latestDesigns.length > 0 && (
+               {featuredDesigns.length > 0 && (
                  <div className="absolute bottom-40 -left-8 bg-white dark:bg-gray-700 p-4 rounded-2xl shadow-xl max-w-[220px]" >
                     <div className="flex items-center gap-3">
-                      <img src={latestDesigns[0].imageUrl} className="w-12 h-12 rounded-lg object-cover" alt="Art" />
+                      <img src={featuredDesigns[0].imageUrl} className="w-12 h-12 rounded-lg object-cover" alt="Art" />
                       <div>
-                        <p className="font-bold text-sm dark:text-white">New Arrival</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">Limited Edition</p>
+                        <p className="font-bold text-sm dark:text-white">{t.hero.newArrival}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">{t.hero.limitedEdition}</p>
                       </div>
                     </div>
                  </div>
@@ -151,13 +158,13 @@ const Home: React.FC = () => {
             <div className="text-center mb-16">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-100 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 mb-4">
                 <Sparkles className="w-4 h-4" />
-                <span className="font-bold text-sm uppercase tracking-wider">Featured Collection</span>
+                <span className="font-bold text-sm uppercase tracking-wider">{t.handpicked.badge}</span>
               </div>
               <h2 className="text-4xl md:text-5xl font-serif font-bold text-gray-900 dark:text-white mb-4">
-                Handpicked for You
+                {t.handpicked.title}
               </h2>
               <p className="text-gray-600 dark:text-gray-400 text-lg max-w-2xl mx-auto">
-                Our curated selection of premium designs. Ready to wear or customize to your style.
+                {t.handpicked.description}
               </p>
             </div>
 
@@ -187,7 +194,7 @@ const Home: React.FC = () => {
                     <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                       <div className="text-white text-center">
                         <Palette className="w-12 h-12 mx-auto mb-2" />
-                        <p className="text-lg font-bold">Click to Customize</p>
+                        <p className="text-lg font-bold">{t.handpicked.clickToCustomize}</p>
                       </div>
                     </div>
                   </div>
@@ -208,7 +215,7 @@ const Home: React.FC = () => {
 
                     {/* Price */}
                     <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                      <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Starting at</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">{t.handpicked.startingAt}</p>
                       <p className="text-2xl font-bold text-gray-900 dark:text-white">${design.price.toFixed(2)}</p>
                     </div>
                   </div>
@@ -240,15 +247,15 @@ const Home: React.FC = () => {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-16">
-             <h2 className="text-base text-brand-600 dark:text-brand-400 font-bold tracking-widest uppercase mb-3">Our Promise</h2>
-             <p className="text-4xl font-serif font-bold text-gray-900 dark:text-white">Why Designers Choose Us</p>
+             <h2 className="text-base text-brand-600 dark:text-brand-400 font-bold tracking-widest uppercase mb-3">{t.features.badge}</h2>
+             <p className="text-4xl font-serif font-bold text-gray-900 dark:text-white">{t.features.title}</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             {[
-              { icon: Palette, title: 'True-to-Life Color', text: 'Our advanced DTG printing tech ensures your design looks exactly as you imagined.' },
-              { icon: Layers, title: 'Premium Materials', text: 'We only stock high-GSM cotton, soft blends, and durable fabrics.' },
-              { icon: TrendingUp, title: 'Global Scale', text: 'From one unit to one thousand. We scale with your ambition seamlessly.' }
+              { icon: Palette, title: t.features.feature1Title, text: t.features.feature1Text },
+              { icon: Layers, title: t.features.feature2Title, text: t.features.feature2Text },
+              { icon: TrendingUp, title: t.features.feature3Title, text: t.features.feature3Text }
             ].map((feat, i) => (
               <div key={i} className="flex flex-col items-center text-center p-8 rounded-3xl bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 hover:border-brand-200 dark:hover:border-brand-600 hover:shadow-lg transition-all duration-300">
                  <div className="w-16 h-16 bg-white dark:bg-gray-700 rounded-2xl shadow-sm flex items-center justify-center text-brand-600 dark:text-brand-400 mb-6 rotate-3 hover:rotate-6 transition-transform">
@@ -268,41 +275,41 @@ const Home: React.FC = () => {
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400 mb-4">
               <Star className="w-4 h-4 fill-current" />
-              <span className="font-bold text-sm uppercase tracking-wider">Customer Reviews</span>
+              <span className="font-bold text-sm uppercase tracking-wider">{t.reviews.badge}</span>
             </div>
             <h2 className="text-4xl md:text-5xl font-serif font-bold text-gray-900 dark:text-white mb-4">
-              What Our Customers Say
+              {t.reviews.title}
             </h2>
             <p className="text-gray-600 dark:text-gray-400 text-lg max-w-2xl mx-auto">
-              Join thousands of satisfied customers who trust us with their custom designs
+              {t.reviews.description}
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               {
-                name: 'Sarah Johnson',
-                role: 'Small Business Owner',
+                name: t.reviews.review1Name,
+                role: t.reviews.review1Role,
                 image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop',
                 rating: 5,
-                review: 'The quality is outstanding! My custom t-shirts turned out exactly as I designed them. The colors are vibrant and the fabric feels premium.',
-                date: '2 weeks ago'
+                review: t.reviews.review1Text,
+                date: t.reviews.review1Date
               },
               {
-                name: 'Michael Chen',
-                role: 'Graphic Designer',
+                name: t.reviews.review2Name,
+                role: t.reviews.review2Role,
                 image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop',
                 rating: 5,
-                review: 'As a designer, I\'m very picky about print quality. KHAYALI exceeded my expectations. The design studio is intuitive and the final product is flawless.',
-                date: '1 month ago'
+                review: t.reviews.review2Text,
+                date: t.reviews.review2Date
               },
               {
-                name: 'Emily Rodriguez',
-                role: 'Event Organizer',
+                name: t.reviews.review3Name,
+                role: t.reviews.review3Role,
                 image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop',
                 rating: 5,
-                review: 'Ordered 50 custom hoodies for our team event. Fast delivery, consistent quality across all items, and excellent customer service. Highly recommend!',
-                date: '3 weeks ago'
+                review: t.reviews.review3Text,
+                date: t.reviews.review3Date
               }
             ].map((review, idx) => (
               <div key={idx} className="bg-white dark:bg-gray-700 rounded-2xl p-8 shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-600 relative">
@@ -353,7 +360,7 @@ const Home: React.FC = () => {
               <div className="h-8 w-px bg-gray-300 dark:bg-gray-600"></div>
               <div className="text-left">
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">4.9/5</p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Based on 2,547 reviews</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{t.reviews.basedOn}</p>
               </div>
             </div>
           </div>
@@ -361,11 +368,11 @@ const Home: React.FC = () => {
       </section>
 
       {/* Most Requested / Trending */}
-      {mostRequested.length > 0 && (
+      {featuredDesigns.length > 0 && (
         <section className="py-24 bg-[#111827] dark:bg-black text-white transition-colors duration-200">
            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex items-center justify-between mb-12">
-                 <h2 className="text-3xl font-serif font-bold">Community Favorites</h2>
+                 <h2 className="text-3xl font-serif font-bold">{t.community.title}</h2>
                  <div className="flex space-x-2">
                     <button className="p-2 rounded-full border border-gray-700 dark:border-gray-800 hover:bg-gray-800 dark:hover:bg-gray-900 text-white"><ArrowRight className="rotate-180 w-5 h-5" /></button>
                     <button className="p-2 rounded-full border border-gray-700 dark:border-gray-800 hover:bg-gray-800 dark:hover:bg-gray-900 text-white"><ArrowRight className="w-5 h-5" /></button>
@@ -373,7 +380,7 @@ const Home: React.FC = () => {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                 {mostRequested.map((design) => (
+                 {featuredDesigns.slice(0, 3).map((design) => (
                  <div key={design.id} className="bg-gray-800 dark:bg-gray-900 rounded-xl p-4 hover:bg-gray-750 dark:hover:bg-gray-800 transition-colors border border-gray-700 dark:border-gray-800 hover:border-gray-600 dark:hover:border-gray-700">
                     <div className="flex gap-4">
                        <img src={design.imageUrl} alt={design.title} className="w-24 h-24 rounded-lg object-cover flex-shrink-0" />
@@ -405,28 +412,26 @@ const Home: React.FC = () => {
                <div className="relative">
                   <div className="absolute -top-4 -left-4 w-24 h-24 bg-brand-100 dark:bg-brand-900/30 rounded-full -z-10"></div>
                   <img
-                    src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=1000&auto=format&fit=crop"
-                    alt="Design Team"
+                    src="https://images.unsplash.com/photo-1558769132-cb1aea3c8565?q=80&w=1000&auto=format&fit=crop"
+                    alt={t.about.designTeamAlt}
                     className="rounded-3xl shadow-2xl w-full object-cover h-[500px]"
                   />
                   <div className="absolute bottom-10 -right-10 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-xl max-w-xs hidden md:block">
-                     <p className="font-serif text-xl italic text-gray-800 dark:text-gray-200">"Design is intelligence made visible."</p>
-                     <p className="mt-2 text-sm text-gray-500 dark:text-gray-400 font-bold">- Alina Wheeler</p>
+                     <p className="font-serif text-xl italic text-gray-800 dark:text-gray-200">{t.about.quote}</p>
+                     <p className="mt-2 text-sm text-gray-500 dark:text-gray-400 font-bold">{t.about.quoteAuthor}</p>
                   </div>
                </div>
                <div>
-                  <h2 className="text-base text-brand-600 dark:text-brand-400 font-bold tracking-widest uppercase mb-3">Who We Are</h2>
-                  <h3 className="text-4xl font-serif font-bold text-gray-900 dark:text-white mb-6">We Bridge the Gap Between Art and Apparel.</h3>
+                  <h2 className="text-base text-brand-600 dark:text-brand-400 font-bold tracking-widest uppercase mb-3">{t.about.badge}</h2>
+                  <h3 className="text-4xl font-serif font-bold text-gray-900 dark:text-white mb-6">{t.about.title}</h3>
                   <p className="text-lg text-gray-500 dark:text-gray-400 mb-6 leading-relaxed">
-                     Ink & Thread wasn't built for mass production. It was built for the obsessed.
-                     For the creators who spend hours perfecting a single vector line.
-                     For the wearers who want their clothes to say something meaningful.
+                     {t.about.description}
                   </p>
                   <div className="space-y-4 mb-8">
                      {[
-                        'Eco-friendly inks and sustainable packaging',
-                        'Artist-first royalty model',
-                        'Quality control on every single stitch'
+                        t.about.feature1,
+                        t.about.feature2,
+                        t.about.feature3
                      ].map((item, i) => (
                         <div key={i} className="flex items-center gap-3">
                            <div className="w-6 h-6 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600 dark:text-green-400 flex-shrink-0">
@@ -437,7 +442,7 @@ const Home: React.FC = () => {
                      ))}
                   </div>
                   <Link to="/about" className="text-brand-600 dark:text-brand-400 font-bold hover:text-brand-700 dark:hover:text-brand-300 inline-flex items-center">
-                     Read our full story <ArrowRight className="ml-2 w-4 h-4" />
+                     {t.about.readStory} <ArrowRight className="ml-2 w-4 h-4" />
                   </Link>
                </div>
             </div>

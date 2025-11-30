@@ -6,13 +6,15 @@ import { Search, ZoomIn, Check, ShoppingCart, Sparkles, Move, RotateCw, Sliders,
 import { generateSVGDesign } from '../services/geminiService';
 import { TshirtSVG, HoodieSVG, SweaterSVG, CapSVG, CustomMockup } from '../components/ProductMockups';
 import { isAuthenticated } from '../utils/auth';
+import useTranslation from '../hooks/useTranslation';
 
 const DesignStudio: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
-  const [selectedDesign, setSelectedDesign] = useState<Design>(INITIAL_DESIGNS[0]);
+  const [selectedDesign, setSelectedDesign] = useState<Design | null>(null);
   const [selectedMockup, setSelectedMockup] = useState<Mockup>(MOCKUPS[0]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [designs, setDesigns] = useState<Design[]>(INITIAL_DESIGNS);
+  const [designs, setDesigns] = useState<Design[]>([]);
   const [allMockups, setAllMockups] = useState<Mockup[]>(MOCKUPS);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const productImageInputRef = useRef<HTMLInputElement>(null);
@@ -87,13 +89,20 @@ const DesignStudio: React.FC = () => {
       setAllMockups(visibleDefaultMockups);
     }
 
-    // 2. Load Designs (User Uploads + Admin Catalog + Initial)
+    // 2. Load Designs (User Uploads + Admin Catalog)
+    // Note: INITIAL_DESIGNS is now empty - designs come from 'designs' Cloudinary folder
     try {
         const savedUserDesigns = JSON.parse(localStorage.getItem('customDesigns') || '[]');
         const savedCatalogDesigns = JSON.parse(localStorage.getItem('catalogDesigns') || '[]');
 
-        // Merge: User Uploads -> Admin Catalog -> Initial Defaults
-        setDesigns([...savedUserDesigns, ...savedCatalogDesigns, ...INITIAL_DESIGNS]);
+        // Merge: User Uploads -> Admin Catalog -> Cloudinary Designs
+        const allDesigns = [...savedUserDesigns, ...savedCatalogDesigns, ...INITIAL_DESIGNS];
+        setDesigns(allDesigns);
+
+        // Set first design as selected if available
+        if (allDesigns.length > 0 && !selectedDesign) {
+          setSelectedDesign(allDesigns[0]);
+        }
     } catch (e) {
         console.error("Failed to load designs from storage", e);
     }
@@ -470,29 +479,29 @@ const DesignStudio: React.FC = () => {
         {/* LEFT COLUMN: Designs */}
         <div className="w-80 bg-white border-r border-gray-200 flex flex-col z-10 shadow-lg">
           <div className="p-4 border-b border-gray-100">
-            <h2 className="font-serif font-bold text-xl text-gray-900 mb-4">Library</h2>
+            <h2 className="font-serif font-bold text-xl text-gray-900 mb-4">{t.studio.library}</h2>
             <div className="flex gap-2 mb-3">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <input 
-                  type="text" 
-                  placeholder="Search..." 
+                <input
+                  type="text"
+                  placeholder={t.studio.searchPlaceholder}
                   className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent text-sm"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-              <button 
+              <button
                 onClick={() => setShowAiModal(!showAiModal)}
                 className="p-2 bg-brand-50 text-brand-600 rounded-lg hover:bg-brand-100 border border-brand-200 transition-colors"
-                title="Generate AI Design"
+                title={t.studio.generateAI}
               >
                 <Sparkles className="w-5 h-5" />
               </button>
-              <button 
+              <button
                 onClick={() => fileInputRef.current?.click()}
                 className="p-2 bg-gray-50 text-gray-600 rounded-lg hover:bg-gray-100 border border-gray-200 transition-colors"
-                title="Upload Your Design"
+                title={t.studio.uploadDesign}
               >
                 <Upload className="w-5 h-5" />
               </button>
@@ -508,47 +517,61 @@ const DesignStudio: React.FC = () => {
             {/* AI Prompt Area (Conditional) */}
             {showAiModal && (
               <div className="mb-4 p-3 bg-brand-50 rounded-xl border border-brand-100 animate-in slide-in-from-top-2">
-                <textarea 
+                <textarea
                   className="w-full p-2 text-sm border border-brand-200 rounded-lg mb-2 h-20 focus:ring-2 focus:ring-brand-500 focus:outline-none"
-                  placeholder="Describe your dream design... (e.g. 'A cyberpunk cat in neon colors')"
+                  placeholder={t.studio.aiPromptPlaceholder}
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
                 />
-                <button 
+                <button
                   onClick={handleGenerateDesign}
                   disabled={isGenerating || !prompt}
                   className="w-full py-2 bg-brand-600 text-white rounded-lg text-sm font-bold hover:bg-brand-700 disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-                  Generate
+                  {t.studio.generate}
                 </button>
               </div>
             )}
           </div>
           
           <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
-            {filteredDesigns.map(design => (
-              <div
-                key={design.id}
-                onClick={() => {
-                  setSelectedDesign(design);
-                  assignDesignToCurrentZone(design);
-                }}
-                className={`cursor-pointer group rounded-xl p-2 border-2 transition-all duration-200 flex items-center gap-3 ${selectedDesign.id === design.id ? 'border-brand-500 bg-brand-50' : 'border-transparent hover:bg-gray-50 border-gray-100'}`}
-              >
-                <div className="h-16 w-16 flex-shrink-0 rounded-lg bg-white border border-gray-200 overflow-hidden flex items-center justify-center p-1 shadow-sm">
-                   {design.type === 'vector' && design.svgContent ? (
-                     <div dangerouslySetInnerHTML={{__html: design.svgContent}} className="w-full h-full" />
-                   ) : (
-                     <img src={design.imageUrl} alt={design.title} className="h-full w-full object-contain" />
-                   )}
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-gray-900">{design.title}</h3>
-                  <p className="text-xs text-gray-500">{design.category}</p>
-                </div>
+            {filteredDesigns.length === 0 ? (
+              <div className="text-center py-12 px-4">
+                <ImagePlus className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                <h3 className="text-lg font-bold text-gray-900 mb-2">{t.studio.noDesigns}</h3>
+                <p className="text-sm text-gray-500 mb-4">{t.studio.noDesignsDescription}</p>
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-brand-700"
+                >
+                  {t.studio.uploadDesign}
+                </button>
               </div>
-            ))}
+            ) : (
+              filteredDesigns.map(design => (
+                <div
+                  key={design.id}
+                  onClick={() => {
+                    setSelectedDesign(design);
+                    assignDesignToCurrentZone(design);
+                  }}
+                  className={`cursor-pointer group rounded-xl p-2 border-2 transition-all duration-200 flex items-center gap-3 ${selectedDesign?.id === design.id ? 'border-brand-500 bg-brand-50' : 'border-transparent hover:bg-gray-50 border-gray-100'}`}
+                >
+                  <div className="h-16 w-16 flex-shrink-0 rounded-lg bg-white border border-gray-200 overflow-hidden flex items-center justify-center p-1 shadow-sm">
+                     {design.type === 'vector' && design.svgContent ? (
+                       <div dangerouslySetInnerHTML={{__html: design.svgContent}} className="w-full h-full" />
+                     ) : (
+                       <img src={design.imageUrl} alt={design.title} className="h-full w-full object-contain" />
+                     )}
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-gray-900">{design.title}</h3>
+                    <p className="text-xs text-gray-500">{design.category}</p>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
 
@@ -858,7 +881,7 @@ const DesignStudio: React.FC = () => {
                  <div className="flex items-center gap-4 border-l pl-6 border-gray-200">
                     <div className="text-right hidden sm:block">
                       <p className="text-xs text-gray-500">Total Price</p>
-                      <p className="text-xl font-bold text-gray-900">${(selectedDesign.price + 15).toFixed(2)}</p>
+                      <p className="text-xl font-bold text-gray-900">${((selectedDesign?.price || 0) + 15).toFixed(2)}</p>
                     </div>
                     <button
                       onClick={handleAddToCart}

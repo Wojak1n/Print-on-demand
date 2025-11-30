@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, ShieldCheck, ArrowRight } from 'lucide-react';
 import { authenticateUser, login, isAuthenticated, isAdmin } from '../utils/auth';
+import useTranslation from '../hooks/useTranslation';
 
 const AdminLogin: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -32,10 +34,10 @@ const AdminLogin: React.FC = () => {
         login(user);
         navigate('/admin');
       } else {
-        setError('Access denied. Admin credentials required.');
+        setError(t.auth.accessDenied);
       }
     } else {
-      setError('Invalid email or password');
+      setError(t.auth.invalidCredentials);
     }
   };
 
@@ -61,10 +63,10 @@ const AdminLogin: React.FC = () => {
             </div>
             <div className="text-left">
               <h2 className="text-3xl font-serif font-bold text-gray-900 dark:text-white">
-                Admin Portal
+                {t.auth.adminPortal}
               </h2>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Authorized access only
+                {t.auth.authorizedOnly}
               </p>
             </div>
           </div>
@@ -83,7 +85,7 @@ const AdminLogin: React.FC = () => {
             {/* Email */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Admin Email
+                {t.auth.adminEmail}
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -97,7 +99,7 @@ const AdminLogin: React.FC = () => {
                   value={formData.email}
                   onChange={handleChange}
                   className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors"
-                  placeholder="admin@khayali.com"
+                  placeholder="hafsa@admin.com"
                 />
               </div>
             </div>
@@ -105,7 +107,7 @@ const AdminLogin: React.FC = () => {
             {/* Password */}
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Password
+                {t.auth.password}
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -140,7 +142,7 @@ const AdminLogin: React.FC = () => {
               type="submit"
               className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all shadow-lg hover:shadow-xl"
             >
-              Sign In as Admin
+              {t.auth.signInAsAdmin}
               <ArrowRight className="w-5 h-5" />
             </button>
           </form>
@@ -149,9 +151,9 @@ const AdminLogin: React.FC = () => {
         {/* Back to regular login */}
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            Not an admin?{' '}
+            {t.auth.notAdmin}{' '}
             <Link to="/login" className="font-medium text-purple-600 dark:text-purple-400 hover:text-purple-500">
-              Sign in as user
+              {t.auth.signInAsUser}
             </Link>
           </p>
         </div>
