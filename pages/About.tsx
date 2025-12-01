@@ -1,28 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ShieldCheck, Heart, Users, Award, Sparkles } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
 
 const About: React.FC = () => {
   const { t } = useTranslation();
-  const [creatorImages, setCreatorImages] = useState<string[]>([]);
-
-  useEffect(() => {
-    // Fetch creator images from Cloudinary
-    fetch(`https://res.cloudinary.com/dwm9hk3qg/image/list/Creators.json`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.resources) {
-          const images = data.resources
-            .sort((a: any, b: any) => a.public_id.localeCompare(b.public_id))
-            .map((resource: any) =>
-              `https://res.cloudinary.com/dwm9hk3qg/image/upload/${resource.public_id}`
-            );
-          setCreatorImages(images);
-        }
-      })
-      .catch(err => console.error('Error fetching creator images:', err));
-  }, []);
 
   return (
     <div className="flex flex-col min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
@@ -128,15 +110,19 @@ const About: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             {[
-              { name: 'Sarah Johnson', role: t.aboutPage.team.founder },
-              { name: 'Michael Chen', role: t.aboutPage.team.headDesigner }
+              { name: 'Sarah Johnson', role: t.aboutPage.team.founder, img: 'https://res.cloudinary.com/dwm9hk3qg/image/upload/Creators/Creator-1' },
+              { name: 'Michael Chen', role: t.aboutPage.team.headDesigner, img: 'https://res.cloudinary.com/dwm9hk3qg/image/upload/Creators/Creator-2' }
             ].map((member, i) => (
               <div key={i} className="group">
                 <div className="relative overflow-hidden rounded-2xl mb-4">
                   <img
-                    src={creatorImages[i] || `https://picsum.photos/seed/team${i+1}/400/400`}
+                    src={member.img}
                     alt={member.name}
                     className="w-full h-80 object-cover transition-transform duration-700 group-hover:scale-110"
+                    onError={(e) => {
+                      // Fallback to placeholder if image fails to load
+                      (e.target as HTMLImageElement).src = `https://picsum.photos/seed/team${i+1}/400/400`;
+                    }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 </div>
