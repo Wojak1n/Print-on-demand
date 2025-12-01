@@ -8,6 +8,7 @@ import { uploadDesignToCloudinary, uploadMockupToCloudinary, fetchImagesFromFold
 import { TshirtSVG, HoodieSVG, SweaterSVG, CapSVG, CustomMockup } from '../components/ProductMockups';
 import { isAuthenticated, isAdmin } from '../utils/auth';
 import useTranslation from '../hooks/useTranslation';
+import html2canvas from 'html2canvas';
 
 const DesignStudio: React.FC = () => {
   const { t } = useTranslation();
@@ -245,9 +246,31 @@ const DesignStudio: React.FC = () => {
   const [showAddToCartModal, setShowAddToCartModal] = useState(false);
   const [selectedSize, setSelectedSize] = useState('M');
   const [showSuccessNotification, setShowSuccessNotification] = useState(false);
+  const [capturedProductImage, setCapturedProductImage] = useState<string>('');
+
+  // Capture Product Image
+  const captureProductImage = async (): Promise<string> => {
+    const productPreview = canvasRef.current;
+    if (!productPreview) return '';
+
+    try {
+      const canvas = await html2canvas(productPreview, {
+        backgroundColor: null,
+        scale: 2, // Higher quality
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
+      });
+
+      return canvas.toDataURL('image/png');
+    } catch (error) {
+      console.error('Error capturing product image:', error);
+      return '';
+    }
+  };
 
   // Add to Cart Handler
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!isAuthenticated()) {
       // Store the current design state before redirecting to login
       const designState = {
@@ -264,6 +287,10 @@ const DesignStudio: React.FC = () => {
       return;
     }
 
+    // Capture the final product image
+    const productImage = await captureProductImage();
+    setCapturedProductImage(productImage);
+
     // Show size selection modal
     setShowAddToCartModal(true);
   };
@@ -274,7 +301,7 @@ const DesignStudio: React.FC = () => {
       return;
     }
 
-    // Create cart item
+    // Create cart item with captured product image
     const cartItem = {
       id: `${Date.now()}-${Math.random()}`,
       designId: selectedDesign.id,
@@ -284,7 +311,7 @@ const DesignStudio: React.FC = () => {
       size: selectedSize,
       color: mockupColor,
       price: (selectedDesign.price || 0) + 15, // Design price + base product price
-      imageUrl: selectedDesign.imageUrl || '',
+      imageUrl: capturedProductImage || selectedDesign.imageUrl || '', // Use captured product image
     };
 
     // Get existing cart
@@ -1332,9 +1359,9 @@ const DesignStudio: React.FC = () => {
             <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
               <div className="flex gap-4">
                 <img
-                  src={selectedDesign?.imageUrl || ''}
+                  src={capturedProductImage || selectedDesign?.imageUrl || ''}
                   alt="Product Preview"
-                  className="w-20 h-20 object-cover rounded-lg"
+                  className="w-24 h-24 object-contain rounded-lg border border-gray-200"
                 />
                 <div className="flex-1">
                   <h4 className="font-bold text-gray-900 dark:text-white">
