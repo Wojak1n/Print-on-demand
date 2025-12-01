@@ -111,8 +111,8 @@ const About: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             {[
-              { name: 'Sarah Johnson', role: t.aboutPage.team.founder, img: getCloudinaryUrl('Creators/Creator-1', { width: 800, quality: 'auto', format: 'auto' }) },
-              { name: 'Michael Chen', role: t.aboutPage.team.headDesigner, img: getCloudinaryUrl('Creators/Creator-2', { width: 800, quality: 'auto', format: 'auto' }) }
+              { name: 'Sarah Johnson', role: t.aboutPage.team.founder, img: getCloudinaryUrl('Creator-1', { width: 800, quality: 'auto', format: 'auto' }) },
+              { name: 'Michael Chen', role: t.aboutPage.team.headDesigner, img: getCloudinaryUrl('Creator-2', { width: 800, quality: 'auto', format: 'auto' }) }
             ].map((member, i) => (
               <div key={i} className="group">
                 <div className="relative overflow-hidden rounded-2xl mb-4">
