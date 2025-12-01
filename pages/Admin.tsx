@@ -19,9 +19,14 @@ const Admin: React.FC = () => {
 
   // Settings State
   const [storeName, setStoreName] = useState(localStorage.getItem('storeName') || 'KHAYALI');
-  const [currency, setCurrency] = useState(localStorage.getItem('currency') || 'MAD (DH)');
+  const [currency, setCurrency] = useState(localStorage.getItem('currency') || 'DH');
   const [language, setLanguage] = useState(localStorage.getItem('language') || 'English');
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'Light');
+
+  // Currency formatter helper
+  const formatCurrency = (amount: number) => {
+    return `${amount.toFixed(2)} ${currency}`;
+  };
   const [emailNotifications, setEmailNotifications] = useState(localStorage.getItem('emailNotifications') !== 'false');
   const [orderUpdates, setOrderUpdates] = useState(localStorage.getItem('orderUpdates') !== 'false');
   const [newUserNotifications, setNewUserNotifications] = useState(localStorage.getItem('newUserNotifications') === 'true');
@@ -606,7 +611,7 @@ const Admin: React.FC = () => {
                   </span>
                 </div>
                 <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Total Revenue</p>
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">$12,450</h3>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{formatCurrency(12450)}</h3>
                 <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">from last week</p>
               </div>
 
@@ -751,7 +756,7 @@ const Admin: React.FC = () => {
                 <h4 className="text-sm font-semibold text-gray-500 mb-4">Average Order Value</h4>
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-3xl font-bold text-gray-900">$48.50</p>
+                    <p className="text-3xl font-bold text-gray-900">{formatCurrency(48.50)}</p>
                     <p className="text-sm text-gray-500 mt-1">Per transaction</p>
                   </div>
                   <div className="w-16 h-16 bg-brand-50 rounded-full flex items-center justify-center">
@@ -803,7 +808,7 @@ const Admin: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Price ($)</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Price (DH)</label>
                     <input
                       required
                       type="number"
@@ -911,7 +916,7 @@ const Admin: React.FC = () => {
                             {design.category}
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">${design.price.toFixed(2)}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{formatCurrency(design.price)}</td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           {design.featured ? (
                             <div className="flex items-center gap-2">
@@ -998,7 +1003,7 @@ const Admin: React.FC = () => {
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Price ($)</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Price (DH)</label>
                       <input
                         type="number"
                         min="0"
@@ -1551,7 +1556,7 @@ const Admin: React.FC = () => {
                               <option value="Cancelled">Cancelled</option>
                             </select>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold">${order.total.toFixed(2)}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold">{formatCurrency(order.total)}</td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm">
                             <button
                               onClick={() => setSelectedOrder(order)}
@@ -1646,7 +1651,7 @@ const Admin: React.FC = () => {
                                  <td className="px-4 py-3 text-sm text-gray-500">{item.size}</td>
                                  <td className="px-4 py-3 text-sm text-gray-500">{item.color}</td>
                                  <td className="px-4 py-3 text-sm text-gray-500">{item.quantity}</td>
-                                 <td className="px-4 py-3 text-sm font-bold text-gray-900">${item.price.toFixed(2)}</td>
+                                 <td className="px-4 py-3 text-sm font-bold text-gray-900">{formatCurrency(item.price)}</td>
                                </tr>
                              ))}
                            </tbody>
@@ -1657,7 +1662,7 @@ const Admin: React.FC = () => {
                          <div className="bg-gray-50 p-4 rounded-lg">
                            <div className="flex justify-between items-center gap-8">
                              <span className="text-lg font-bold text-gray-900">Total:</span>
-                             <span className="text-2xl font-bold text-brand-600">${selectedOrder.total.toFixed(2)}</span>
+                             <span className="text-2xl font-bold text-brand-600">{formatCurrency(selectedOrder.total)}</span>
                            </div>
                          </div>
                        </div>
@@ -2148,7 +2153,7 @@ const Admin: React.FC = () => {
                   <div>
                     <p className="text-sm font-medium text-gray-600">Total Revenue</p>
                     <p className="text-2xl font-bold text-gray-900 mt-1">
-                      ${users.reduce((sum, u) => sum + (u.totalSpent || 0), 0).toFixed(2)}
+                      {formatCurrency(users.reduce((sum, u) => sum + (u.totalSpent || 0), 0))}
                     </p>
                   </div>
                   <div className="w-12 h-12 bg-brand-50 rounded-lg flex items-center justify-center">
@@ -2231,7 +2236,7 @@ const Admin: React.FC = () => {
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">
-                          ${(user.totalSpent || 0).toFixed(2)}
+                          {formatCurrency(user.totalSpent || 0)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {user.lastLogin || 'Never'}
@@ -2395,9 +2400,9 @@ const Admin: React.FC = () => {
                       onChange={(e) => setCurrency(e.target.value)}
                       className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                     >
-                      <option>USD ($)</option>
-                      <option>EUR (€)</option>
-                      <option>MAD (DH)</option>
+                      <option value="DH">MAD (DH)</option>
+                      <option value="$">USD ($)</option>
+                      <option value="€">EUR (€)</option>
                     </select>
                   </div>
                 </div>

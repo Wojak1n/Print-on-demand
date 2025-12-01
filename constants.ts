@@ -274,36 +274,55 @@ export const MOCK_ORDERS: Order[] = [
 ];
 
 export const STOCK_ITEMS: StockItem[] = [
-  // T-Shirts
-  { id: 'stock-1', productType: 't-shirt', size: 'S', color: 'White', quantity: 150, reorderLevel: 50, supplier: 'Cotton Co.', lastRestocked: '2024-11-15' },
-  { id: 'stock-2', productType: 't-shirt', size: 'M', color: 'White', quantity: 200, reorderLevel: 50, supplier: 'Cotton Co.', lastRestocked: '2024-11-15' },
-  { id: 'stock-3', productType: 't-shirt', size: 'L', color: 'White', quantity: 180, reorderLevel: 50, supplier: 'Cotton Co.', lastRestocked: '2024-11-15' },
-  { id: 'stock-4', productType: 't-shirt', size: 'XL', color: 'White', quantity: 120, reorderLevel: 40, supplier: 'Cotton Co.', lastRestocked: '2024-11-15' },
-  { id: 'stock-5', productType: 't-shirt', size: 'S', color: 'Black', quantity: 140, reorderLevel: 50, supplier: 'Cotton Co.', lastRestocked: '2024-11-10' },
-  { id: 'stock-6', productType: 't-shirt', size: 'M', color: 'Black', quantity: 190, reorderLevel: 50, supplier: 'Cotton Co.', lastRestocked: '2024-11-10' },
-  { id: 'stock-7', productType: 't-shirt', size: 'L', color: 'Black', quantity: 35, reorderLevel: 50, supplier: 'Cotton Co.', lastRestocked: '2024-11-10' },
-  { id: 'stock-8', productType: 't-shirt', size: 'XL', color: 'Black', quantity: 110, reorderLevel: 40, supplier: 'Cotton Co.', lastRestocked: '2024-11-10' },
-  { id: 'stock-9', productType: 't-shirt', size: 'M', color: 'Gray', quantity: 25, reorderLevel: 50, supplier: 'Cotton Co.', lastRestocked: '2024-11-05' },
-  { id: 'stock-10', productType: 't-shirt', size: 'L', color: 'Gray', quantity: 160, reorderLevel: 50, supplier: 'Cotton Co.', lastRestocked: '2024-11-05' },
+  // T-Shirts - White
+  { id: 'stock-1', productType: 't-shirt', size: 'XS', color: 'White', quantity: 85, reorderLevel: 30, supplier: 'Textile Maroc', lastRestocked: '2024-11-25' },
+  { id: 'stock-2', productType: 't-shirt', size: 'S', color: 'White', quantity: 120, reorderLevel: 40, supplier: 'Textile Maroc', lastRestocked: '2024-11-25' },
+  { id: 'stock-3', productType: 't-shirt', size: 'M', color: 'White', quantity: 150, reorderLevel: 50, supplier: 'Textile Maroc', lastRestocked: '2024-11-25' },
+  { id: 'stock-4', productType: 't-shirt', size: 'L', color: 'White', quantity: 140, reorderLevel: 50, supplier: 'Textile Maroc', lastRestocked: '2024-11-25' },
+  { id: 'stock-5', productType: 't-shirt', size: 'XL', color: 'White', quantity: 95, reorderLevel: 35, supplier: 'Textile Maroc', lastRestocked: '2024-11-25' },
 
-  // Hoodies
-  { id: 'stock-11', productType: 'hoodie', size: 'S', color: 'Black', quantity: 80, reorderLevel: 30, supplier: 'Fleece Factory', lastRestocked: '2024-11-12' },
-  { id: 'stock-12', productType: 'hoodie', size: 'M', color: 'Black', quantity: 95, reorderLevel: 30, supplier: 'Fleece Factory', lastRestocked: '2024-11-12' },
-  { id: 'stock-13', productType: 'hoodie', size: 'L', color: 'Black', quantity: 88, reorderLevel: 30, supplier: 'Fleece Factory', lastRestocked: '2024-11-12' },
-  { id: 'stock-14', productType: 'hoodie', size: 'XL', color: 'Black', quantity: 70, reorderLevel: 25, supplier: 'Fleece Factory', lastRestocked: '2024-11-12' },
-  { id: 'stock-15', productType: 'hoodie', size: 'M', color: 'Gray', quantity: 15, reorderLevel: 30, supplier: 'Fleece Factory', lastRestocked: '2024-11-08' },
-  { id: 'stock-16', productType: 'hoodie', size: 'L', color: 'Gray', quantity: 75, reorderLevel: 30, supplier: 'Fleece Factory', lastRestocked: '2024-11-08' },
+  // T-Shirts - Black
+  { id: 'stock-6', productType: 't-shirt', size: 'XS', color: 'Black', quantity: 75, reorderLevel: 30, supplier: 'Textile Maroc', lastRestocked: '2024-11-20' },
+  { id: 'stock-7', productType: 't-shirt', size: 'S', color: 'Black', quantity: 110, reorderLevel: 40, supplier: 'Textile Maroc', lastRestocked: '2024-11-20' },
+  { id: 'stock-8', productType: 't-shirt', size: 'M', color: 'Black', quantity: 145, reorderLevel: 50, supplier: 'Textile Maroc', lastRestocked: '2024-11-20' },
+  { id: 'stock-9', productType: 't-shirt', size: 'L', color: 'Black', quantity: 28, reorderLevel: 50, supplier: 'Textile Maroc', lastRestocked: '2024-11-20' },
+  { id: 'stock-10', productType: 't-shirt', size: 'XL', color: 'Black', quantity: 88, reorderLevel: 35, supplier: 'Textile Maroc', lastRestocked: '2024-11-20' },
 
-  // Sweaters
-  { id: 'stock-17', productType: 'sweater', size: 'S', color: 'White', quantity: 60, reorderLevel: 20, supplier: 'Knit Masters', lastRestocked: '2024-11-18' },
-  { id: 'stock-18', productType: 'sweater', size: 'M', color: 'White', quantity: 72, reorderLevel: 20, supplier: 'Knit Masters', lastRestocked: '2024-11-18' },
-  { id: 'stock-19', productType: 'sweater', size: 'L', color: 'White', quantity: 65, reorderLevel: 20, supplier: 'Knit Masters', lastRestocked: '2024-11-18' },
-  { id: 'stock-20', productType: 'sweater', size: 'XL', color: 'Green', quantity: 45, reorderLevel: 15, supplier: 'Knit Masters', lastRestocked: '2024-11-14' },
+  // T-Shirts - Navy
+  { id: 'stock-11', productType: 't-shirt', size: 'S', color: 'Navy', quantity: 65, reorderLevel: 30, supplier: 'Textile Maroc', lastRestocked: '2024-11-18' },
+  { id: 'stock-12', productType: 't-shirt', size: 'M', color: 'Navy', quantity: 92, reorderLevel: 40, supplier: 'Textile Maroc', lastRestocked: '2024-11-18' },
+  { id: 'stock-13', productType: 't-shirt', size: 'L', color: 'Navy', quantity: 78, reorderLevel: 40, supplier: 'Textile Maroc', lastRestocked: '2024-11-18' },
+  { id: 'stock-14', productType: 't-shirt', size: 'XL', color: 'Navy', quantity: 55, reorderLevel: 30, supplier: 'Textile Maroc', lastRestocked: '2024-11-18' },
+
+  // Hoodies - Black
+  { id: 'stock-15', productType: 'hoodie', size: 'S', color: 'Black', quantity: 45, reorderLevel: 20, supplier: 'Atlas Apparel', lastRestocked: '2024-11-22' },
+  { id: 'stock-16', productType: 'hoodie', size: 'M', color: 'Black', quantity: 68, reorderLevel: 25, supplier: 'Atlas Apparel', lastRestocked: '2024-11-22' },
+  { id: 'stock-17', productType: 'hoodie', size: 'L', color: 'Black', quantity: 72, reorderLevel: 25, supplier: 'Atlas Apparel', lastRestocked: '2024-11-22' },
+  { id: 'stock-18', productType: 'hoodie', size: 'XL', color: 'Black', quantity: 52, reorderLevel: 20, supplier: 'Atlas Apparel', lastRestocked: '2024-11-22' },
+
+  // Hoodies - Gray
+  { id: 'stock-19', productType: 'hoodie', size: 'S', color: 'Gray', quantity: 38, reorderLevel: 20, supplier: 'Atlas Apparel', lastRestocked: '2024-11-15' },
+  { id: 'stock-20', productType: 'hoodie', size: 'M', color: 'Gray', quantity: 15, reorderLevel: 25, supplier: 'Atlas Apparel', lastRestocked: '2024-11-15' },
+  { id: 'stock-21', productType: 'hoodie', size: 'L', color: 'Gray', quantity: 58, reorderLevel: 25, supplier: 'Atlas Apparel', lastRestocked: '2024-11-15' },
+  { id: 'stock-22', productType: 'hoodie', size: 'XL', color: 'Gray', quantity: 42, reorderLevel: 20, supplier: 'Atlas Apparel', lastRestocked: '2024-11-15' },
+
+  // Sweaters - Navy
+  { id: 'stock-23', productType: 'sweater', size: 'S', color: 'Navy', quantity: 32, reorderLevel: 15, supplier: 'Casablanca Knits', lastRestocked: '2024-11-10' },
+  { id: 'stock-24', productType: 'sweater', size: 'M', color: 'Navy', quantity: 48, reorderLevel: 20, supplier: 'Casablanca Knits', lastRestocked: '2024-11-10' },
+  { id: 'stock-25', productType: 'sweater', size: 'L', color: 'Navy', quantity: 44, reorderLevel: 20, supplier: 'Casablanca Knits', lastRestocked: '2024-11-10' },
+  { id: 'stock-26', productType: 'sweater', size: 'XL', color: 'Navy', quantity: 35, reorderLevel: 15, supplier: 'Casablanca Knits', lastRestocked: '2024-11-10' },
+
+  // Sweaters - Burgundy
+  { id: 'stock-27', productType: 'sweater', size: 'S', color: 'Burgundy', quantity: 28, reorderLevel: 15, supplier: 'Casablanca Knits', lastRestocked: '2024-11-08' },
+  { id: 'stock-28', productType: 'sweater', size: 'M', color: 'Burgundy', quantity: 12, reorderLevel: 20, supplier: 'Casablanca Knits', lastRestocked: '2024-11-08' },
+  { id: 'stock-29', productType: 'sweater', size: 'L', color: 'Burgundy', quantity: 38, reorderLevel: 20, supplier: 'Casablanca Knits', lastRestocked: '2024-11-08' },
+  { id: 'stock-30', productType: 'sweater', size: 'XL', color: 'Burgundy', quantity: 30, reorderLevel: 15, supplier: 'Casablanca Knits', lastRestocked: '2024-11-08' },
 
   // Caps
-  { id: 'stock-21', productType: 'cap', size: 'One Size', color: 'Black', quantity: 120, reorderLevel: 40, supplier: 'Cap World', lastRestocked: '2024-11-16' },
-  { id: 'stock-22', productType: 'cap', size: 'One Size', color: 'White', quantity: 95, reorderLevel: 40, supplier: 'Cap World', lastRestocked: '2024-11-16' },
-  { id: 'stock-23', productType: 'cap', size: 'One Size', color: 'Navy', quantity: 88, reorderLevel: 40, supplier: 'Cap World', lastRestocked: '2024-11-16' },
+  { id: 'stock-31', productType: 'cap', size: 'One Size', color: 'Black', quantity: 95, reorderLevel: 30, supplier: 'Marrakech Caps', lastRestocked: '2024-11-28' },
+  { id: 'stock-32', productType: 'cap', size: 'One Size', color: 'White', quantity: 78, reorderLevel: 30, supplier: 'Marrakech Caps', lastRestocked: '2024-11-28' },
+  { id: 'stock-33', productType: 'cap', size: 'One Size', color: 'Navy', quantity: 68, reorderLevel: 30, supplier: 'Marrakech Caps', lastRestocked: '2024-11-28' },
+  { id: 'stock-34', productType: 'cap', size: 'One Size', color: 'Beige', quantity: 52, reorderLevel: 25, supplier: 'Marrakech Caps', lastRestocked: '2024-11-28' },
 ];
 
 export const STATS_DATA: DailyStat[] = [
