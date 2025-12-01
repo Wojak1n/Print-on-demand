@@ -27,16 +27,22 @@ export const fetchImagesFromFolder = async (folderPath: string): Promise<Cloudin
   try {
     // Call Vercel serverless API endpoint
     const apiUrl = `/api/cloudinary/list-images?folder=${encodeURIComponent(folderPath)}`;
+    console.log(`📡 Calling API: ${apiUrl}`);
+
     const response = await fetch(apiUrl);
+    console.log(`📡 API Response Status: ${response.status} ${response.statusText}`);
 
     if (!response.ok) {
-      console.error('Failed to fetch images from Cloudinary:', response.statusText);
+      const errorData = await response.json().catch(() => ({ error: response.statusText }));
+      console.error('❌ Failed to fetch images from Cloudinary:', errorData);
       return [];
     }
 
     const data = await response.json();
+    console.log('📡 API Response Data:', data);
 
     if (data.success && data.images) {
+      console.log(`✅ Successfully fetched ${data.images.length} images from ${folderPath}`);
       return data.images.map((img: any) => ({
         public_id: img.publicId,
         secure_url: img.url,
@@ -46,9 +52,10 @@ export const fetchImagesFromFolder = async (folderPath: string): Promise<Cloudin
       }));
     }
 
+    console.warn('⚠️ API response missing success or images:', data);
     return [];
   } catch (error) {
-    console.error('Error fetching images from Cloudinary:', error);
+    console.error('❌ Error fetching images from Cloudinary:', error);
     return [];
   }
 };

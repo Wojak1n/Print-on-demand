@@ -102,7 +102,10 @@ const DesignStudio: React.FC = () => {
       // 2. Fetch Mockups from Cloudinary
       setIsLoadingMockups(true);
       try {
+        console.log('🔍 Fetching mockups from Cloudinary...');
         const cloudinaryMockups = await fetchImagesFromFolder('mockups');
+        console.log('✅ Mockups fetched:', cloudinaryMockups.length, 'images');
+
         if (cloudinaryMockups.length > 0) {
           const mockupObjects: Mockup[] = cloudinaryMockups.map((img, index) => ({
             id: img.public_id,
@@ -115,10 +118,13 @@ const DesignStudio: React.FC = () => {
             cloudinaryId: img.public_id,
           }));
 
+          console.log('✅ Mockup objects created:', mockupObjects);
           setAllMockups(prev => [...prev, ...mockupObjects]);
+        } else {
+          console.warn('⚠️ No mockups found in Cloudinary mockups/ folder');
         }
       } catch (error) {
-        console.error('Failed to fetch mockups from Cloudinary:', error);
+        console.error('❌ Failed to fetch mockups from Cloudinary:', error);
       } finally {
         setIsLoadingMockups(false);
       }
@@ -130,7 +136,10 @@ const DesignStudio: React.FC = () => {
         const savedCatalogDesigns = JSON.parse(localStorage.getItem('catalogDesigns') || '[]');
 
         // 4. Fetch Designs from Cloudinary
+        console.log('🔍 Fetching designs from Cloudinary...');
         const cloudinaryDesigns = await fetchImagesFromFolder('designs');
+        console.log('✅ Designs fetched:', cloudinaryDesigns.length, 'images');
+
         const designObjects: Design[] = cloudinaryDesigns.map((img, index) => ({
           id: img.public_id,
           title: img.public_id.split('/').pop()?.replace(/[_-]/g, ' ') || `Design ${index + 1}`,
@@ -143,8 +152,11 @@ const DesignStudio: React.FC = () => {
           cloudinaryId: img.public_id,
         }));
 
+        console.log('✅ Design objects created:', designObjects);
+
         // Merge: User Uploads -> Admin Catalog -> Cloudinary Designs
         const allDesigns = [...savedUserDesigns, ...savedCatalogDesigns, ...designObjects, ...INITIAL_DESIGNS];
+        console.log('✅ Total designs loaded:', allDesigns.length);
         setDesigns(allDesigns);
 
         // Set first design as selected if available
@@ -152,7 +164,7 @@ const DesignStudio: React.FC = () => {
           setSelectedDesign(allDesigns[0]);
         }
       } catch (e) {
-        console.error("Failed to load designs from storage", e);
+        console.error("❌ Failed to load designs from storage", e);
       } finally {
         setIsLoadingDesigns(false);
       }

@@ -53,14 +53,8 @@ export default async function handler(
   }
 
   try {
-    // Create authentication signature
-    const timestamp = Math.floor(Date.now() / 1000);
-    const crypto = await import('crypto');
-    
-    const signature = crypto
-      .createHash('sha1')
-      .update(`folder=${folder}&timestamp=${timestamp}${API_SECRET}`)
-      .digest('hex');
+    // Use Basic Authentication instead of signature
+    const auth = Buffer.from(`${API_KEY}:${API_SECRET}`).toString('base64');
 
     // Fetch images from Cloudinary Admin API
     const url = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/resources/image`;
@@ -68,19 +62,21 @@ export default async function handler(
       type: 'upload',
       prefix: folder,
       max_results: '500',
-      timestamp: timestamp.toString(),
-      api_key: API_KEY,
-      signature: signature,
     });
 
-    const response = await fetch(`${url}?${params.toString()}`);
-    
+    const response = await fetch(`${url}?${params.toString()}`, {
+      headers: {
+        'Authorization': `Basic ${auth}`,
+      },
+    });
+
     if (!response.ok) {
-      const errorData = await response.json();
+      const errorData = await response.json().catch(() => ({ message: response.statusText }));
       console.error('Cloudinary API error:', errorData);
-      return res.status(response.status).json({ 
+      return res.status(response.status).json({
         error: 'Failed to fetch images from Cloudinary',
-        details: errorData
+        details: errorData,
+        status: response.status,
       });
     }
 

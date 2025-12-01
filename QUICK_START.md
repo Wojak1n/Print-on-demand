@@ -31,7 +31,7 @@ npm install --save-dev @vercel/node
 4. **Add Environment Variables** (Settings → Environment Variables):
    - `CLOUDINARY_CLOUD_NAME` = `dwm9hk3qg`
    - `CLOUDINARY_API_KEY` = `544387832215932`
-   - `CLOUDINARY_API_SECRET` = `YOUR_SECRET_HERE` ⚠️ (get from Cloudinary dashboard)
+   - `CLOUDINARY_API_SECRET` = `ZEK1zGOXkP6wfx02jrFtwFnmb9c` ⚠️ (get from Cloudinary dashboard)
 
 5. **Deploy!**
 
