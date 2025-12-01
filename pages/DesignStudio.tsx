@@ -241,6 +241,11 @@ const DesignStudio: React.FC = () => {
     updateCurrentZone({ designId: design.id });
   };
 
+  // Add to Cart Modal State
+  const [showAddToCartModal, setShowAddToCartModal] = useState(false);
+  const [selectedSize, setSelectedSize] = useState('M');
+  const [showSuccessNotification, setShowSuccessNotification] = useState(false);
+
   // Add to Cart Handler
   const handleAddToCart = () => {
     if (!isAuthenticated()) {
@@ -259,9 +264,49 @@ const DesignStudio: React.FC = () => {
       return;
     }
 
-    // User is authenticated, proceed with adding to cart
-    // TODO: Implement actual cart logic
-    alert('Design added to cart! (Cart functionality to be implemented)');
+    // Show size selection modal
+    setShowAddToCartModal(true);
+  };
+
+  const confirmAddToCart = () => {
+    if (!selectedDesign || !selectedMockup) {
+      alert('Please select a design and mockup first!');
+      return;
+    }
+
+    // Create cart item
+    const cartItem = {
+      id: `${Date.now()}-${Math.random()}`,
+      designId: selectedDesign.id,
+      designTitle: selectedDesign.title || 'Custom Design',
+      mockupType: selectedMockup.type,
+      quantity: 1,
+      size: selectedSize,
+      color: mockupColor,
+      price: (selectedDesign.price || 0) + 15, // Design price + base product price
+      imageUrl: renderedImageUrl || selectedDesign.imageUrl || '',
+    };
+
+    // Get existing cart
+    const existingCart = JSON.parse(localStorage.getItem('cart') || '[]');
+
+    // Add new item
+    const updatedCart = [...existingCart, cartItem];
+
+    // Save to localStorage
+    localStorage.setItem('cart', JSON.stringify(updatedCart));
+
+    // Dispatch custom event to update cart count in navbar
+    window.dispatchEvent(new Event('cartUpdated'));
+
+    // Close modal and show success notification
+    setShowAddToCartModal(false);
+    setShowSuccessNotification(true);
+
+    // Hide notification after 3 seconds
+    setTimeout(() => {
+      setShowSuccessNotification(false);
+    }, 3000);
   };
 
   // Zone Templates
@@ -1269,6 +1314,109 @@ const DesignStudio: React.FC = () => {
                 className="px-6 py-2 bg-brand-600 text-white rounded-lg font-semibold hover:bg-brand-700 transition-colors"
               >
                 Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add to Cart Modal */}
+      {showAddToCartModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full p-6">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+              Sélectionner la Taille
+            </h3>
+
+            {/* Product Preview */}
+            <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
+              <div className="flex gap-4">
+                <img
+                  src={renderedImageUrl || selectedDesign?.imageUrl}
+                  alt="Product Preview"
+                  className="w-20 h-20 object-cover rounded-lg"
+                />
+                <div className="flex-1">
+                  <h4 className="font-bold text-gray-900 dark:text-white">
+                    {selectedDesign?.title || 'Custom Design'}
+                  </h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {selectedMockup?.type.charAt(0).toUpperCase() + selectedMockup?.type.slice(1)}
+                  </p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Couleur: {mockupColor}
+                  </p>
+                  <p className="text-lg font-bold text-brand-600 dark:text-brand-400 mt-1">
+                    ${((selectedDesign?.price || 0) + 15).toFixed(2)}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Size Selection */}
+            <div className="mb-6">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                Taille
+              </label>
+              <div className="grid grid-cols-5 gap-2">
+                {['XS', 'S', 'M', 'L', 'XL'].map((size) => (
+                  <button
+                    key={size}
+                    onClick={() => setSelectedSize(size)}
+                    className={`py-3 rounded-lg font-semibold transition-all ${
+                      selectedSize === size
+                        ? 'bg-brand-600 text-white shadow-lg scale-105'
+                        : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                    }`}
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowAddToCartModal(false)}
+                className="flex-1 px-6 py-3 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={confirmAddToCart}
+                className="flex-1 px-6 py-3 bg-brand-600 text-white rounded-xl font-semibold hover:bg-brand-700 transition-colors shadow-lg"
+              >
+                Ajouter au Panier
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Success Notification */}
+      {showSuccessNotification && (
+        <div className="fixed top-24 right-6 z-50 animate-slide-in-right">
+          <div className="bg-green-500 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-4 max-w-md">
+            <div className="bg-white/20 p-2 rounded-full">
+              <ShoppingCart className="w-6 h-6" />
+            </div>
+            <div className="flex-1">
+              <p className="font-bold text-lg">Ajouté au panier!</p>
+              <p className="text-sm text-green-100">Votre article a été ajouté avec succès</p>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => navigate('/cart')}
+                className="px-4 py-2 bg-white text-green-600 rounded-lg font-semibold hover:bg-green-50 transition-colors text-sm"
+              >
+                Voir le Panier
+              </button>
+              <button
+                onClick={() => setShowSuccessNotification(false)}
+                className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5" />
               </button>
             </div>
           </div>
