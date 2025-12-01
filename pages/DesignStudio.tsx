@@ -15,10 +15,10 @@ const DesignStudio: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [selectedDesign, setSelectedDesign] = useState<Design | null>(null);
-  const [selectedMockup, setSelectedMockup] = useState<Mockup>(MOCKUPS[0]);
+  const [selectedMockup, setSelectedMockup] = useState<Mockup | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [designs, setDesigns] = useState<Design[]>([]);
-  const [allMockups, setAllMockups] = useState<Mockup[]>(MOCKUPS);
+  const [allMockups, setAllMockups] = useState<Mockup[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const productImageInputRef = useRef<HTMLInputElement>(null);
 
@@ -58,6 +58,8 @@ const DesignStudio: React.FC = () => {
 
   // Initialize zones when mockup changes
   useEffect(() => {
+    if (!selectedMockup) return;
+
     if (selectedMockup.zones && selectedMockup.zones.length > 0) {
       // Deep clone zones to avoid mutating the original
       setMockupZones(JSON.parse(JSON.stringify(selectedMockup.zones)));
@@ -82,6 +84,8 @@ const DesignStudio: React.FC = () => {
   // Load custom data from localStorage on mount + Fetch from Cloudinary
   useEffect(() => {
     const loadData = async () => {
+      let initialMockups: Mockup[] = [];
+
       // 1. Load Custom Mockups and filter out hidden default mockups
       const savedMockups = localStorage.getItem('customMockups');
       const hiddenMockups = JSON.parse(localStorage.getItem('hiddenMockups') || '[]');
@@ -92,12 +96,15 @@ const DesignStudio: React.FC = () => {
       if (savedMockups) {
         try {
           const parsed = JSON.parse(savedMockups);
-          setAllMockups([...visibleDefaultMockups, ...parsed]);
+          initialMockups = [...visibleDefaultMockups, ...parsed];
+          setAllMockups(initialMockups);
         } catch (e) {
           console.error("Failed to parse custom mockups", e);
+          initialMockups = visibleDefaultMockups;
           setAllMockups(visibleDefaultMockups);
         }
       } else {
+        initialMockups = visibleDefaultMockups;
         setAllMockups(visibleDefaultMockups);
       }
 
@@ -118,15 +125,44 @@ const DesignStudio: React.FC = () => {
             overlayY: 50,
             overlayWidth: 40,
             cloudinaryId: img.public_id,
+            zones: [
+              {
+                id: 'zone-front',
+                name: 'Front',
+                overlayX: 50,
+                overlayY: 50,
+                overlayWidth: 40,
+                designScale: 1,
+                designRotation: 0,
+                designOffsetX: 0,
+                designOffsetY: 0
+              }
+            ]
           }));
 
           console.log('✅ Mockup objects created:', mockupObjects);
-          setAllMockups(prev => [...prev, ...mockupObjects]);
+          const allLoadedMockups = [...initialMockups, ...mockupObjects];
+          setAllMockups(allLoadedMockups);
+
+          // Set a random mockup from Cloudinary mockups as default
+          if (mockupObjects.length > 0 && !selectedMockup) {
+            const randomIndex = Math.floor(Math.random() * mockupObjects.length);
+            setSelectedMockup(mockupObjects[randomIndex]);
+            console.log('✅ Random mockup selected:', mockupObjects[randomIndex].name);
+          }
         } else {
           console.warn('⚠️ No mockups found in Cloudinary mockups/ folder');
+          // If no Cloudinary mockups, use first available mockup
+          if (initialMockups.length > 0 && !selectedMockup) {
+            setSelectedMockup(initialMockups[0]);
+          }
         }
       } catch (error) {
         console.error('❌ Failed to fetch mockups from Cloudinary:', error);
+        // On error, use first available mockup
+        if (initialMockups.length > 0 && !selectedMockup) {
+          setSelectedMockup(initialMockups[0]);
+        }
       } finally {
         setIsLoadingMockups(false);
       }
@@ -696,6 +732,8 @@ const DesignStudio: React.FC = () => {
   };
 
   const renderMockupSVG = () => {
+    if (!selectedMockup) return null;
+
     const props = { color: mockupColor, className: "w-full h-full filter drop-shadow-2xl" };
     switch (selectedMockup.type) {
       case 't-shirt': return <TshirtSVG {...props} />;
@@ -703,7 +741,8 @@ const DesignStudio: React.FC = () => {
       case 'sweater': return <SweaterSVG {...props} />;
       case 'cap': return <CapSVG {...props} />;
       case 'custom': return <CustomMockup {...props} baseImage={selectedMockup.baseImage} />;
-      default: return <TshirtSVG {...props} />;
+      case 'jacket': return selectedMockup.baseImage ? <CustomMockup {...props} baseImage={selectedMockup.baseImage} /> : null;
+      default: return null;
     }
   };
 
@@ -1001,7 +1040,7 @@ const DesignStudio: React.FC = () => {
                              rotate(${zone.designRotation || 0}deg)
                              scale(${zone.designScale || 1})
                            `,
-                           mixBlendMode: selectedMockup.type === 'custom' ? 'normal' : (mockupColor === '#111827' ? 'normal' : 'multiply'),
+                           mixBlendMode: selectedMockup?.type === 'custom' || selectedMockup?.type === 'jacket' ? 'normal' : (mockupColor === '#111827' ? 'normal' : 'multiply'),
                            opacity: isCurrentZone ? 1 : 0.7,
                            pointerEvents: 'auto'
                          }}
@@ -1170,20 +1209,23 @@ const DesignStudio: React.FC = () => {
              <button 
               key={mockup.id}
               onClick={() => setSelectedMockup(mockup)}
-              className={`w-16 h-16 rounded-xl border-2 flex-shrink-0 flex items-center justify-center p-2 transition-all relative group ${selectedMockup.id === mockup.id ? 'border-brand-600 bg-brand-50 text-brand-600' : 'border-gray-200 hover:border-gray-300 text-gray-400'}`}
+              className={`w-16 h-16 rounded-xl border-2 flex-shrink-0 flex items-center justify-center p-2 transition-all relative group ${selectedMockup?.id === mockup.id ? 'border-brand-600 bg-brand-50 text-brand-600' : 'border-gray-200 hover:border-gray-300 text-gray-400'}`}
               title={mockup.name}
              >
                 {/* Miniature SVGs or Image for Icons */}
-                {mockup.type === 't-shirt' && <TshirtSVG color={selectedMockup.id === mockup.id ? '#7c3aed' : '#9ca3af'} />}
-                {mockup.type === 'hoodie' && <HoodieSVG color={selectedMockup.id === mockup.id ? '#7c3aed' : '#9ca3af'} />}
-                {mockup.type === 'sweater' && <SweaterSVG color={selectedMockup.id === mockup.id ? '#7c3aed' : '#9ca3af'} />}
-                {mockup.type === 'cap' && <CapSVG color={selectedMockup.id === mockup.id ? '#7c3aed' : '#9ca3af'} />}
+                {mockup.type === 't-shirt' && <TshirtSVG color={selectedMockup?.id === mockup.id ? '#7c3aed' : '#9ca3af'} />}
+                {mockup.type === 'hoodie' && <HoodieSVG color={selectedMockup?.id === mockup.id ? '#7c3aed' : '#9ca3af'} />}
+                {mockup.type === 'sweater' && <SweaterSVG color={selectedMockup?.id === mockup.id ? '#7c3aed' : '#9ca3af'} />}
+                {mockup.type === 'cap' && <CapSVG color={selectedMockup?.id === mockup.id ? '#7c3aed' : '#9ca3af'} />}
                 {mockup.type === 'custom' && mockup.baseImage && (
                   <img src={mockup.baseImage} alt="custom" className="w-full h-full object-contain rounded-md opacity-75" />
                 )}
+                {mockup.type === 'jacket' && mockup.baseImage && (
+                  <img src={mockup.baseImage} alt="jacket" className="w-full h-full object-contain rounded-md opacity-75" />
+                )}
                 {mockup.type === 'custom' && !mockup.baseImage && <ImagePlus className="w-6 h-6" />}
-                
-                {selectedMockup.id === mockup.id && (
+
+                {selectedMockup?.id === mockup.id && (
                   <div className="absolute -top-1 -right-1 w-4 h-4 bg-brand-600 rounded-full flex items-center justify-center border border-white">
                     <Check className="w-2 h-2 text-white" />
                   </div>
