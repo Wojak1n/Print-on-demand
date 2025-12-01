@@ -825,8 +825,8 @@ const DesignStudio: React.FC = () => {
             {isLoadingDesigns ? (
               <div className="text-center py-12 px-4">
                 <Loader2 className="w-16 h-16 mx-auto text-brand-600 mb-4 animate-spin" />
-                <h3 className="text-lg font-bold text-gray-900 mb-2">Loading designs...</h3>
-                <p className="text-sm text-gray-500">Fetching designs from Cloudinary</p>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">{t.studio.loadingDesigns}</h3>
+                <p className="text-sm text-gray-500">{t.studio.fetchingFromCloudinary}</p>
               </div>
             ) : filteredDesigns.length === 0 ? (
               <div className="text-center py-12 px-4">
@@ -878,10 +878,10 @@ const DesignStudio: React.FC = () => {
             <button
               onClick={() => setShowTemplates(!showTemplates)}
               className="bg-white/90 backdrop-blur-md px-4 py-2 rounded-full shadow-lg border border-gray-200 hover:bg-white transition-colors flex items-center gap-2 text-sm font-semibold text-gray-700"
-              title="Zone Templates"
+              title={t.studio.zoneTemplates}
             >
               <Sliders className="w-4 h-4" />
-              Templates
+              {t.studio.zoneTemplates}
             </button>
             <button
               onClick={() => setShowZoneBoundaries(!showZoneBoundaries)}
@@ -890,17 +890,17 @@ const DesignStudio: React.FC = () => {
                   ? 'border-brand-500 text-brand-600'
                   : 'border-gray-200 text-gray-700 hover:bg-white'
               }`}
-              title="Toggle Zone Boundaries"
+              title={t.studio.toggleZoneBoundaries}
             >
               <Eye className="w-4 h-4" />
-              {showZoneBoundaries ? 'Hide' : 'Show'} Zones
+              {showZoneBoundaries ? t.studio.hideZones : t.studio.showZones} {t.studio.zones}
             </button>
             <button
               onClick={() => setShowZoneManager(!showZoneManager)}
               className="bg-white/90 backdrop-blur-md px-4 py-2 rounded-full shadow-lg border border-gray-200 hover:bg-white transition-colors flex items-center gap-2 text-sm font-semibold text-gray-700"
             >
               <Layers className="w-4 h-4" />
-              Manage ({mockupZones.length})
+              {t.studio.manageZones} ({mockupZones.length})
             </button>
           </div>
 
