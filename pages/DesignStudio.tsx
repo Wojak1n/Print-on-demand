@@ -4,6 +4,7 @@ import { INITIAL_DESIGNS, MOCKUPS } from '../constants';
 import { Design, Mockup, DesignZone } from '../types';
 import { Search, ZoomIn, Check, ShoppingCart, Sparkles, Move, RotateCw, Sliders, Loader2, Upload, ImagePlus, Layers, Plus, X, Copy, Eye } from 'lucide-react';
 import { generateSVGDesign } from '../services/geminiService';
+import { uploadDesignToCloudinary, uploadMockupToCloudinary, fetchImagesFromFolder } from '../services/cloudinaryService';
 import { TshirtSVG, HoodieSVG, SweaterSVG, CapSVG, CustomMockup } from '../components/ProductMockups';
 import { isAuthenticated, isAdmin } from '../utils/auth';
 import useTranslation from '../hooks/useTranslation';
@@ -23,6 +24,14 @@ const DesignStudio: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [prompt, setPrompt] = useState('');
   const [showAiModal, setShowAiModal] = useState(false);
+
+  // Upload State
+  const [isUploadingDesign, setIsUploadingDesign] = useState(false);
+  const [isUploadingMockup, setIsUploadingMockup] = useState(false);
+
+  // Cloudinary Fetch State
+  const [isLoadingDesigns, setIsLoadingDesigns] = useState(true);
+  const [isLoadingMockups, setIsLoadingMockups] = useState(true);
 
   // Customization State
   const [mockupColor, setMockupColor] = useState('#ffffff');
@@ -68,44 +77,88 @@ const DesignStudio: React.FC = () => {
     }
   }, [selectedMockup]);
 
-  // Load custom data from localStorage on mount
+  // Load custom data from localStorage on mount + Fetch from Cloudinary
   useEffect(() => {
-    // 1. Load Custom Mockups and filter out hidden default mockups
-    const savedMockups = localStorage.getItem('customMockups');
-    const hiddenMockups = JSON.parse(localStorage.getItem('hiddenMockups') || '[]');
+    const loadData = async () => {
+      // 1. Load Custom Mockups and filter out hidden default mockups
+      const savedMockups = localStorage.getItem('customMockups');
+      const hiddenMockups = JSON.parse(localStorage.getItem('hiddenMockups') || '[]');
 
-    // Filter out hidden default mockups
-    const visibleDefaultMockups = MOCKUPS.filter(m => !hiddenMockups.includes(m.id));
+      // Filter out hidden default mockups
+      const visibleDefaultMockups = MOCKUPS.filter(m => !hiddenMockups.includes(m.id));
 
-    if (savedMockups) {
-      try {
-        const parsed = JSON.parse(savedMockups);
-        setAllMockups([...visibleDefaultMockups, ...parsed]);
-      } catch (e) {
-        console.error("Failed to parse custom mockups", e);
+      if (savedMockups) {
+        try {
+          const parsed = JSON.parse(savedMockups);
+          setAllMockups([...visibleDefaultMockups, ...parsed]);
+        } catch (e) {
+          console.error("Failed to parse custom mockups", e);
+          setAllMockups(visibleDefaultMockups);
+        }
+      } else {
         setAllMockups(visibleDefaultMockups);
       }
-    } else {
-      setAllMockups(visibleDefaultMockups);
-    }
 
-    // 2. Load Designs (User Uploads + Admin Catalog)
-    // Note: INITIAL_DESIGNS is now empty - designs come from 'designs' Cloudinary folder
-    try {
+      // 2. Fetch Mockups from Cloudinary
+      setIsLoadingMockups(true);
+      try {
+        const cloudinaryMockups = await fetchImagesFromFolder('mockups');
+        if (cloudinaryMockups.length > 0) {
+          const mockupObjects: Mockup[] = cloudinaryMockups.map((img, index) => ({
+            id: img.public_id,
+            name: img.public_id.split('/').pop()?.replace(/[_-]/g, ' ') || `Mockup ${index + 1}`,
+            type: 'custom' as const,
+            baseImage: img.secure_url,
+            overlayX: 50,
+            overlayY: 50,
+            overlayWidth: 40,
+            cloudinaryId: img.public_id,
+          }));
+
+          setAllMockups(prev => [...prev, ...mockupObjects]);
+        }
+      } catch (error) {
+        console.error('Failed to fetch mockups from Cloudinary:', error);
+      } finally {
+        setIsLoadingMockups(false);
+      }
+
+      // 3. Load Designs from localStorage
+      setIsLoadingDesigns(true);
+      try {
         const savedUserDesigns = JSON.parse(localStorage.getItem('customDesigns') || '[]');
         const savedCatalogDesigns = JSON.parse(localStorage.getItem('catalogDesigns') || '[]');
 
+        // 4. Fetch Designs from Cloudinary
+        const cloudinaryDesigns = await fetchImagesFromFolder('designs');
+        const designObjects: Design[] = cloudinaryDesigns.map((img, index) => ({
+          id: img.public_id,
+          title: img.public_id.split('/').pop()?.replace(/[_-]/g, ' ') || `Design ${index + 1}`,
+          imageUrl: img.secure_url,
+          category: 'Cloudinary',
+          popularity: 0,
+          price: 25.00,
+          type: 'raster' as const,
+          description: 'Design from Cloudinary',
+          cloudinaryId: img.public_id,
+        }));
+
         // Merge: User Uploads -> Admin Catalog -> Cloudinary Designs
-        const allDesigns = [...savedUserDesigns, ...savedCatalogDesigns, ...INITIAL_DESIGNS];
+        const allDesigns = [...savedUserDesigns, ...savedCatalogDesigns, ...designObjects, ...INITIAL_DESIGNS];
         setDesigns(allDesigns);
 
         // Set first design as selected if available
         if (allDesigns.length > 0 && !selectedDesign) {
           setSelectedDesign(allDesigns[0]);
         }
-    } catch (e) {
+      } catch (e) {
         console.error("Failed to load designs from storage", e);
-    }
+      } finally {
+        setIsLoadingDesigns(false);
+      }
+    };
+
+    loadData();
   }, []);
 
   // Helper to save user designs to local storage
@@ -379,63 +432,106 @@ const DesignStudio: React.FC = () => {
     setDesignY(0);
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        if (e.target?.result) {
-          const isSvg = file.type.includes('svg') || file.name.endsWith('.svg');
-          const resultStr = e.target.result as string;
+      setIsUploadingDesign(true);
 
+      try {
+        // Upload to Cloudinary
+        const uploadResult = await uploadDesignToCloudinary(file);
+
+        if (uploadResult) {
+          // Create design with Cloudinary URL
           const newDesign: Design = {
-            id: `upload-${Date.now()}`,
+            id: uploadResult.publicId,
             title: file.name.split('.')[0],
             category: 'Uploaded',
             popularity: 0,
             price: 25.00,
-            type: 'raster', // Default to raster for simplicity with <img> tags
-            imageUrl: resultStr,
-            description: 'User uploaded design'
+            type: 'raster',
+            imageUrl: uploadResult.url,
+            description: 'Admin uploaded design',
+            cloudinaryId: uploadResult.publicId
           };
-
-          // Special handling if user uploaded an SVG file -> we can still use it as an image source
-          // or try to decode it if we want vector manipulation (complex).
-          // For now, treating uploaded SVG as 'raster' type (via img src) is safer for rendering.
 
           setDesigns(prev => [newDesign, ...prev]);
           setSelectedDesign(newDesign);
-          saveUserDesignToStorage(newDesign);
+
+          // Save to catalog designs (admin uploads)
+          const savedCatalogDesigns = JSON.parse(localStorage.getItem('catalogDesigns') || '[]');
+          const updatedCatalog = [newDesign, ...savedCatalogDesigns];
+          localStorage.setItem('catalogDesigns', JSON.stringify(updatedCatalog));
 
           // Reset transforms
           setDesignScale(1);
           setDesignRotation(0);
           setDesignX(0);
           setDesignY(0);
+
+          alert('Design uploaded to Cloudinary successfully! ✅');
+        } else {
+          // Fallback to local upload if Cloudinary fails
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            if (e.target?.result) {
+              const resultStr = e.target.result as string;
+
+              const newDesign: Design = {
+                id: `upload-${Date.now()}`,
+                title: file.name.split('.')[0],
+                category: 'Uploaded',
+                popularity: 0,
+                price: 25.00,
+                type: 'raster',
+                imageUrl: resultStr,
+                description: 'Local uploaded design'
+              };
+
+              setDesigns(prev => [newDesign, ...prev]);
+              setSelectedDesign(newDesign);
+              saveUserDesignToStorage(newDesign);
+
+              // Reset transforms
+              setDesignScale(1);
+              setDesignRotation(0);
+              setDesignX(0);
+              setDesignY(0);
+            }
+          };
+          reader.readAsDataURL(file);
+          alert('Cloudinary upload failed. Using local storage. ⚠️');
         }
-      };
-      reader.readAsDataURL(file);
-      // Reset input to allow re-uploading same file if needed
-      event.target.value = '';
+      } catch (error) {
+        console.error('Upload error:', error);
+        alert('Upload failed. Please try again.');
+      } finally {
+        setIsUploadingDesign(false);
+        event.target.value = '';
+      }
     }
   };
 
-  const handleProductImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleProductImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        if (e.target?.result) {
-          const resultStr = e.target.result as string;
+      setIsUploadingMockup(true);
 
+      try {
+        // Upload to Cloudinary
+        const uploadResult = await uploadMockupToCloudinary(file);
+
+        if (uploadResult) {
+          // Create mockup with Cloudinary URL
           const newMockup: Mockup = {
-            id: `custom-${Date.now()}`,
+            id: uploadResult.publicId,
             name: file.name.split('.')[0],
             type: 'custom',
-            baseImage: resultStr,
+            baseImage: uploadResult.url,
             overlayX: 50,
             overlayY: 50,
-            overlayWidth: 40
+            overlayWidth: 40,
+            cloudinaryId: uploadResult.publicId
           };
 
           // Save to localStorage
@@ -445,16 +541,51 @@ const DesignStudio: React.FC = () => {
             localStorage.setItem('customMockups', JSON.stringify(updated));
           } catch (e) {
             console.error("Storage quota exceeded", e);
-            alert("Product image uploaded but could not be saved (Storage Full).");
           }
 
           setAllMockups(prev => [newMockup, ...prev]);
           setSelectedMockup(newMockup);
+
+          alert('Mockup uploaded to Cloudinary successfully! ✅');
+        } else {
+          // Fallback to local upload
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            if (e.target?.result) {
+              const resultStr = e.target.result as string;
+
+              const newMockup: Mockup = {
+                id: `custom-${Date.now()}`,
+                name: file.name.split('.')[0],
+                type: 'custom',
+                baseImage: resultStr,
+                overlayX: 50,
+                overlayY: 50,
+                overlayWidth: 40
+              };
+
+              try {
+                const currentSaved = JSON.parse(localStorage.getItem('customMockups') || '[]');
+                const updated = [newMockup, ...currentSaved];
+                localStorage.setItem('customMockups', JSON.stringify(updated));
+              } catch (e) {
+                console.error("Storage quota exceeded", e);
+              }
+
+              setAllMockups(prev => [newMockup, ...prev]);
+              setSelectedMockup(newMockup);
+            }
+          };
+          reader.readAsDataURL(file);
+          alert('Cloudinary upload failed. Using local storage. ⚠️');
         }
-      };
-      reader.readAsDataURL(file);
-      // Reset input to allow re-uploading same file if needed
-      event.target.value = '';
+      } catch (error) {
+        console.error('Upload error:', error);
+        alert('Upload failed. Please try again.');
+      } finally {
+        setIsUploadingMockup(false);
+        event.target.value = '';
+      }
     }
   };
 
@@ -503,10 +634,15 @@ const DesignStudio: React.FC = () => {
                 <>
                   <button
                     onClick={() => fileInputRef.current?.click()}
-                    className="p-2 bg-gray-50 text-gray-600 rounded-lg hover:bg-gray-100 border border-gray-200 transition-colors"
+                    disabled={isUploadingDesign}
+                    className="p-2 bg-gray-50 text-gray-600 rounded-lg hover:bg-gray-100 border border-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     title={t.studio.uploadDesign}
                   >
-                    <Upload className="w-5 h-5" />
+                    {isUploadingDesign ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <Upload className="w-5 h-5" />
+                    )}
                   </button>
                   <input
                     type="file"
@@ -541,7 +677,13 @@ const DesignStudio: React.FC = () => {
           </div>
           
           <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
-            {filteredDesigns.length === 0 ? (
+            {isLoadingDesigns ? (
+              <div className="text-center py-12 px-4">
+                <Loader2 className="w-16 h-16 mx-auto text-brand-600 mb-4 animate-spin" />
+                <h3 className="text-lg font-bold text-gray-900 mb-2">Loading designs...</h3>
+                <p className="text-sm text-gray-500">Fetching designs from Cloudinary</p>
+              </div>
+            ) : filteredDesigns.length === 0 ? (
               <div className="text-center py-12 px-4">
                 <ImagePlus className="w-16 h-16 mx-auto text-gray-300 mb-4" />
                 <h3 className="text-lg font-bold text-gray-900 mb-2">{t.studio.noDesigns}</h3>
@@ -912,10 +1054,15 @@ const DesignStudio: React.FC = () => {
              <>
                <button
                  onClick={() => productImageInputRef.current?.click()}
-                 className="w-16 h-16 rounded-xl border-2 border-dashed border-brand-300 bg-brand-50 flex-shrink-0 flex items-center justify-center p-2 transition-all hover:bg-brand-100 hover:border-brand-400 group"
+                 disabled={isUploadingMockup}
+                 className="w-16 h-16 rounded-xl border-2 border-dashed border-brand-300 bg-brand-50 flex-shrink-0 flex items-center justify-center p-2 transition-all hover:bg-brand-100 hover:border-brand-400 group disabled:opacity-50 disabled:cursor-not-allowed"
                  title="Upload Product Image"
                >
-                 <ImagePlus className="w-6 h-6 text-brand-600" />
+                 {isUploadingMockup ? (
+                   <Loader2 className="w-6 h-6 text-brand-600 animate-spin" />
+                 ) : (
+                   <ImagePlus className="w-6 h-6 text-brand-600" />
+                 )}
                  <div className="absolute right-full mr-4 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition-opacity z-50">
                    Upload Product
                  </div>

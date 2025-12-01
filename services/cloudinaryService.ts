@@ -19,19 +19,33 @@ interface CloudinaryResponse {
 }
 
 /**
- * Fetch all images from a specific Cloudinary folder
- * @param folderPath - The folder path in Cloudinary (e.g., 'designs', 'mockups/tshirts')
+ * Fetch all images from a specific Cloudinary folder using Vercel serverless API
+ * @param folderPath - The folder path in Cloudinary (e.g., 'designs', 'mockups')
  * @returns Array of image resources
  */
 export const fetchImagesFromFolder = async (folderPath: string): Promise<CloudinaryResource[]> => {
   try {
-    // Note: This requires the Cloudinary Admin API which needs server-side implementation
-    // For client-side, you'll need to manually list the public IDs or use a backend
-    
-    // For now, we'll return a manual list based on folder structure
-    // In production, you'd want to implement this on a backend server
-    
-    console.warn('Client-side Cloudinary folder fetching requires backend implementation');
+    // Call Vercel serverless API endpoint
+    const apiUrl = `/api/cloudinary/list-images?folder=${encodeURIComponent(folderPath)}`;
+    const response = await fetch(apiUrl);
+
+    if (!response.ok) {
+      console.error('Failed to fetch images from Cloudinary:', response.statusText);
+      return [];
+    }
+
+    const data = await response.json();
+
+    if (data.success && data.images) {
+      return data.images.map((img: any) => ({
+        public_id: img.publicId,
+        secure_url: img.url,
+        width: img.width,
+        height: img.height,
+        format: img.format,
+      }));
+    }
+
     return [];
   } catch (error) {
     console.error('Error fetching images from Cloudinary:', error);
@@ -147,3 +161,71 @@ export const getMockups = () => {
   }));
 };
 
+/**
+ * Upload design image to Cloudinary
+ * Uses unsigned upload preset (needs to be configured in Cloudinary dashboard)
+ */
+export const uploadDesignToCloudinary = async (file: File): Promise<{ publicId: string; url: string } | null> => {
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', 'khayali_designs'); // Create this preset in Cloudinary
+    formData.append('folder', 'designs');
+
+    const response = await fetch(
+      `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+      {
+        method: 'POST',
+        body: formData,
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error('Upload failed');
+    }
+
+    const data = await response.json();
+
+    return {
+      publicId: data.public_id,
+      url: data.secure_url,
+    };
+  } catch (error) {
+    console.error('Error uploading design to Cloudinary:', error);
+    return null;
+  }
+};
+
+/**
+ * Upload mockup image to Cloudinary
+ */
+export const uploadMockupToCloudinary = async (file: File): Promise<{ publicId: string; url: string } | null> => {
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', 'khayali_mockups'); // Create this preset in Cloudinary
+    formData.append('folder', 'mockups');
+
+    const response = await fetch(
+      `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+      {
+        method: 'POST',
+        body: formData,
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error('Upload failed');
+    }
+
+    const data = await response.json();
+
+    return {
+      publicId: data.public_id,
+      url: data.secure_url,
+    };
+  } catch (error) {
+    console.error('Error uploading mockup to Cloudinary:', error);
+    return null;
+  }
+};

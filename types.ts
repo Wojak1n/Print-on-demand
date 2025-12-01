@@ -11,6 +11,7 @@ export interface Design {
   featured?: boolean; // Mark as featured/promotional
   featuredMockup?: string; // Full product mockup image for featured section
   featuredTag?: string; // e.g., "Staff Pick", "Trending", "New Arrival", "Limited Edition"
+  cloudinaryId?: string; // Cloudinary public_id for uploaded images
 }
 
 export interface DesignZone {
@@ -36,6 +37,7 @@ export interface Mockup {
   overlayY: number; // Default Y position % (for backward compatibility)
   overlayWidth: number; // Default width % (for backward compatibility)
   zones?: DesignZone[]; // Multiple design zones for this mockup
+  cloudinaryId?: string; // Cloudinary public_id for uploaded mockups
 }
 
 export interface Order {
