@@ -19,9 +19,9 @@ export const fr = {
   // Hero Section
   hero: {
     badge: 'Impression Premium à la Demande',
-    title: 'Art Sélectionné.',
-    subtitle: 'Toile Portable.',
-    description: 'Créez des T-shirts, Sweats à Capuche, Pulls et Casquettes exclusifs. Où le design haut de gamme rencontre le confort quotidien.',
+    title: 'Votre style,',
+    subtitle: 'notre broderie.',
+    description: 'Découvrez les vestes et pantalons brodés Khayali : des pièces exclusives où l\'élégance haut de gamme rencontre le confort du quotidien.',
     ctaPrimary: 'Commencer à Créer',
     ctaSecondary: 'Explorer les Designs',
     newArrival: 'Nouvelle Arrivée',
