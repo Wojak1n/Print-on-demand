@@ -7,7 +7,7 @@ import { generateMarketingCopy } from '../services/geminiService';
 import { FAKE_USERS, User } from '../utils/auth';
 
 const Admin: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'designs' | 'orders' | 'mockups' | 'stock' | 'users'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'designs' | 'orders' | 'mockups' | 'stock' | 'users' | 'settings'>('dashboard');
   const [users, setUsers] = useState<User[]>(FAKE_USERS);
   const [designs, setDesigns] = useState<Design[]>([]);
   const [orders, setOrders] = useState<Order[]>(MOCK_ORDERS);
@@ -15,6 +15,16 @@ const Admin: React.FC = () => {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [orderSearchQuery, setOrderSearchQuery] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Settings State
+  const [storeName, setStoreName] = useState(localStorage.getItem('storeName') || 'KHAYALI');
+  const [currency, setCurrency] = useState(localStorage.getItem('currency') || 'USD');
+  const [language, setLanguage] = useState(localStorage.getItem('language') || 'English');
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'Light');
+  const [emailNotifications, setEmailNotifications] = useState(localStorage.getItem('emailNotifications') !== 'false');
+  const [orderUpdates, setOrderUpdates] = useState(localStorage.getItem('orderUpdates') !== 'false');
+  const [newUserNotifications, setNewUserNotifications] = useState(localStorage.getItem('newUserNotifications') === 'true');
+  const [lowStockAlerts, setLowStockAlerts] = useState(localStorage.getItem('lowStockAlerts') !== 'false');
 
   // Stock Update Modal State
   const [stockUpdateModal, setStockUpdateModal] = useState<{isOpen: boolean; item: StockItem | null; mode: 'update' | 'add'}>({
@@ -336,6 +346,20 @@ const Admin: React.FC = () => {
       setHiddenMockups(updatedHiddenMockups);
       localStorage.setItem('hiddenMockups', JSON.stringify(updatedHiddenMockups));
     }
+  };
+
+  const handleSaveSettings = () => {
+    // Save all settings to localStorage
+    localStorage.setItem('storeName', storeName);
+    localStorage.setItem('currency', currency);
+    localStorage.setItem('language', language);
+    localStorage.setItem('theme', theme);
+    localStorage.setItem('emailNotifications', emailNotifications.toString());
+    localStorage.setItem('orderUpdates', orderUpdates.toString());
+    localStorage.setItem('newUserNotifications', newUserNotifications.toString());
+    localStorage.setItem('lowStockAlerts', lowStockAlerts.toString());
+
+    alert('Settings saved successfully!');
   };
 
   return (
@@ -2214,7 +2238,11 @@ const Admin: React.FC = () => {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Theme</label>
-                    <select className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+                    <select
+                      value={theme}
+                      onChange={(e) => setTheme(e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                    >
                       <option>Light</option>
                       <option>Dark</option>
                       <option>System</option>
@@ -2222,7 +2250,11 @@ const Admin: React.FC = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Language</label>
-                    <select className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+                    <select
+                      value={language}
+                      onChange={(e) => setLanguage(e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                    >
                       <option>English</option>
                       <option>French</option>
                       <option>Arabic</option>
@@ -2242,19 +2274,39 @@ const Admin: React.FC = () => {
                 <div className="space-y-3">
                   <label className="flex items-center justify-between cursor-pointer">
                     <span className="text-sm text-gray-700 dark:text-gray-300">Email notifications</span>
-                    <input type="checkbox" defaultChecked className="w-4 h-4 text-brand-600 rounded" />
+                    <input
+                      type="checkbox"
+                      checked={emailNotifications}
+                      onChange={(e) => setEmailNotifications(e.target.checked)}
+                      className="w-4 h-4 text-brand-600 rounded"
+                    />
                   </label>
                   <label className="flex items-center justify-between cursor-pointer">
                     <span className="text-sm text-gray-700 dark:text-gray-300">Order updates</span>
-                    <input type="checkbox" defaultChecked className="w-4 h-4 text-brand-600 rounded" />
+                    <input
+                      type="checkbox"
+                      checked={orderUpdates}
+                      onChange={(e) => setOrderUpdates(e.target.checked)}
+                      className="w-4 h-4 text-brand-600 rounded"
+                    />
                   </label>
                   <label className="flex items-center justify-between cursor-pointer">
                     <span className="text-sm text-gray-700 dark:text-gray-300">New user registrations</span>
-                    <input type="checkbox" className="w-4 h-4 text-brand-600 rounded" />
+                    <input
+                      type="checkbox"
+                      checked={newUserNotifications}
+                      onChange={(e) => setNewUserNotifications(e.target.checked)}
+                      className="w-4 h-4 text-brand-600 rounded"
+                    />
                   </label>
                   <label className="flex items-center justify-between cursor-pointer">
                     <span className="text-sm text-gray-700 dark:text-gray-300">Low stock alerts</span>
-                    <input type="checkbox" defaultChecked className="w-4 h-4 text-brand-600 rounded" />
+                    <input
+                      type="checkbox"
+                      checked={lowStockAlerts}
+                      onChange={(e) => setLowStockAlerts(e.target.checked)}
+                      className="w-4 h-4 text-brand-600 rounded"
+                    />
                   </label>
                 </div>
               </div>
@@ -2272,13 +2324,18 @@ const Admin: React.FC = () => {
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Store Name</label>
                     <input
                       type="text"
-                      defaultValue="KHAYALI"
+                      value={storeName}
+                      onChange={(e) => setStoreName(e.target.value)}
                       className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Currency</label>
-                    <select className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+                    <select
+                      value={currency}
+                      onChange={(e) => setCurrency(e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                    >
                       <option>USD ($)</option>
                       <option>EUR (€)</option>
                       <option>MAD (DH)</option>
@@ -2290,7 +2347,11 @@ const Admin: React.FC = () => {
 
             {/* Save Button */}
             <div className="flex justify-end">
-              <button className="px-6 py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-lg font-medium transition-colors">
+              <button
+                onClick={handleSaveSettings}
+                className="px-6 py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
+              >
+                <Save className="w-5 h-5" />
                 Save Changes
               </button>
             </div>
