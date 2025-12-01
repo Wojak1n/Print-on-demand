@@ -253,6 +253,13 @@ const DesignStudio: React.FC = () => {
     const productPreview = canvasRef.current;
     if (!productPreview) return '';
 
+    // Temporarily hide zone boundaries and borders
+    const previousShowBoundaries = showZoneBoundaries;
+    setShowZoneBoundaries(false);
+
+    // Wait for React to re-render without boundaries
+    await new Promise(resolve => setTimeout(resolve, 100));
+
     try {
       const canvas = await html2canvas(productPreview, {
         backgroundColor: null,
@@ -260,11 +267,25 @@ const DesignStudio: React.FC = () => {
         useCORS: true,
         allowTaint: true,
         logging: false,
+        ignoreElements: (element) => {
+          // Ignore elements with zone boundaries, borders, and labels
+          return element.classList.contains('border-brand-500') ||
+                 element.classList.contains('border-brand-300') ||
+                 element.classList.contains('border-dashed') ||
+                 element.tagName === 'BUTTON';
+        }
       });
 
-      return canvas.toDataURL('image/png');
+      const imageData = canvas.toDataURL('image/png');
+
+      // Restore zone boundaries
+      setShowZoneBoundaries(previousShowBoundaries);
+
+      return imageData;
     } catch (error) {
       console.error('Error capturing product image:', error);
+      // Restore zone boundaries even on error
+      setShowZoneBoundaries(previousShowBoundaries);
       return '';
     }
   };
