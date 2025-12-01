@@ -413,7 +413,7 @@ const Home: React.FC = () => {
                <div className="relative">
                   <div className="absolute -top-4 -left-4 w-24 h-24 bg-brand-100 dark:bg-brand-900/30 rounded-full -z-10"></div>
                   <img
-                    src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=1000&auto=format&fit=crop"
+                    src="https://images.unsplash.com/photo-1551028719-00167b16eac5?q=80&w=1000&auto=format&fit=crop"
                     alt={t.about.designTeamAlt}
                     className="rounded-3xl shadow-2xl w-full object-cover h-[500px]"
                   />
