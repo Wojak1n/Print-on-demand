@@ -1,8 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { ShoppingBag, Menu, X, LayoutDashboard, User, Moon, Sun, LogOut, ChevronDown } from 'lucide-react';
+import { ShoppingBag, Menu, X, LayoutDashboard, User, LogOut, ChevronDown } from 'lucide-react';
 import { IMAGES } from '../config/cloudinary';
-import { useTheme } from '../contexts/ThemeContext';
 import { getCurrentUser, isAdmin, logout } from '../utils/auth';
 import useTranslation from '../hooks/useTranslation';
 
@@ -14,7 +13,6 @@ const Navbar: React.FC = () => {
   const [currentUser, setCurrentUser] = useState(getCurrentUser());
   const [userIsAdmin, setUserIsAdmin] = useState(isAdmin());
   const [cartCount, setCartCount] = useState(0);
-  const { isDarkMode, toggleDarkMode } = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -113,15 +111,6 @@ const Navbar: React.FC = () => {
                 {link.name}
               </Link>
             ))}
-
-            {/* Dark Mode Toggle */}
-            <button
-              onClick={toggleDarkMode}
-              className="p-2 rounded-full text-gray-400 dark:text-gray-300 hover:text-brand-500 dark:hover:text-brand-400 transition-colors"
-              aria-label="Toggle dark mode"
-            >
-              {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-            </button>
 
             <Link to="/cart" className="p-2 rounded-full text-gray-400 dark:text-gray-300 hover:text-brand-500 dark:hover:text-brand-400 transition-colors relative">
               <ShoppingBag className="h-6 w-6" />
@@ -229,17 +218,6 @@ const Navbar: React.FC = () => {
                 {t.nav.cart}
                 <span className="absolute top-1 right-1 block h-2 w-2 rounded-full ring-2 ring-white dark:ring-gray-800 bg-brand-500"></span>
               </Link>
-            </div>
-
-            {/* Mobile Dark Mode Toggle */}
-            <div className="px-3 py-2">
-              <button
-                onClick={toggleDarkMode}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-              >
-                {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-                {isDarkMode ? t.nav.lightMode : t.nav.darkMode}
-              </button>
             </div>
 
             {/* Mobile Admin Link (only for admins) */}

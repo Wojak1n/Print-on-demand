@@ -20,30 +20,17 @@ interface ThemeProviderProps {
 }
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
-    // Check localStorage for saved preference
-    const saved = localStorage.getItem('darkMode');
-    if (saved !== null) {
-      return saved === 'true';
-    }
-    // Check system preference
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
-  });
+  // Force light mode - dark mode disabled
+  const [isDarkMode] = useState<boolean>(false);
 
   useEffect(() => {
-    // Update localStorage when dark mode changes
-    localStorage.setItem('darkMode', isDarkMode.toString());
-    
-    // Update document class
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [isDarkMode]);
+    // Always remove dark class to ensure light mode
+    document.documentElement.classList.remove('dark');
+    localStorage.removeItem('darkMode');
+  }, []);
 
   const toggleDarkMode = () => {
-    setIsDarkMode(prev => !prev);
+    // Do nothing - dark mode is disabled
   };
 
   return (
