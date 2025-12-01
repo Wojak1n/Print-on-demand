@@ -36,7 +36,7 @@ const DesignStudio: React.FC = () => {
   const [isLoadingMockups, setIsLoadingMockups] = useState(true);
 
   // Customization State
-  const [mockupColor, setMockupColor] = useState('#ffffff');
+  const [mockupColor] = useState('#ffffff'); // Keep for compatibility but don't allow changing
 
   // Multi-Zone State
   const [currentZoneIndex, setCurrentZoneIndex] = useState(0);
@@ -331,7 +331,7 @@ const DesignStudio: React.FC = () => {
       mockupType: selectedMockup.type,
       quantity: 1,
       size: selectedSize,
-      color: mockupColor,
+      color: selectedMockup.name, // Use mockup name instead of color
       price: (selectedDesign.price || 0) + 15, // Design price + base product price
       imageUrl: capturedProductImage || selectedDesign.imageUrl || '', // Use captured product image
     };
@@ -707,7 +707,7 @@ const DesignStudio: React.FC = () => {
     }
   };
 
-  const colors = ['#ffffff', '#e5e7eb', '#111827', '#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#f472b6'];
+
 
   return (
     <div className="flex flex-col h-[calc(100vh-64px)] bg-gray-50 overflow-hidden">
@@ -834,23 +834,6 @@ const DesignStudio: React.FC = () => {
         {/* MIDDLE COLUMN: Canvas & Controls */}
         <div className="flex-1 bg-gray-100 flex flex-col relative overflow-hidden">
           
-          {/* Top Bar: Color Picker */}
-          <div className="absolute top-6 left-0 right-0 flex justify-center z-20 pointer-events-none">
-             <div className="bg-white/90 backdrop-blur-md px-6 py-3 rounded-full shadow-lg border border-gray-200 pointer-events-auto flex items-center gap-4">
-                <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Product Color</span>
-                <div className="flex space-x-2">
-                  {colors.map(c => (
-                    <button
-                      key={c}
-                      onClick={() => setMockupColor(c)}
-                      className={`w-6 h-6 rounded-full border border-gray-300 shadow-sm transition-transform hover:scale-110 ${mockupColor === c ? 'ring-2 ring-offset-2 ring-brand-500 scale-110' : ''}`}
-                      style={{ backgroundColor: c }}
-                    />
-                  ))}
-                </div>
-             </div>
-          </div>
-
           {/* Zone Controls - Top Right */}
           <div className="absolute top-6 right-6 z-20 flex gap-2">
             <button
@@ -1390,10 +1373,7 @@ const DesignStudio: React.FC = () => {
                     {selectedDesign?.title || 'Custom Design'}
                   </h4>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {selectedMockup?.type.charAt(0).toUpperCase() + selectedMockup?.type.slice(1)}
-                  </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Couleur: {mockupColor}
+                    {selectedMockup?.name}
                   </p>
                   <p className="text-lg font-bold text-brand-600 dark:text-brand-400 mt-1">
                     {formatPrice((selectedDesign?.price || 0) + 15)}
