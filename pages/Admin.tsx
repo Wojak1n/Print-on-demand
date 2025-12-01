@@ -18,7 +18,7 @@ const Admin: React.FC = () => {
 
   // Settings State
   const [storeName, setStoreName] = useState(localStorage.getItem('storeName') || 'KHAYALI');
-  const [currency, setCurrency] = useState(localStorage.getItem('currency') || 'USD');
+  const [currency, setCurrency] = useState(localStorage.getItem('currency') || 'MAD (DH)');
   const [language, setLanguage] = useState(localStorage.getItem('language') || 'English');
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'Light');
   const [emailNotifications, setEmailNotifications] = useState(localStorage.getItem('emailNotifications') !== 'false');

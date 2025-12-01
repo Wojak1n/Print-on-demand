@@ -19,7 +19,7 @@ const CURRENCY_MAP: Record<string, CurrencyConfig> = {
  */
 export const getCurrentCurrency = (): CurrencyType => {
   const saved = localStorage.getItem('currency');
-  return (saved as CurrencyType) || 'USD ($)';
+  return (saved as CurrencyType) || 'MAD (DH)';
 };
 
 /**
@@ -27,7 +27,7 @@ export const getCurrentCurrency = (): CurrencyType => {
  */
 export const getCurrencyConfig = (): CurrencyConfig => {
   const currency = getCurrentCurrency();
-  return CURRENCY_MAP[currency] || CURRENCY_MAP['USD ($)'];
+  return CURRENCY_MAP[currency] || CURRENCY_MAP['MAD (DH)'];
 };
 
 /**
