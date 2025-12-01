@@ -53,8 +53,9 @@ export default async function handler(
   }
 
   try {
-    // Use Basic Authentication instead of signature
-    const auth = Buffer.from(`${API_KEY}:${API_SECRET}`).toString('base64');
+    // Cloudinary Admin API uses Basic Auth with API_KEY:API_SECRET
+    const credentials = `${API_KEY}:${API_SECRET}`;
+    const base64Credentials = Buffer.from(credentials).toString('base64');
 
     // Fetch images from Cloudinary Admin API
     const url = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/resources/image`;
@@ -64,23 +65,52 @@ export default async function handler(
       max_results: '500',
     });
 
+    console.log('Fetching from Cloudinary:', {
+      url: `${url}?${params.toString()}`,
+      cloudName: CLOUD_NAME,
+      folder: folder,
+      hasApiKey: !!API_KEY,
+      hasApiSecret: !!API_SECRET,
+    });
+
     const response = await fetch(`${url}?${params.toString()}`, {
+      method: 'GET',
       headers: {
-        'Authorization': `Basic ${auth}`,
+        'Authorization': `Basic ${base64Credentials}`,
+        'Content-Type': 'application/json',
       },
     });
 
+    console.log('Cloudinary response status:', response.status);
+
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: response.statusText }));
-      console.error('Cloudinary API error:', errorData);
+      const errorText = await response.text();
+      let errorData;
+      try {
+        errorData = JSON.parse(errorText);
+      } catch {
+        errorData = { message: errorText };
+      }
+
+      console.error('Cloudinary API error:', {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorData,
+      });
+
       return res.status(response.status).json({
         error: 'Failed to fetch images from Cloudinary',
         details: errorData,
         status: response.status,
+        cloudName: CLOUD_NAME,
+        folder: folder,
       });
     }
 
     const data: CloudinaryResponse = await response.json();
+    console.log('Cloudinary response:', {
+      resourceCount: data.resources?.length || 0,
+    });
 
     // Transform resources to a simpler format
     const images = data.resources.map(resource => ({
