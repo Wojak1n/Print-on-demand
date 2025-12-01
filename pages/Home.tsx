@@ -413,8 +413,8 @@ const Home: React.FC = () => {
                <div className="relative">
                   <div className="absolute -top-4 -left-4 w-24 h-24 bg-brand-100 dark:bg-brand-900/30 rounded-full -z-10"></div>
                   <img
-                    src="https://images.unsplash.com/photo-1551028719-00167b16eac5?q=80&w=1000&auto=format&fit=crop"
-                    alt={t.about.designTeamAlt}
+                    src="https://res.cloudinary.com/dwm9hk3qg/image/upload/v1733097600/about/embroidered-sleeve.jpg"
+                    alt="Broderie dorée détaillée sur manche de veste noire"
                     className="rounded-3xl shadow-2xl w-full object-cover h-[500px]"
                   />
                   <div className="absolute bottom-10 -right-10 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-xl max-w-xs hidden md:block">
