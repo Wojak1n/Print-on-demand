@@ -19,9 +19,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
     return <Navigate to="/login" replace />;
   }
 
-  // If admin access is required but user is not admin, redirect to home page
+  // If admin access is required but user is not admin, redirect to admin login page
   if (requireAdmin && !userIsAdmin) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/admin/login" replace />;
   }
 
   return <>{children}</>;
