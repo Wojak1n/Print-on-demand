@@ -4,6 +4,7 @@ import { STATS_DATA, FEATURED_DESIGNS, MOCK_ORDERS, MOCKUPS, STOCK_ITEMS } from 
 import { Design, Mockup, Order, StockItem } from '../types';
 import { Plus, Loader2, Sparkles, Package, DollarSign, Users, Image as ImageIcon, Upload, Palette, TrendingUp, Box, AlertTriangle, Eye, Truck, CheckCircle, XCircle, Edit, Search, UserCheck, Mail, Calendar, ShoppingCart, Ban, CheckCircle2, Trash2, Save, X as XIcon, LayoutDashboard, Settings, LogOut, Bell, Menu } from 'lucide-react';
 import { generateMarketingCopy } from '../services/geminiService';
+import { fetchImagesFromFolder } from '../services/cloudinaryService';
 import { FAKE_USERS, User } from '../utils/auth';
 
 const Admin: React.FC = () => {
@@ -61,37 +62,95 @@ const Admin: React.FC = () => {
   const [showEditMockupModal, setShowEditMockupModal] = useState(false);
 
   useEffect(() => {
-    // Load Custom Mockups
-    const savedMockups = localStorage.getItem('customMockups');
-    if (savedMockups) {
-      setCustomMockups(JSON.parse(savedMockups));
-    }
+    const loadData = async () => {
+      // Load Custom Mockups
+      const savedMockups = localStorage.getItem('customMockups');
+      if (savedMockups) {
+        setCustomMockups(JSON.parse(savedMockups));
+      }
 
-    // Load Hidden Mockups
-    const savedHiddenMockups = localStorage.getItem('hiddenMockups');
-    if (savedHiddenMockups) {
-      setHiddenMockups(JSON.parse(savedHiddenMockups));
-    }
+      // Load Hidden Mockups
+      const savedHiddenMockups = localStorage.getItem('hiddenMockups');
+      if (savedHiddenMockups) {
+        setHiddenMockups(JSON.parse(savedHiddenMockups));
+      }
 
-    // Load Hidden Designs
-    const savedHiddenDesigns = localStorage.getItem('hiddenDesigns');
-    if (savedHiddenDesigns) {
-      setHiddenDesigns(JSON.parse(savedHiddenDesigns));
-    }
+      // Load Hidden Designs
+      const savedHiddenDesigns = localStorage.getItem('hiddenDesigns');
+      if (savedHiddenDesigns) {
+        setHiddenDesigns(JSON.parse(savedHiddenDesigns));
+      }
 
-    // Load Catalog Designs
-    const savedCatalog = localStorage.getItem('catalogDesigns');
-    const hiddenDesignIds = JSON.parse(localStorage.getItem('hiddenDesigns') || '[]');
+      // Load Catalog Designs from localStorage
+      const savedCatalog = localStorage.getItem('catalogDesigns');
+      const hiddenDesignIds = JSON.parse(localStorage.getItem('hiddenDesigns') || '[]');
 
-    // Filter out hidden featured designs from FEATURED_DESIGNS
-    const visibleFeaturedDesigns = FEATURED_DESIGNS.filter((d: Design) => !hiddenDesignIds.includes(d.id));
+      // Filter out hidden featured designs from FEATURED_DESIGNS
+      const visibleFeaturedDesigns = FEATURED_DESIGNS.filter((d: Design) => !hiddenDesignIds.includes(d.id));
 
-    if (savedCatalog) {
-       const parsed = JSON.parse(savedCatalog);
-       setDesigns([...parsed, ...visibleFeaturedDesigns]);
-    } else {
-       setDesigns(visibleFeaturedDesigns);
-    }
+      // Fetch Designs from Cloudinary
+      try {
+        console.log('🔍 Admin: Fetching designs from Cloudinary...');
+        const cloudinaryDesigns = await fetchImagesFromFolder('designs');
+        console.log('✅ Admin: Designs fetched:', cloudinaryDesigns.length, 'images');
+
+        const designObjects: Design[] = cloudinaryDesigns.map((img, index) => ({
+          id: img.public_id,
+          title: img.public_id.split('/').pop()?.replace(/[_-]/g, ' ') || `Design ${index + 1}`,
+          imageUrl: img.secure_url,
+          category: 'Cloudinary',
+          popularity: 0,
+          price: 25.00,
+          description: 'Design from Cloudinary',
+          cloudinaryId: img.public_id,
+        }));
+
+        // Merge: Catalog Designs -> Cloudinary Designs -> Featured Designs
+        const catalogDesigns = savedCatalog ? JSON.parse(savedCatalog) : [];
+        const allDesigns = [...catalogDesigns, ...designObjects, ...visibleFeaturedDesigns];
+        setDesigns(allDesigns);
+        console.log('✅ Admin: Total designs loaded:', allDesigns.length);
+      } catch (error) {
+        console.error('❌ Admin: Failed to fetch designs from Cloudinary:', error);
+        // Fallback to local designs only
+        if (savedCatalog) {
+          const parsed = JSON.parse(savedCatalog);
+          setDesigns([...parsed, ...visibleFeaturedDesigns]);
+        } else {
+          setDesigns(visibleFeaturedDesigns);
+        }
+      }
+
+      // Fetch Mockups from Cloudinary
+      try {
+        console.log('🔍 Admin: Fetching mockups from Cloudinary...');
+        const cloudinaryMockups = await fetchImagesFromFolder('mockups');
+        console.log('✅ Admin: Mockups fetched:', cloudinaryMockups.length, 'images');
+
+        if (cloudinaryMockups.length > 0) {
+          const mockupObjects: Mockup[] = cloudinaryMockups.map((img, index) => ({
+            id: img.public_id,
+            name: img.public_id.split('/').pop()?.replace(/[_-]/g, ' ') || `Mockup ${index + 1}`,
+            type: 'custom' as const,
+            baseImage: img.secure_url,
+            overlayX: 50,
+            overlayY: 50,
+            overlayWidth: 40,
+            cloudinaryId: img.public_id,
+          }));
+
+          // Merge with custom mockups from localStorage
+          const savedCustomMockups = savedMockups ? JSON.parse(savedMockups) : [];
+          const allMockups = [...savedCustomMockups, ...mockupObjects];
+          setCustomMockups(allMockups);
+          console.log('✅ Admin: Total mockups loaded:', allMockups.length);
+        }
+      } catch (error) {
+        console.error('❌ Admin: Failed to fetch mockups from Cloudinary:', error);
+      }
+    };
+
+    loadData();
   }, []);
 
   const handleGenerateDescription = async () => {
