@@ -112,6 +112,50 @@ export const fr = {
     designTeamAlt: 'Équipe de Design',
   },
 
+  // About Page
+  aboutPage: {
+    hero: {
+      title: 'Notre Histoire',
+      subtitle: 'KHAYALI est né d\'une conviction simple : tout le monde mérite de porter de l\'art qui parle à son âme.',
+    },
+    mission: {
+      badge: 'Notre Mission',
+      title: 'Nous Faisons le Pont Entre l\'Art et le Vêtement',
+      description: 'KHAYALI n\'a pas été conçu pour la production de masse. Il a été conçu pour les passionnés. Pour les créateurs qui passent des heures à perfectionner une seule ligne vectorielle. Pour ceux qui veulent que leurs vêtements disent quelque chose de significatif.',
+      feature1: 'Encres écologiques et emballages durables',
+      feature2: 'Modèle de royalties axé sur les artistes',
+      feature3: 'Contrôle qualité sur chaque point de couture',
+      imageAlt: 'Broderie dorée détaillée sur manche de veste noire',
+    },
+    values: {
+      badge: 'Nos Valeurs',
+      title: 'Ce Que Nous Défendons',
+      passion: {
+        title: 'Passion pour le Design',
+        text: 'Nous croyons que chaque design raconte une histoire. Nous traitons chaque pièce avec le soin et l\'attention qu\'elle mérite.',
+      },
+      community: {
+        title: 'La Communauté d\'Abord',
+        text: 'Nos artistes et clients sont au cœur de tout ce que nous faisons. Votre succès est notre succès.',
+      },
+      quality: {
+        title: 'Excellence de Qualité',
+        text: 'Nous ne faisons jamais de compromis sur la qualité. De la sélection du tissu à l\'impression finale, l\'excellence est notre norme.',
+      },
+    },
+    team: {
+      badge: 'L\'Équipe',
+      title: 'Rencontrez les Créateurs',
+      founder: 'Fondateur & PDG',
+      headDesigner: 'Designer en Chef & Développeur',
+    },
+    cta: {
+      title: 'Prêt à Créer Quelque Chose d\'Incroyable?',
+      subtitle: 'Rejoignez des milliers d\'artistes et de designers qui font confiance à KHAYALI pour donner vie à leurs visions.',
+      button: 'Commencer à Créer',
+    },
+  },
+
   // Footer
   footer: {
     tagline: 'Créez votre style unique',
@@ -357,13 +401,6 @@ export const fr = {
     confirm: 'Confirmer',
     yes: 'Oui',
     no: 'Non',
-  },
-
-  // About Page
-  aboutPage: {
-    title: 'À Propos de Nous',
-    subtitle: 'Notre Histoire',
-    description: 'Nous sommes passionnés par la création de designs uniques',
   },
 
   // Profile Page

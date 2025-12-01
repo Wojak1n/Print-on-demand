@@ -1,8 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ShieldCheck, Heart, Users, Award, Sparkles } from 'lucide-react';
+import { useTranslation } from '../hooks/useTranslation';
 
 const About: React.FC = () => {
+  const { t } = useTranslation();
+
   return (
     <div className="flex flex-col min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
 
@@ -11,10 +14,10 @@ const About: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto">
             <h1 className="text-5xl md:text-6xl font-serif font-bold text-gray-900 dark:text-white mb-6">
-              Our Story
+              {t.aboutPage.hero.title}
             </h1>
             <p className="text-xl text-gray-600 dark:text-gray-400 leading-relaxed">
-              KHAYALI was born from a simple belief: everyone deserves to wear art that speaks to their soul.
+              {t.aboutPage.hero.subtitle}
             </p>
           </div>
         </div>
@@ -25,20 +28,18 @@ const About: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div>
-              <h2 className="text-base text-brand-600 dark:text-brand-400 font-bold tracking-widest uppercase mb-3">Our Mission</h2>
+              <h2 className="text-base text-brand-600 dark:text-brand-400 font-bold tracking-widest uppercase mb-3">{t.aboutPage.mission.badge}</h2>
               <h3 className="text-4xl font-serif font-bold text-gray-900 dark:text-white mb-6">
-                We Bridge the Gap Between Art and Apparel
+                {t.aboutPage.mission.title}
               </h3>
               <p className="text-lg text-gray-500 dark:text-gray-400 mb-6 leading-relaxed">
-                KHAYALI wasn't built for mass production. It was built for the obsessed.
-                For the creators who spend hours perfecting a single vector line.
-                For the wearers who want their clothes to say something meaningful.
+                {t.aboutPage.mission.description}
               </p>
               <div className="space-y-4 mb-8">
                 {[
-                  'Eco-friendly inks and sustainable packaging',
-                  'Artist-first royalty model',
-                  'Quality control on every single stitch'
+                  t.aboutPage.mission.feature1,
+                  t.aboutPage.mission.feature2,
+                  t.aboutPage.mission.feature3
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-3">
                     <div className="w-6 h-6 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600 dark:text-green-400 flex-shrink-0">
@@ -52,8 +53,8 @@ const About: React.FC = () => {
             <div className="relative">
               <div className="absolute -top-4 -left-4 w-24 h-24 bg-brand-100 dark:bg-brand-900/30 rounded-full -z-10"></div>
               <img
-                src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=1000&auto=format&fit=crop"
-                alt="Design Team"
+                src="/images/About us.jpg"
+                alt={t.aboutPage.mission.imageAlt}
                 className="rounded-3xl shadow-2xl w-full object-cover h-[500px]"
               />
             </div>
@@ -65,26 +66,26 @@ const About: React.FC = () => {
       <section className="py-24 bg-gray-50 dark:bg-gray-800 transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-base text-brand-600 dark:text-brand-400 font-bold tracking-widest uppercase mb-3">Our Values</h2>
-            <p className="text-4xl font-serif font-bold text-gray-900 dark:text-white">What We Stand For</p>
+            <h2 className="text-base text-brand-600 dark:text-brand-400 font-bold tracking-widest uppercase mb-3">{t.aboutPage.values.badge}</h2>
+            <p className="text-4xl font-serif font-bold text-gray-900 dark:text-white">{t.aboutPage.values.title}</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             {[
               {
                 icon: Heart,
-                title: 'Passion for Design',
-                text: 'We believe every design tells a story. We treat each piece with the care and attention it deserves.'
+                title: t.aboutPage.values.passion.title,
+                text: t.aboutPage.values.passion.text
               },
               {
                 icon: Users,
-                title: 'Community First',
-                text: 'Our artists and customers are at the heart of everything we do. Your success is our success.'
+                title: t.aboutPage.values.community.title,
+                text: t.aboutPage.values.community.text
               },
               {
                 icon: Award,
-                title: 'Quality Excellence',
-                text: 'We never compromise on quality. From fabric selection to final print, excellence is our standard.'
+                title: t.aboutPage.values.quality.title,
+                text: t.aboutPage.values.quality.text
               }
             ].map((value, i) => (
               <div key={i} className="flex flex-col items-center text-center p-8 rounded-3xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-700 hover:border-brand-200 dark:hover:border-brand-600 hover:shadow-lg transition-all duration-300">
@@ -103,14 +104,14 @@ const About: React.FC = () => {
       <section className="py-24 bg-white dark:bg-gray-900 transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-base text-brand-600 dark:text-brand-400 font-bold tracking-widest uppercase mb-3">The Team</h2>
-            <p className="text-4xl font-serif font-bold text-gray-900 dark:text-white">Meet the Creators</p>
+            <h2 className="text-base text-brand-600 dark:text-brand-400 font-bold tracking-widest uppercase mb-3">{t.aboutPage.team.badge}</h2>
+            <p className="text-4xl font-serif font-bold text-gray-900 dark:text-white">{t.aboutPage.team.title}</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             {[
-              { name: 'Sarah Johnson', role: 'Founder & CEO', img: 'https://picsum.photos/seed/team1/400/400' },
-              { name: 'Michael Chen', role: 'Head Designer & Developer', img: 'https://picsum.photos/seed/team2/400/400' }
+              { name: 'Sarah Johnson', role: t.aboutPage.team.founder, img: 'https://picsum.photos/seed/team1/400/400' },
+              { name: 'Michael Chen', role: t.aboutPage.team.headDesigner, img: 'https://picsum.photos/seed/team2/400/400' }
             ].map((member, i) => (
               <div key={i} className="group">
                 <div className="relative overflow-hidden rounded-2xl mb-4">
@@ -133,15 +134,15 @@ const About: React.FC = () => {
       <section className="py-24 bg-gray-900 dark:bg-black text-white transition-colors duration-200">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <Sparkles className="w-12 h-12 mx-auto mb-6 text-brand-400 dark:text-brand-300" />
-          <h2 className="text-4xl font-serif font-bold mb-6">Ready to Create Something Amazing?</h2>
+          <h2 className="text-4xl font-serif font-bold mb-6">{t.aboutPage.cta.title}</h2>
           <p className="text-xl text-gray-300 dark:text-gray-400 mb-8">
-            Join thousands of artists and designers who trust KHAYALI to bring their visions to life.
+            {t.aboutPage.cta.subtitle}
           </p>
           <Link
             to="/studio"
             className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold rounded-full text-gray-900 bg-white hover:bg-gray-100 transition-all shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
           >
-            Start Creating
+            {t.aboutPage.cta.button}
             <ArrowRight className="ml-2 h-5 w-5" />
           </Link>
         </div>
