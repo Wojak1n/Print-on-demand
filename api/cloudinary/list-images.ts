@@ -57,18 +57,22 @@ export default async function handler(
     const credentials = `${API_KEY}:${API_SECRET}`;
     const base64Credentials = Buffer.from(credentials).toString('base64');
 
+    // Normalize folder path - try both "folder" and "folders/folder"
+    const folderPath = folder.startsWith('folders/') ? folder : `folders/${folder}`;
+
     // Fetch images from Cloudinary Admin API
     const url = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/resources/image`;
     const params = new URLSearchParams({
       type: 'upload',
-      prefix: folder,
+      prefix: folderPath,
       max_results: '500',
     });
 
     console.log('Fetching from Cloudinary:', {
       url: `${url}?${params.toString()}`,
       cloudName: CLOUD_NAME,
-      folder: folder,
+      originalFolder: folder,
+      folderPath: folderPath,
       hasApiKey: !!API_KEY,
       hasApiSecret: !!API_SECRET,
     });
@@ -125,6 +129,7 @@ export default async function handler(
     return res.status(200).json({
       success: true,
       folder,
+      folderPath,
       count: images.length,
       images,
     });
