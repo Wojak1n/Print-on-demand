@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CreditCard, Lock, ArrowLeft, CheckCircle } from 'lucide-react';
+import { formatPrice } from '../utils/currency';
 
 interface CartItem {
   id: string;
@@ -385,7 +386,7 @@ const Checkout: React.FC = () => {
                   ) : (
                     <>
                       <CheckCircle className="w-5 h-5" />
-                      Complete Order - ${total.toFixed(2)}
+                      Complete Order - {formatPrice(total)}
                     </>
                   )}
                 </button>
@@ -412,7 +413,7 @@ const Checkout: React.FC = () => {
                         {item.mockupType} • {item.size} • {item.color}
                       </p>
                       <p className="text-sm font-semibold text-gray-900 dark:text-white mt-1">
-                        ${item.price.toFixed(2)} × {item.quantity}
+                        {formatPrice(item.price)} × {item.quantity}
                       </p>
                     </div>
                   </div>
@@ -422,20 +423,20 @@ const Checkout: React.FC = () => {
               <div className="space-y-3 border-t border-gray-200 dark:border-gray-700 pt-4">
                 <div className="flex justify-between text-gray-600 dark:text-gray-400">
                   <span>Subtotal</span>
-                  <span>${subtotal.toFixed(2)}</span>
+                  <span>{formatPrice(subtotal)}</span>
                 </div>
                 <div className="flex justify-between text-gray-600 dark:text-gray-400">
                   <span>Shipping</span>
-                  <span>${shipping.toFixed(2)}</span>
+                  <span>{formatPrice(shipping)}</span>
                 </div>
                 <div className="flex justify-between text-gray-600 dark:text-gray-400">
                   <span>Tax</span>
-                  <span>${tax.toFixed(2)}</span>
+                  <span>{formatPrice(tax)}</span>
                 </div>
                 <div className="border-t border-gray-200 dark:border-gray-700 pt-3">
                   <div className="flex justify-between text-lg font-bold text-gray-900 dark:text-white">
                     <span>Total</span>
-                    <span>${total.toFixed(2)}</span>
+                    <span>{formatPrice(total)}</span>
                   </div>
                 </div>
               </div>

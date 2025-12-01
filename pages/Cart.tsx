@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingBag, Trash2, Plus, Minus, ArrowRight, Package } from 'lucide-react';
 import { isAuthenticated } from '../utils/auth';
 import useTranslation from '../hooks/useTranslation';
+import { formatPrice } from '../utils/currency';
 
 interface CartItem {
   id: string;
@@ -129,7 +130,7 @@ const Cart: React.FC = () => {
                         {item.mockupType.charAt(0).toUpperCase() + item.mockupType.slice(1)} • {t.cart.size}: {item.size} • {t.cart.color}: {item.color}
                       </p>
                       <p className="text-lg font-bold text-brand-600 dark:text-brand-400 mt-2">
-                        ${item.price.toFixed(2)}
+                        {formatPrice(item.price)}
                       </p>
                     </div>
                     <div className="flex flex-col items-end justify-between">
@@ -169,20 +170,20 @@ const Cart: React.FC = () => {
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between text-gray-600 dark:text-gray-400">
                     <span>{t.cart.subtotal}</span>
-                    <span>${subtotal.toFixed(2)}</span>
+                    <span>{formatPrice(subtotal)}</span>
                   </div>
                   <div className="flex justify-between text-gray-600 dark:text-gray-400">
                     <span>{t.cart.shipping}</span>
-                    <span>${shipping.toFixed(2)}</span>
+                    <span>{formatPrice(shipping)}</span>
                   </div>
                   <div className="flex justify-between text-gray-600 dark:text-gray-400">
                     <span>{t.cart.tax}</span>
-                    <span>${tax.toFixed(2)}</span>
+                    <span>{formatPrice(tax)}</span>
                   </div>
                   <div className="border-t border-gray-200 dark:border-gray-700 pt-3">
                     <div className="flex justify-between text-lg font-bold text-gray-900 dark:text-white">
                       <span>{t.cart.total}</span>
-                      <span>${total.toFixed(2)}</span>
+                      <span>{formatPrice(total)}</span>
                     </div>
                   </div>
                 </div>

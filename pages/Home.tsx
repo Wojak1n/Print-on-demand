@@ -8,6 +8,7 @@ import { cld, IMAGES } from '../config/cloudinary';
 import { FEATURED_DESIGNS } from '../constants';
 import { isAuthenticated, isAdmin } from '../utils/auth';
 import useTranslation from '../hooks/useTranslation';
+import { formatPrice } from '../utils/currency';
 
 const Home: React.FC = () => {
   const { t } = useTranslation();
@@ -216,7 +217,7 @@ const Home: React.FC = () => {
                     {/* Price */}
                     <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
                       <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">{t.handpicked.startingAt}</p>
-                      <p className="text-2xl font-bold text-gray-900 dark:text-white">${design.price.toFixed(2)}</p>
+                      <p className="text-2xl font-bold text-gray-900 dark:text-white">{formatPrice(design.price)}</p>
                     </div>
                   </div>
                 </div>

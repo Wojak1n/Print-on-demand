@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, Mail, Calendar, Package, ShoppingCart, DollarSign, LogOut, Edit, Shield, MapPin, CreditCard, Settings, Heart, Clock, Save, X, Trash2, Plus, Eye } from 'lucide-react';
 import { getCurrentUser, logout, FAKE_USERS } from '../utils/auth';
+import { formatPrice } from '../utils/currency';
 
 const Profile: React.FC = () => {
   const navigate = useNavigate();
@@ -137,7 +138,7 @@ const Profile: React.FC = () => {
                     <DollarSign className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-gray-900 dark:text-white">${currentUser.totalSpent?.toFixed(2) || '0.00'}</p>
+                    <p className="text-2xl font-bold text-gray-900 dark:text-white">{formatPrice(currentUser.totalSpent || 0)}</p>
                     <p className="text-sm text-gray-600 dark:text-gray-400">Total Spent</p>
                   </div>
                 </div>

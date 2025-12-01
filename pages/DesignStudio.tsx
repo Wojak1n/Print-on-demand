@@ -8,6 +8,7 @@ import { uploadDesignToCloudinary, uploadMockupToCloudinary, fetchImagesFromFold
 import { TshirtSVG, HoodieSVG, SweaterSVG, CapSVG, CustomMockup } from '../components/ProductMockups';
 import { isAuthenticated, isAdmin } from '../utils/auth';
 import useTranslation from '../hooks/useTranslation';
+import { formatPrice } from '../utils/currency';
 import html2canvas from 'html2canvas';
 
 const DesignStudio: React.FC = () => {
@@ -1136,7 +1137,7 @@ const DesignStudio: React.FC = () => {
                  <div className="flex items-center gap-4 border-l pl-6 border-gray-200">
                     <div className="text-right hidden sm:block">
                       <p className="text-xs text-gray-500">Total Price</p>
-                      <p className="text-xl font-bold text-gray-900">${((selectedDesign?.price || 0) + 15).toFixed(2)}</p>
+                      <p className="text-xl font-bold text-gray-900">{formatPrice((selectedDesign?.price || 0) + 15)}</p>
                     </div>
                     <button
                       onClick={handleAddToCart}
@@ -1395,7 +1396,7 @@ const DesignStudio: React.FC = () => {
                     Couleur: {mockupColor}
                   </p>
                   <p className="text-lg font-bold text-brand-600 dark:text-brand-400 mt-1">
-                    ${((selectedDesign?.price || 0) + 15).toFixed(2)}
+                    {formatPrice((selectedDesign?.price || 0) + 15)}
                   </p>
                 </div>
               </div>
