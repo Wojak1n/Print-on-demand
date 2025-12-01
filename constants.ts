@@ -95,18 +95,29 @@ export const MOCKUPS: Mockup[] = [
   },
   {
     id: 'm2',
-    name: 'Premium Heavy Hoodie',
-    type: 'hoodie',
+    name: 'Pantalon Classique',
+    type: 'pants',
     overlayX: 50,
-    overlayY: 45,
-    overlayWidth: 30,
+    overlayY: 55,
+    overlayWidth: 20,
     zones: [
       {
-        id: 'zone-front',
-        name: 'Front',
-        overlayX: 50,
-        overlayY: 45,
-        overlayWidth: 30,
+        id: 'zone-front-left',
+        name: 'Front Left Leg',
+        overlayX: 45,
+        overlayY: 55,
+        overlayWidth: 15,
+        designScale: 1,
+        designRotation: 0,
+        designOffsetX: 0,
+        designOffsetY: 0
+      },
+      {
+        id: 'zone-front-right',
+        name: 'Front Right Leg',
+        overlayX: 55,
+        overlayY: 55,
+        overlayWidth: 15,
         designScale: 1,
         designRotation: 0,
         designOffsetX: 0,
@@ -114,74 +125,10 @@ export const MOCKUPS: Mockup[] = [
       },
       {
         id: 'zone-back',
-        name: 'Back',
+        name: 'Back Pocket',
         overlayX: 50,
         overlayY: 45,
-        overlayWidth: 30,
-        designScale: 1,
-        designRotation: 0,
-        designOffsetX: 0,
-        designOffsetY: 0
-      },
-      {
-        id: 'zone-hood',
-        name: 'Hood',
-        overlayX: 50,
-        overlayY: 25,
-        overlayWidth: 20,
-        designScale: 1,
-        designRotation: 0,
-        designOffsetX: 0,
-        designOffsetY: 0
-      }
-    ]
-  },
-  {
-    id: 'm3',
-    name: 'Cozy Knit Sweater',
-    type: 'sweater',
-    overlayX: 50,
-    overlayY: 45,
-    overlayWidth: 32,
-    zones: [
-      {
-        id: 'zone-front',
-        name: 'Front',
-        overlayX: 50,
-        overlayY: 45,
-        overlayWidth: 32,
-        designScale: 1,
-        designRotation: 0,
-        designOffsetX: 0,
-        designOffsetY: 0
-      },
-      {
-        id: 'zone-back',
-        name: 'Back',
-        overlayX: 50,
-        overlayY: 45,
-        overlayWidth: 32,
-        designScale: 1,
-        designRotation: 0,
-        designOffsetX: 0,
-        designOffsetY: 0
-      }
-    ]
-  },
-  {
-    id: 'm4',
-    name: 'Streetwear Cap',
-    type: 'cap',
-    overlayX: 50,
-    overlayY: 35,
-    overlayWidth: 25,
-    zones: [
-      {
-        id: 'zone-front',
-        name: 'Front',
-        overlayX: 50,
-        overlayY: 35,
-        overlayWidth: 25,
+        overlayWidth: 12,
         designScale: 1,
         designRotation: 0,
         designOffsetX: 0,
@@ -274,55 +221,49 @@ export const MOCK_ORDERS: Order[] = [
 ];
 
 export const STOCK_ITEMS: StockItem[] = [
-  // T-Shirts - White
-  { id: 'stock-1', productType: 't-shirt', size: 'XS', color: 'White', quantity: 85, reorderLevel: 30, supplier: 'Textile Maroc', lastRestocked: '2024-11-25' },
-  { id: 'stock-2', productType: 't-shirt', size: 'S', color: 'White', quantity: 120, reorderLevel: 40, supplier: 'Textile Maroc', lastRestocked: '2024-11-25' },
-  { id: 'stock-3', productType: 't-shirt', size: 'M', color: 'White', quantity: 150, reorderLevel: 50, supplier: 'Textile Maroc', lastRestocked: '2024-11-25' },
-  { id: 'stock-4', productType: 't-shirt', size: 'L', color: 'White', quantity: 140, reorderLevel: 50, supplier: 'Textile Maroc', lastRestocked: '2024-11-25' },
-  { id: 'stock-5', productType: 't-shirt', size: 'XL', color: 'White', quantity: 95, reorderLevel: 35, supplier: 'Textile Maroc', lastRestocked: '2024-11-25' },
+  // Vestes (Jackets) - Black
+  { id: 'stock-1', productType: 'jacket', size: 'XS', color: 'Black', quantity: 45, reorderLevel: 15, supplier: 'Atlas Apparel', lastRestocked: '2024-11-25' },
+  { id: 'stock-2', productType: 'jacket', size: 'S', color: 'Black', quantity: 68, reorderLevel: 20, supplier: 'Atlas Apparel', lastRestocked: '2024-11-25' },
+  { id: 'stock-3', productType: 'jacket', size: 'M', color: 'Black', quantity: 85, reorderLevel: 25, supplier: 'Atlas Apparel', lastRestocked: '2024-11-25' },
+  { id: 'stock-4', productType: 'jacket', size: 'L', color: 'Black', quantity: 72, reorderLevel: 25, supplier: 'Atlas Apparel', lastRestocked: '2024-11-25' },
+  { id: 'stock-5', productType: 'jacket', size: 'XL', color: 'Black', quantity: 52, reorderLevel: 20, supplier: 'Atlas Apparel', lastRestocked: '2024-11-25' },
+  { id: 'stock-6', productType: 'jacket', size: 'XXL', color: 'Black', quantity: 38, reorderLevel: 15, supplier: 'Atlas Apparel', lastRestocked: '2024-11-25' },
 
-  // T-Shirts - Black
-  { id: 'stock-6', productType: 't-shirt', size: 'XS', color: 'Black', quantity: 75, reorderLevel: 30, supplier: 'Textile Maroc', lastRestocked: '2024-11-20' },
-  { id: 'stock-7', productType: 't-shirt', size: 'S', color: 'Black', quantity: 110, reorderLevel: 40, supplier: 'Textile Maroc', lastRestocked: '2024-11-20' },
-  { id: 'stock-8', productType: 't-shirt', size: 'M', color: 'Black', quantity: 145, reorderLevel: 50, supplier: 'Textile Maroc', lastRestocked: '2024-11-20' },
-  { id: 'stock-9', productType: 't-shirt', size: 'L', color: 'Black', quantity: 28, reorderLevel: 50, supplier: 'Textile Maroc', lastRestocked: '2024-11-20' },
-  { id: 'stock-10', productType: 't-shirt', size: 'XL', color: 'Black', quantity: 88, reorderLevel: 35, supplier: 'Textile Maroc', lastRestocked: '2024-11-20' },
+  // Vestes (Jackets) - Navy
+  { id: 'stock-7', productType: 'jacket', size: 'XS', color: 'Navy', quantity: 42, reorderLevel: 15, supplier: 'Atlas Apparel', lastRestocked: '2024-11-20' },
+  { id: 'stock-8', productType: 'jacket', size: 'S', color: 'Navy', quantity: 58, reorderLevel: 20, supplier: 'Atlas Apparel', lastRestocked: '2024-11-20' },
+  { id: 'stock-9', productType: 'jacket', size: 'M', color: 'Navy', quantity: 75, reorderLevel: 25, supplier: 'Atlas Apparel', lastRestocked: '2024-11-20' },
+  { id: 'stock-10', productType: 'jacket', size: 'L', color: 'Navy', quantity: 18, reorderLevel: 25, supplier: 'Atlas Apparel', lastRestocked: '2024-11-20' },
+  { id: 'stock-11', productType: 'jacket', size: 'XL', color: 'Navy', quantity: 48, reorderLevel: 20, supplier: 'Atlas Apparel', lastRestocked: '2024-11-20' },
+  { id: 'stock-12', productType: 'jacket', size: 'XXL', color: 'Navy', quantity: 32, reorderLevel: 15, supplier: 'Atlas Apparel', lastRestocked: '2024-11-20' },
 
-  // T-Shirts - Navy
-  { id: 'stock-11', productType: 't-shirt', size: 'S', color: 'Navy', quantity: 65, reorderLevel: 30, supplier: 'Textile Maroc', lastRestocked: '2024-11-18' },
-  { id: 'stock-12', productType: 't-shirt', size: 'M', color: 'Navy', quantity: 92, reorderLevel: 40, supplier: 'Textile Maroc', lastRestocked: '2024-11-18' },
-  { id: 'stock-13', productType: 't-shirt', size: 'L', color: 'Navy', quantity: 78, reorderLevel: 40, supplier: 'Textile Maroc', lastRestocked: '2024-11-18' },
-  { id: 'stock-14', productType: 't-shirt', size: 'XL', color: 'Navy', quantity: 55, reorderLevel: 30, supplier: 'Textile Maroc', lastRestocked: '2024-11-18' },
+  // Vestes (Jackets) - Gray
+  { id: 'stock-13', productType: 'jacket', size: 'S', color: 'Gray', quantity: 52, reorderLevel: 20, supplier: 'Atlas Apparel', lastRestocked: '2024-11-18' },
+  { id: 'stock-14', productType: 'jacket', size: 'M', color: 'Gray', quantity: 68, reorderLevel: 25, supplier: 'Atlas Apparel', lastRestocked: '2024-11-18' },
+  { id: 'stock-15', productType: 'jacket', size: 'L', color: 'Gray', quantity: 62, reorderLevel: 25, supplier: 'Atlas Apparel', lastRestocked: '2024-11-18' },
+  { id: 'stock-16', productType: 'jacket', size: 'XL', color: 'Gray', quantity: 45, reorderLevel: 20, supplier: 'Atlas Apparel', lastRestocked: '2024-11-18' },
 
-  // Hoodies - Black
-  { id: 'stock-15', productType: 'hoodie', size: 'S', color: 'Black', quantity: 45, reorderLevel: 20, supplier: 'Atlas Apparel', lastRestocked: '2024-11-22' },
-  { id: 'stock-16', productType: 'hoodie', size: 'M', color: 'Black', quantity: 68, reorderLevel: 25, supplier: 'Atlas Apparel', lastRestocked: '2024-11-22' },
-  { id: 'stock-17', productType: 'hoodie', size: 'L', color: 'Black', quantity: 72, reorderLevel: 25, supplier: 'Atlas Apparel', lastRestocked: '2024-11-22' },
-  { id: 'stock-18', productType: 'hoodie', size: 'XL', color: 'Black', quantity: 52, reorderLevel: 20, supplier: 'Atlas Apparel', lastRestocked: '2024-11-22' },
+  // Pantalons (Pants) - Black
+  { id: 'stock-17', productType: 'pants', size: 'XS', color: 'Black', quantity: 55, reorderLevel: 20, supplier: 'Textile Maroc', lastRestocked: '2024-11-22' },
+  { id: 'stock-18', productType: 'pants', size: 'S', color: 'Black', quantity: 78, reorderLevel: 25, supplier: 'Textile Maroc', lastRestocked: '2024-11-22' },
+  { id: 'stock-19', productType: 'pants', size: 'M', color: 'Black', quantity: 95, reorderLevel: 30, supplier: 'Textile Maroc', lastRestocked: '2024-11-22' },
+  { id: 'stock-20', productType: 'pants', size: 'L', color: 'Black', quantity: 88, reorderLevel: 30, supplier: 'Textile Maroc', lastRestocked: '2024-11-22' },
+  { id: 'stock-21', productType: 'pants', size: 'XL', color: 'Black', quantity: 65, reorderLevel: 25, supplier: 'Textile Maroc', lastRestocked: '2024-11-22' },
+  { id: 'stock-22', productType: 'pants', size: 'XXL', color: 'Black', quantity: 48, reorderLevel: 20, supplier: 'Textile Maroc', lastRestocked: '2024-11-22' },
 
-  // Hoodies - Gray
-  { id: 'stock-19', productType: 'hoodie', size: 'S', color: 'Gray', quantity: 38, reorderLevel: 20, supplier: 'Atlas Apparel', lastRestocked: '2024-11-15' },
-  { id: 'stock-20', productType: 'hoodie', size: 'M', color: 'Gray', quantity: 15, reorderLevel: 25, supplier: 'Atlas Apparel', lastRestocked: '2024-11-15' },
-  { id: 'stock-21', productType: 'hoodie', size: 'L', color: 'Gray', quantity: 58, reorderLevel: 25, supplier: 'Atlas Apparel', lastRestocked: '2024-11-15' },
-  { id: 'stock-22', productType: 'hoodie', size: 'XL', color: 'Gray', quantity: 42, reorderLevel: 20, supplier: 'Atlas Apparel', lastRestocked: '2024-11-15' },
+  // Pantalons (Pants) - Navy
+  { id: 'stock-23', productType: 'pants', size: 'XS', color: 'Navy', quantity: 48, reorderLevel: 20, supplier: 'Textile Maroc', lastRestocked: '2024-11-15' },
+  { id: 'stock-24', productType: 'pants', size: 'S', color: 'Navy', quantity: 68, reorderLevel: 25, supplier: 'Textile Maroc', lastRestocked: '2024-11-15' },
+  { id: 'stock-25', productType: 'pants', size: 'M', color: 'Navy', quantity: 12, reorderLevel: 30, supplier: 'Textile Maroc', lastRestocked: '2024-11-15' },
+  { id: 'stock-26', productType: 'pants', size: 'L', color: 'Navy', quantity: 75, reorderLevel: 30, supplier: 'Textile Maroc', lastRestocked: '2024-11-15' },
+  { id: 'stock-27', productType: 'pants', size: 'XL', color: 'Navy', quantity: 58, reorderLevel: 25, supplier: 'Textile Maroc', lastRestocked: '2024-11-15' },
+  { id: 'stock-28', productType: 'pants', size: 'XXL', color: 'Navy', quantity: 42, reorderLevel: 20, supplier: 'Textile Maroc', lastRestocked: '2024-11-15' },
 
-  // Sweaters - Navy
-  { id: 'stock-23', productType: 'sweater', size: 'S', color: 'Navy', quantity: 32, reorderLevel: 15, supplier: 'Casablanca Knits', lastRestocked: '2024-11-10' },
-  { id: 'stock-24', productType: 'sweater', size: 'M', color: 'Navy', quantity: 48, reorderLevel: 20, supplier: 'Casablanca Knits', lastRestocked: '2024-11-10' },
-  { id: 'stock-25', productType: 'sweater', size: 'L', color: 'Navy', quantity: 44, reorderLevel: 20, supplier: 'Casablanca Knits', lastRestocked: '2024-11-10' },
-  { id: 'stock-26', productType: 'sweater', size: 'XL', color: 'Navy', quantity: 35, reorderLevel: 15, supplier: 'Casablanca Knits', lastRestocked: '2024-11-10' },
-
-  // Sweaters - Burgundy
-  { id: 'stock-27', productType: 'sweater', size: 'S', color: 'Burgundy', quantity: 28, reorderLevel: 15, supplier: 'Casablanca Knits', lastRestocked: '2024-11-08' },
-  { id: 'stock-28', productType: 'sweater', size: 'M', color: 'Burgundy', quantity: 12, reorderLevel: 20, supplier: 'Casablanca Knits', lastRestocked: '2024-11-08' },
-  { id: 'stock-29', productType: 'sweater', size: 'L', color: 'Burgundy', quantity: 38, reorderLevel: 20, supplier: 'Casablanca Knits', lastRestocked: '2024-11-08' },
-  { id: 'stock-30', productType: 'sweater', size: 'XL', color: 'Burgundy', quantity: 30, reorderLevel: 15, supplier: 'Casablanca Knits', lastRestocked: '2024-11-08' },
-
-  // Caps
-  { id: 'stock-31', productType: 'cap', size: 'One Size', color: 'Black', quantity: 95, reorderLevel: 30, supplier: 'Marrakech Caps', lastRestocked: '2024-11-28' },
-  { id: 'stock-32', productType: 'cap', size: 'One Size', color: 'White', quantity: 78, reorderLevel: 30, supplier: 'Marrakech Caps', lastRestocked: '2024-11-28' },
-  { id: 'stock-33', productType: 'cap', size: 'One Size', color: 'Navy', quantity: 68, reorderLevel: 30, supplier: 'Marrakech Caps', lastRestocked: '2024-11-28' },
-  { id: 'stock-34', productType: 'cap', size: 'One Size', color: 'Beige', quantity: 52, reorderLevel: 25, supplier: 'Marrakech Caps', lastRestocked: '2024-11-28' },
+  // Pantalons (Pants) - Khaki
+  { id: 'stock-29', productType: 'pants', size: 'S', color: 'Khaki', quantity: 52, reorderLevel: 20, supplier: 'Textile Maroc', lastRestocked: '2024-11-10' },
+  { id: 'stock-30', productType: 'pants', size: 'M', color: 'Khaki', quantity: 68, reorderLevel: 25, supplier: 'Textile Maroc', lastRestocked: '2024-11-10' },
+  { id: 'stock-31', productType: 'pants', size: 'L', color: 'Khaki', quantity: 62, reorderLevel: 25, supplier: 'Textile Maroc', lastRestocked: '2024-11-10' },
+  { id: 'stock-32', productType: 'pants', size: 'XL', color: 'Khaki', quantity: 45, reorderLevel: 20, supplier: 'Textile Maroc', lastRestocked: '2024-11-10' },
 ];
 
 export const STATS_DATA: DailyStat[] = [

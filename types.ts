@@ -31,7 +31,7 @@ export interface DesignZone {
 export interface Mockup {
   id: string;
   name: string;
-  type: 't-shirt' | 'hoodie' | 'cap' | 'sweater' | 'custom';
+  type: 'jacket' | 'pants' | 'custom';
   baseImage?: string; // URL for custom uploaded mockups
   overlayX: number; // Default X position % (for backward compatibility)
   overlayY: number; // Default Y position % (for backward compatibility)
@@ -67,7 +67,7 @@ export interface OrderItem {
 
 export interface StockItem {
   id: string;
-  productType: 't-shirt' | 'hoodie' | 'sweater' | 'cap';
+  productType: 'jacket' | 'pants';
   size: 'XS' | 'S' | 'M' | 'L' | 'XL' | 'XXL' | 'One Size';
   color: string;
   quantity: number;
