@@ -57,22 +57,18 @@ export default async function handler(
     const credentials = `${API_KEY}:${API_SECRET}`;
     const base64Credentials = Buffer.from(credentials).toString('base64');
 
-    // Try the folder path as-is first (e.g., "designs")
-    const folderPath = folder;
-
-    // Fetch images from Cloudinary Admin API
-    const url = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/resources/image`;
+    // Use Cloudinary's resources/by_asset_folder endpoint for folder-based organization
+    // This works with Cloudinary's Media Library folder structure
+    const url = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/resources/by_asset_folder`;
     const params = new URLSearchParams({
-      type: 'upload',
-      prefix: folderPath,
+      asset_folder: folder,
       max_results: '500',
     });
 
-    console.log('Fetching from Cloudinary:', {
+    console.log('Fetching from Cloudinary by asset folder:', {
       url: `${url}?${params.toString()}`,
       cloudName: CLOUD_NAME,
-      originalFolder: folder,
-      folderPath: folderPath,
+      folder: folder,
       hasApiKey: !!API_KEY,
       hasApiSecret: !!API_SECRET,
     });
@@ -126,63 +122,9 @@ export default async function handler(
       createdAt: resource.created_at,
     }));
 
-    // If no images found, try alternative folder paths
-    if (images.length === 0) {
-      const alternativePaths = [
-        `folders/${folder}`,
-        `media_library/${folder}`,
-        folder.replace('folders/', ''),
-      ];
-
-      console.log('No images found, trying alternative paths:', alternativePaths);
-
-      for (const altPath of alternativePaths) {
-        if (altPath === folderPath) continue; // Skip if same as original
-
-        const altParams = new URLSearchParams({
-          type: 'upload',
-          prefix: altPath,
-          max_results: '500',
-        });
-
-        const altResponse = await fetch(`${url}?${altParams.toString()}`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Basic ${base64Credentials}`,
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (altResponse.ok) {
-          const altData: CloudinaryResponse = await altResponse.json();
-          if (altData.resources && altData.resources.length > 0) {
-            console.log(`Found ${altData.resources.length} images in ${altPath}`);
-            const altImages = altData.resources.map(resource => ({
-              publicId: resource.public_id,
-              url: resource.secure_url,
-              width: resource.width,
-              height: resource.height,
-              format: resource.format,
-              createdAt: resource.created_at,
-            }));
-
-            return res.status(200).json({
-              success: true,
-              folder,
-              folderPath: altPath,
-              count: altImages.length,
-              images: altImages,
-              note: `Found images in alternative path: ${altPath}`,
-            });
-          }
-        }
-      }
-    }
-
     return res.status(200).json({
       success: true,
       folder,
-      folderPath,
       count: images.length,
       images,
     });
