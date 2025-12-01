@@ -57,18 +57,20 @@ export default async function handler(
     const credentials = `${API_KEY}:${API_SECRET}`;
     const base64Credentials = Buffer.from(credentials).toString('base64');
 
-    // Use Cloudinary's resources/by_asset_folder endpoint for folder-based organization
-    // This works with Cloudinary's Media Library folder structure
-    const url = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/resources/by_asset_folder`;
+    // Use prefix to search for images with public_id starting with folder name
+    // This works with our upload API that creates public_ids like "designs/123_abc"
+    const url = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/resources/image`;
     const params = new URLSearchParams({
-      asset_folder: folder,
+      type: 'upload',
+      prefix: folder,  // e.g., "designs" will match "designs/image1", "designs/image2"
       max_results: '500',
     });
 
-    console.log('Fetching from Cloudinary by asset folder:', {
+    console.log('Fetching from Cloudinary with prefix:', {
       url: `${url}?${params.toString()}`,
       cloudName: CLOUD_NAME,
       folder: folder,
+      prefix: folder,
       hasApiKey: !!API_KEY,
       hasApiSecret: !!API_SECRET,
     });
