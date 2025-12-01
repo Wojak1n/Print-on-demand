@@ -284,7 +284,7 @@ const DesignStudio: React.FC = () => {
       size: selectedSize,
       color: mockupColor,
       price: (selectedDesign.price || 0) + 15, // Design price + base product price
-      imageUrl: renderedImageUrl || selectedDesign.imageUrl || '',
+      imageUrl: selectedDesign.imageUrl || '',
     };
 
     // Get existing cart
@@ -1332,7 +1332,7 @@ const DesignStudio: React.FC = () => {
             <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
               <div className="flex gap-4">
                 <img
-                  src={renderedImageUrl || selectedDesign?.imageUrl}
+                  src={selectedDesign?.imageUrl || ''}
                   alt="Product Preview"
                   className="w-20 h-20 object-cover rounded-lg"
                 />
