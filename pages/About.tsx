@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ShieldCheck, Heart, Users, Award, Sparkles } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
+import { getCloudinaryUrl } from '../services/cloudinaryService';
 
 const About: React.FC = () => {
   const { t } = useTranslation();
@@ -110,8 +111,8 @@ const About: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             {[
-              { name: 'Sarah Johnson', role: t.aboutPage.team.founder, img: 'https://res.cloudinary.com/dwm9hk3qg/image/upload/Creators/Creator-1.jpg' },
-              { name: 'Michael Chen', role: t.aboutPage.team.headDesigner, img: 'https://res.cloudinary.com/dwm9hk3qg/image/upload/Creators/Creator-2.jpg' }
+              { name: 'Sarah Johnson', role: t.aboutPage.team.founder, img: getCloudinaryUrl('Creators/Creator-1', { width: 800, quality: 'auto', format: 'auto' }) },
+              { name: 'Michael Chen', role: t.aboutPage.team.headDesigner, img: getCloudinaryUrl('Creators/Creator-2', { width: 800, quality: 'auto', format: 'auto' }) }
             ].map((member, i) => (
               <div key={i} className="group">
                 <div className="relative overflow-hidden rounded-2xl mb-4">
