@@ -5,7 +5,7 @@ import { Design, Mockup, DesignZone } from '../types';
 import { Search, ZoomIn, Check, ShoppingCart, Sparkles, Move, RotateCw, Sliders, Loader2, Upload, ImagePlus, Layers, Plus, X, Copy, Eye } from 'lucide-react';
 import { generateSVGDesign } from '../services/geminiService';
 import { TshirtSVG, HoodieSVG, SweaterSVG, CapSVG, CustomMockup } from '../components/ProductMockups';
-import { isAuthenticated } from '../utils/auth';
+import { isAuthenticated, isAdmin } from '../utils/auth';
 import useTranslation from '../hooks/useTranslation';
 
 const DesignStudio: React.FC = () => {
@@ -498,20 +498,25 @@ const DesignStudio: React.FC = () => {
               >
                 <Sparkles className="w-5 h-5" />
               </button>
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="p-2 bg-gray-50 text-gray-600 rounded-lg hover:bg-gray-100 border border-gray-200 transition-colors"
-                title={t.studio.uploadDesign}
-              >
-                <Upload className="w-5 h-5" />
-              </button>
-              <input 
-                type="file" 
-                ref={fileInputRef} 
-                className="hidden" 
-                accept="image/*,.svg" 
-                onChange={handleFileUpload} 
-              />
+              {/* Upload Design Button - Admin Only */}
+              {isAdmin() && (
+                <>
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="p-2 bg-gray-50 text-gray-600 rounded-lg hover:bg-gray-100 border border-gray-200 transition-colors"
+                    title={t.studio.uploadDesign}
+                  >
+                    <Upload className="w-5 h-5" />
+                  </button>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    className="hidden"
+                    accept="image/*,.svg"
+                    onChange={handleFileUpload}
+                  />
+                </>
+              )}
             </div>
 
             {/* AI Prompt Area (Conditional) */}
@@ -541,12 +546,15 @@ const DesignStudio: React.FC = () => {
                 <ImagePlus className="w-16 h-16 mx-auto text-gray-300 mb-4" />
                 <h3 className="text-lg font-bold text-gray-900 mb-2">{t.studio.noDesigns}</h3>
                 <p className="text-sm text-gray-500 mb-4">{t.studio.noDesignsDescription}</p>
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  className="bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-brand-700"
-                >
-                  {t.studio.uploadDesign}
-                </button>
+                {/* Upload Button - Admin Only */}
+                {isAdmin() && (
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-brand-700"
+                  >
+                    {t.studio.uploadDesign}
+                  </button>
+                )}
               </div>
             ) : (
               filteredDesigns.map(design => (
@@ -899,24 +907,28 @@ const DesignStudio: React.FC = () => {
         {/* RIGHT COLUMN: Mockup Selector */}
         <div className="w-24 bg-white border-l border-gray-200 flex flex-col z-10 shadow-lg items-center py-4 gap-4 overflow-y-auto custom-scrollbar">
 
-           {/* Upload Product Image Button */}
-           <button
-             onClick={() => productImageInputRef.current?.click()}
-             className="w-16 h-16 rounded-xl border-2 border-dashed border-brand-300 bg-brand-50 flex-shrink-0 flex items-center justify-center p-2 transition-all hover:bg-brand-100 hover:border-brand-400 group"
-             title="Upload Product Image"
-           >
-             <ImagePlus className="w-6 h-6 text-brand-600" />
-             <div className="absolute right-full mr-4 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition-opacity z-50">
-               Upload Product
-             </div>
-           </button>
-           <input
-             type="file"
-             ref={productImageInputRef}
-             className="hidden"
-             accept="image/*"
-             onChange={handleProductImageUpload}
-           />
+           {/* Upload Product Image Button - Admin Only */}
+           {isAdmin() && (
+             <>
+               <button
+                 onClick={() => productImageInputRef.current?.click()}
+                 className="w-16 h-16 rounded-xl border-2 border-dashed border-brand-300 bg-brand-50 flex-shrink-0 flex items-center justify-center p-2 transition-all hover:bg-brand-100 hover:border-brand-400 group"
+                 title="Upload Product Image"
+               >
+                 <ImagePlus className="w-6 h-6 text-brand-600" />
+                 <div className="absolute right-full mr-4 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition-opacity z-50">
+                   Upload Product
+                 </div>
+               </button>
+               <input
+                 type="file"
+                 ref={productImageInputRef}
+                 className="hidden"
+                 accept="image/*"
+                 onChange={handleProductImageUpload}
+               />
+             </>
+           )}
 
            {allMockups.map(mockup => (
              <button 
