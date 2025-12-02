@@ -5,7 +5,6 @@ import { AdvancedImage } from '@cloudinary/react';
 import { auto } from '@cloudinary/url-gen/actions/resize';
 import { autoGravity } from '@cloudinary/url-gen/qualifiers/gravity';
 import { cld, IMAGES } from '../config/cloudinary';
-import { FEATURED_DESIGNS } from '../constants';
 import { isAuthenticated, isAdmin } from '../utils/auth';
 import useTranslation from '../hooks/useTranslation';
 import { formatPrice } from '../utils/currency';
@@ -15,21 +14,20 @@ const Home: React.FC = () => {
   const navigate = useNavigate();
   const [showAdminButton, setShowAdminButton] = useState(false);
 
-  // Get featured designs - always use FEATURED_DESIGNS from Cloudinary
-  const [featuredDesigns, setFeaturedDesigns] = useState<any[]>(FEATURED_DESIGNS);
+  // Get featured designs - load from admin catalog only
+  const [featuredDesigns, setFeaturedDesigns] = useState<any[]>([]);
 
   useEffect(() => {
     const loadFeaturedDesigns = () => {
       const savedCatalog = localStorage.getItem('catalogDesigns');
 
-      // Start with FEATURED_DESIGNS from Cloudinary
-      let allDesigns = [...FEATURED_DESIGNS];
+      // Load only featured designs from admin catalog
+      let allDesigns: any[] = [];
 
-      // Add custom featured designs from admin catalog if any
       if (savedCatalog) {
         const customDesigns = JSON.parse(savedCatalog);
         const customFeatured = customDesigns.filter((d: any) => d.featured === true);
-        allDesigns = [...customFeatured, ...FEATURED_DESIGNS];
+        allDesigns = customFeatured;
       }
 
       setFeaturedDesigns(allDesigns);

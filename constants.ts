@@ -2,44 +2,8 @@ import { Design, Mockup, Order, DailyStat, StockItem, OrderItem } from './types'
 import { getCloudinaryUrl } from './config/cloudinary';
 
 // Featured Designs - Only shown on Homepage "Handpicked for You" section
-export const FEATURED_DESIGNS: Design[] = [
-  {
-    id: 'featured-demo-1',
-    title: 'Veste Brodée Premium',
-    imageUrl: 'https://res.cloudinary.com/dwm9hk3qg/image/upload/v1764411289/mockups/MOCK-1.png',
-    category: 'Vestes',
-    popularity: 95,
-    price: 450.00,
-    description: 'Veste brodée élégante avec détails dorés',
-    featured: true,
-    featuredTag: 'Staff Pick',
-    featuredMockup: 'https://res.cloudinary.com/dwm9hk3qg/image/upload/v1764411289/mockups/MOCK-1.png'
-  },
-  {
-    id: 'featured-demo-2',
-    title: 'Pantalon Classique',
-    imageUrl: 'https://res.cloudinary.com/dwm9hk3qg/image/upload/v1764411290/mockups/MOCK-2.png',
-    category: 'Pantalons',
-    popularity: 88,
-    price: 350.00,
-    description: 'Pantalon élégant pour un style raffiné',
-    featured: true,
-    featuredTag: 'Trending',
-    featuredMockup: 'https://res.cloudinary.com/dwm9hk3qg/image/upload/v1764411290/mockups/MOCK-2.png'
-  },
-  {
-    id: 'featured-demo-3',
-    title: 'Veste Décontractée',
-    imageUrl: 'https://res.cloudinary.com/dwm9hk3qg/image/upload/v1764411291/mockups/MOCK-3.png',
-    category: 'Vestes',
-    popularity: 92,
-    price: 420.00,
-    description: 'Veste décontractée pour un look moderne',
-    featured: true,
-    featuredTag: 'New Arrival',
-    featuredMockup: 'https://res.cloudinary.com/dwm9hk3qg/image/upload/v1764411291/mockups/MOCK-3.png'
-  }
-];
+// Now managed through Admin panel - mark designs as "featured" in the Admin Designs tab
+export const FEATURED_DESIGNS: Design[] = [];
 
 // Regular Designs - Shown in Design Studio (from 'designs' folder)
 // Add your designs from Cloudinary 'designs' folder here
