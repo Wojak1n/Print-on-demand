@@ -194,8 +194,12 @@ const DesignStudio: React.FC = () => {
 
         // Merge: User Uploads -> Admin Catalog -> Cloudinary Designs
         const allDesigns = [...savedUserDesigns, ...savedCatalogDesigns, ...designObjects, ...INITIAL_DESIGNS];
-        console.log('✅ Total designs loaded:', allDesigns.length);
-        setDesigns(allDesigns);
+
+        // Filter out showcase-only designs (promotional designs that should only appear on homepage)
+        const studioDesigns = allDesigns.filter(d => !d.showcaseOnly);
+
+        console.log('✅ Total designs loaded:', allDesigns.length, '| Studio designs:', studioDesigns.length);
+        setDesigns(studioDesigns);
 
         // Set first design as selected if available
         if (allDesigns.length > 0 && !selectedDesign) {

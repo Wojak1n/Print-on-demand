@@ -12,6 +12,7 @@ export interface Design {
   featuredMockup?: string; // Full product mockup image for featured section
   featuredTag?: string; // e.g., "Staff Pick", "Trending", "New Arrival", "Limited Edition"
   cloudinaryId?: string; // Cloudinary public_id for uploaded images
+  showcaseOnly?: boolean; // If true, shows on homepage but NOT in Design Studio (promotional only)
 }
 
 export interface DesignZone {
