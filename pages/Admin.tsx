@@ -280,6 +280,8 @@ const Admin: React.FC = () => {
   const handleUpdateDesign = () => {
     if (!editingDesign) return;
 
+    console.log('💾 Updating design:', editingDesign);
+
     const updatedDesigns = designs.map(d =>
       d.id === editingDesign.id ? editingDesign : d
     );
@@ -292,6 +294,8 @@ const Admin: React.FC = () => {
         d.id === editingDesign.id ? editingDesign : d
       );
       localStorage.setItem('catalogDesigns', JSON.stringify(updatedCatalog));
+      console.log('✅ Design saved to localStorage');
+      console.log('📢 Dispatching catalogDesignsUpdated event');
 
       // Dispatch custom event to notify other components (like Home page)
       window.dispatchEvent(new Event('catalogDesignsUpdated'));

@@ -19,17 +19,22 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     const loadFeaturedDesigns = () => {
+      console.log('🔄 Loading featured designs...');
       const savedCatalog = localStorage.getItem('catalogDesigns');
+      console.log('📦 Catalog from localStorage:', savedCatalog);
 
       // Load only featured designs from admin catalog
       let allDesigns: any[] = [];
 
       if (savedCatalog) {
         const customDesigns = JSON.parse(savedCatalog);
+        console.log('📋 All designs:', customDesigns);
         const customFeatured = customDesigns.filter((d: any) => d.featured === true);
+        console.log('⭐ Featured designs:', customFeatured);
         allDesigns = customFeatured;
       }
 
+      console.log('✅ Setting featured designs:', allDesigns.length, 'designs');
       setFeaturedDesigns(allDesigns);
     };
 
