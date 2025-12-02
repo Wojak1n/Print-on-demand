@@ -14,40 +14,41 @@ const Home: React.FC = () => {
   const navigate = useNavigate();
   const [showAdminButton, setShowAdminButton] = useState(false);
 
-  // Get featured designs - load from admin catalog only
+  // Get featured designs - load from Cloudinary featured-designs folder
   const [featuredDesigns, setFeaturedDesigns] = useState<any[]>([]);
 
   useEffect(() => {
-    const loadFeaturedDesigns = () => {
-      console.log('🔄 Loading featured designs...');
-      const savedCatalog = localStorage.getItem('catalogDesigns');
-      console.log('📦 Catalog from localStorage:', savedCatalog);
+    const loadFeaturedDesigns = async () => {
+      console.log('🔄 Loading featured designs from Cloudinary...');
 
-      // Load only featured designs from admin catalog
-      let allDesigns: any[] = [];
+      try {
+        // Fetch from Cloudinary featured-designs folder
+        const { fetchImagesFromFolder } = await import('../services/cloudinaryService');
+        const cloudinaryImages = await fetchImagesFromFolder('featured-designs');
 
-      if (savedCatalog) {
-        const customDesigns = JSON.parse(savedCatalog);
-        console.log('📋 All designs:', customDesigns);
-        const customFeatured = customDesigns.filter((d: any) => d.featured === true);
-        console.log('⭐ Featured designs:', customFeatured);
-        allDesigns = customFeatured;
+        console.log('📦 Featured designs from Cloudinary:', cloudinaryImages);
+
+        // Convert to design objects
+        const designs = cloudinaryImages.map((img, index) => ({
+          id: img.public_id,
+          title: img.public_id.split('/').pop()?.replace(/-/g, ' ').replace(/\.\w+$/, '') || `Design ${index + 1}`,
+          imageUrl: img.secure_url,
+          category: 'Featured',
+          popularity: 95,
+          price: 450.00,
+          featured: true,
+          cloudinaryId: img.public_id
+        }));
+
+        console.log('✅ Setting featured designs:', designs.length, 'designs');
+        setFeaturedDesigns(designs);
+      } catch (error) {
+        console.error('❌ Error loading featured designs:', error);
+        setFeaturedDesigns([]);
       }
-
-      console.log('✅ Setting featured designs:', allDesigns.length, 'designs');
-      setFeaturedDesigns(allDesigns);
     };
 
     loadFeaturedDesigns();
-
-    // Reload when storage changes (e.g., when admin updates designs)
-    window.addEventListener('storage', loadFeaturedDesigns);
-    window.addEventListener('catalogDesignsUpdated', loadFeaturedDesigns);
-
-    return () => {
-      window.removeEventListener('storage', loadFeaturedDesigns);
-      window.removeEventListener('catalogDesignsUpdated', loadFeaturedDesigns);
-    };
   }, []);
 
   useEffect(() => {
