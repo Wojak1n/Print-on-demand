@@ -14,54 +14,46 @@ const Home: React.FC = () => {
   const navigate = useNavigate();
   const [showAdminButton, setShowAdminButton] = useState(false);
 
-  // Get featured designs - load from admin catalog
+  // Get featured designs - load from Cloudinary featured-designs folder
   const [featuredDesigns, setFeaturedDesigns] = useState<any[]>([]);
 
   useEffect(() => {
-    const loadFeaturedDesigns = () => {
-      console.log('🔄 Loading featured designs...');
-      const savedCatalog = localStorage.getItem('catalogDesigns');
-      console.log('📦 Raw catalog data:', savedCatalog);
+    const loadFeaturedDesigns = async () => {
+      console.log('🔄 Loading featured designs from Cloudinary...');
 
-      // Load only featured designs from admin catalog
-      let allDesigns: any[] = [];
+      try {
+        // Fetch from Cloudinary featured-designs folder
+        const { fetchImagesFromFolder } = await import('../services/cloudinaryService');
+        const cloudinaryImages = await fetchImagesFromFolder('featured-designs');
 
-      if (savedCatalog) {
-        try {
-          const customDesigns = JSON.parse(savedCatalog);
-          console.log('📋 Parsed designs:', customDesigns);
-          console.log('📋 Total designs in catalog:', customDesigns.length);
+        console.log('� Featured designs from Cloudinary:', cloudinaryImages.length, 'images');
 
-          const customFeatured = customDesigns.filter((d: any) => {
-            console.log(`Design "${d.title}" - featured:`, d.featured);
-            return d.featured === true;
-          });
+        if (cloudinaryImages.length > 0) {
+          // Convert Cloudinary images to design format
+          const designs = cloudinaryImages.map((img, index) => ({
+            id: img.public_id,
+            title: img.public_id.split('/').pop()?.replace(/-/g, ' ').replace(/\.\w+$/, '') || `Design ${index + 1}`,
+            imageUrl: img.secure_url,
+            category: 'Featured',
+            popularity: 95,
+            price: 450.00,
+            featured: true,
+            cloudinaryId: img.public_id
+          }));
 
-          console.log('⭐ Featured designs found:', customFeatured.length);
-          console.log('⭐ Featured designs:', customFeatured);
-          allDesigns = customFeatured;
-        } catch (e) {
-          console.error('❌ Error parsing catalog:', e);
+          console.log('✅ Setting featured designs:', designs.length);
+          setFeaturedDesigns(designs);
+        } else {
+          console.log('⚠️ No images found in featured-designs folder');
+          setFeaturedDesigns([]);
         }
-      } else {
-        console.log('⚠️ No catalogDesigns in localStorage');
+      } catch (error) {
+        console.error('❌ Error loading featured designs from Cloudinary:', error);
+        setFeaturedDesigns([]);
       }
-
-      console.log('✅ Setting featured designs state:', allDesigns.length, 'designs');
-      setFeaturedDesigns(allDesigns);
     };
 
-    // Load immediately
     loadFeaturedDesigns();
-
-    // Reload when storage changes (e.g., when admin updates designs)
-    window.addEventListener('storage', loadFeaturedDesigns);
-    window.addEventListener('catalogDesignsUpdated', loadFeaturedDesigns);
-
-    return () => {
-      window.removeEventListener('storage', loadFeaturedDesigns);
-      window.removeEventListener('catalogDesignsUpdated', loadFeaturedDesigns);
-    };
   }, []);
 
   useEffect(() => {
