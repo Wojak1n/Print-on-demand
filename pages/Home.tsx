@@ -29,17 +29,30 @@ const Home: React.FC = () => {
         console.log('� Featured designs from Cloudinary:', cloudinaryImages.length, 'images');
 
         if (cloudinaryImages.length > 0) {
+          // Custom titles mapping - change these to customize display names
+          const titleMap: { [key: string]: string } = {
+            'featured-1': 'Veste Brodée Élégante',
+            'featured-2': 'Pantalon Classique Premium',
+            'featured-3': 'Collection Exclusive Khayali',
+            // Add more mappings here as needed
+          };
+
           // Convert Cloudinary images to design format
-          const designs = cloudinaryImages.map((img, index) => ({
-            id: img.public_id,
-            title: img.public_id.split('/').pop()?.replace(/-/g, ' ').replace(/\.\w+$/, '') || `Design ${index + 1}`,
-            imageUrl: img.secure_url,
-            category: 'Featured',
-            popularity: 95,
-            price: 450.00,
-            featured: true,
-            cloudinaryId: img.public_id
-          }));
+          const designs = cloudinaryImages.map((img) => {
+            const filename = img.public_id.split('/').pop()?.replace(/\.\w+$/, '') || '';
+            const customTitle = titleMap[filename] || filename.replace(/-/g, ' ');
+
+            return {
+              id: img.public_id,
+              title: customTitle,
+              imageUrl: img.secure_url,
+              category: 'Featured',
+              popularity: 95,
+              price: 450.00,
+              featured: true,
+              cloudinaryId: img.public_id
+            };
+          });
 
           console.log('✅ Setting featured designs:', designs.length);
           setFeaturedDesigns(designs);
