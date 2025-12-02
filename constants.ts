@@ -5,39 +5,39 @@ import { getCloudinaryUrl } from './config/cloudinary';
 export const FEATURED_DESIGNS: Design[] = [
   {
     id: 'featured-demo-1',
-    title: 'Sunset Vibes',
-    imageUrl: getCloudinaryUrl('featued-1_ajkopf', 800),
-    category: 'Nature',
+    title: 'Veste Brodée Premium',
+    imageUrl: 'https://res.cloudinary.com/dwm9hk3qg/image/upload/v1764411289/mockups/MOCK-1.png',
+    category: 'Vestes',
     popularity: 95,
-    price: 29.99,
-    description: 'A beautiful sunset design perfect for summer vibes',
+    price: 450.00,
+    description: 'Veste brodée élégante avec détails dorés',
     featured: true,
     featuredTag: 'Staff Pick',
-    featuredMockup: getCloudinaryUrl('featued-1_ajkopf', 800)
+    featuredMockup: 'https://res.cloudinary.com/dwm9hk3qg/image/upload/v1764411289/mockups/MOCK-1.png'
   },
   {
     id: 'featured-demo-2',
-    title: 'Urban Street',
-    imageUrl: getCloudinaryUrl('featured-2_bdxzwl', 800),
-    category: 'Streetwear',
+    title: 'Pantalon Classique',
+    imageUrl: 'https://res.cloudinary.com/dwm9hk3qg/image/upload/v1764411290/mockups/MOCK-2.png',
+    category: 'Pantalons',
     popularity: 88,
-    price: 34.99,
-    description: 'Bold urban design for the modern street style',
+    price: 350.00,
+    description: 'Pantalon élégant pour un style raffiné',
     featured: true,
     featuredTag: 'Trending',
-    featuredMockup: getCloudinaryUrl('featured-2_bdxzwl', 800)
+    featuredMockup: 'https://res.cloudinary.com/dwm9hk3qg/image/upload/v1764411290/mockups/MOCK-2.png'
   },
   {
     id: 'featured-demo-3',
-    title: 'Minimalist Wave',
-    imageUrl: getCloudinaryUrl('featued-3_hutv5n', 800),
-    category: 'Minimal',
+    title: 'Veste Décontractée',
+    imageUrl: 'https://res.cloudinary.com/dwm9hk3qg/image/upload/v1764411291/mockups/MOCK-3.png',
+    category: 'Vestes',
     popularity: 92,
-    price: 27.99,
-    description: 'Clean and simple wave design for minimalist lovers',
+    price: 420.00,
+    description: 'Veste décontractée pour un look moderne',
     featured: true,
     featuredTag: 'New Arrival',
-    featuredMockup: getCloudinaryUrl('featued-3_hutv5n', 800)
+    featuredMockup: 'https://res.cloudinary.com/dwm9hk3qg/image/upload/v1764411291/mockups/MOCK-3.png'
   }
 ];
 

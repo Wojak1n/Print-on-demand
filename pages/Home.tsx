@@ -394,7 +394,7 @@ const Home: React.FC = () => {
                             <p className="text-sm text-gray-400 dark:text-gray-500">{design.category}</p>
                           </div>
                           <div className="flex justify-between items-center mt-2">
-                             <span className="font-medium text-brand-400 dark:text-brand-300">${design.price}</span>
+                             <span className="font-medium text-brand-400 dark:text-brand-300">{formatPrice(design.price)}</span>
                              <button className="text-xs font-bold uppercase tracking-wider hover:text-brand-300 dark:hover:text-brand-200">Add +</button>
                           </div>
                        </div>

@@ -133,20 +133,35 @@ const Admin: React.FC = () => {
         console.log('✅ Admin: Mockups fetched:', cloudinaryMockups.length, 'images');
 
         if (cloudinaryMockups.length > 0) {
-          const mockupObjects: Mockup[] = cloudinaryMockups.map((img, index) => ({
-            id: img.public_id,
-            name: img.public_id.split('/').pop()?.replace(/[_-]/g, ' ') || `Mockup ${index + 1}`,
-            type: 'custom' as const,
-            baseImage: img.secure_url,
-            overlayX: 50,
-            overlayY: 50,
-            overlayWidth: 40,
-            cloudinaryId: img.public_id,
-          }));
-
-          // Merge with custom mockups from localStorage
           const savedCustomMockups = savedMockups ? JSON.parse(savedMockups) : [];
-          const allMockups = [...savedCustomMockups, ...mockupObjects];
+
+          // Create mockup objects from Cloudinary
+          const mockupObjects: Mockup[] = cloudinaryMockups.map((img, index) => {
+            // Check if this mockup has been customized in localStorage
+            const customized = savedCustomMockups.find((m: Mockup) => m.cloudinaryId === img.public_id);
+
+            if (customized) {
+              // Use the customized version
+              return customized;
+            } else {
+              // Use default values for new Cloudinary mockups
+              return {
+                id: img.public_id,
+                name: img.public_id.split('/').pop()?.replace(/[_-]/g, ' ') || `Mockup ${index + 1}`,
+                type: 'custom' as const,
+                baseImage: img.secure_url,
+                overlayX: 50,
+                overlayY: 50,
+                overlayWidth: 40,
+                cloudinaryId: img.public_id,
+              };
+            }
+          });
+
+          // Add any custom mockups that are not from Cloudinary
+          const localOnlyMockups = savedCustomMockups.filter((m: Mockup) => !m.cloudinaryId);
+          const allMockups = [...mockupObjects, ...localOnlyMockups];
+
           setCustomMockups(allMockups);
           console.log('✅ Admin: Total mockups loaded:', allMockups.length);
         }
