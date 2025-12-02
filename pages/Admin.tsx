@@ -220,6 +220,9 @@ const Admin: React.FC = () => {
               const currentCatalog = JSON.parse(localStorage.getItem('catalogDesigns') || '[]');
               const updatedCatalog = [...newDesigns, ...currentCatalog];
               localStorage.setItem('catalogDesigns', JSON.stringify(updatedCatalog));
+
+              // Dispatch custom event to notify other components
+              window.dispatchEvent(new Event('catalogDesignsUpdated'));
             } catch (err) {
               console.error("Failed to save designs to catalog storage", err);
             }
@@ -255,6 +258,9 @@ const Admin: React.FC = () => {
         const currentCatalog = JSON.parse(localStorage.getItem('catalogDesigns') || '[]');
         const updatedCatalog = [newDesign, ...currentCatalog];
         localStorage.setItem('catalogDesigns', JSON.stringify(updatedCatalog));
+
+        // Dispatch custom event to notify other components
+        window.dispatchEvent(new Event('catalogDesignsUpdated'));
     } catch (err) {
         console.error("Failed to save design to catalog storage", err);
     }
@@ -286,6 +292,9 @@ const Admin: React.FC = () => {
         d.id === editingDesign.id ? editingDesign : d
       );
       localStorage.setItem('catalogDesigns', JSON.stringify(updatedCatalog));
+
+      // Dispatch custom event to notify other components (like Home page)
+      window.dispatchEvent(new Event('catalogDesignsUpdated'));
     } catch (err) {
       console.error("Failed to update design in storage", err);
     }
@@ -308,6 +317,9 @@ const Admin: React.FC = () => {
       // Remove from current designs state
       const updatedDesigns = designs.filter(d => d.id !== designId);
       setDesigns(updatedDesigns);
+
+      // Dispatch custom event to notify other components
+      window.dispatchEvent(new Event('catalogDesignsUpdated'));
     } else {
       // It's a custom design - remove from catalog
       const updatedDesigns = designs.filter(d => d.id !== designId);
@@ -317,6 +329,9 @@ const Admin: React.FC = () => {
         const catalogDesigns = JSON.parse(localStorage.getItem('catalogDesigns') || '[]');
         const updatedCatalog = catalogDesigns.filter((d: Design) => d.id !== designId);
         localStorage.setItem('catalogDesigns', JSON.stringify(updatedCatalog));
+
+        // Dispatch custom event to notify other components
+        window.dispatchEvent(new Event('catalogDesignsUpdated'));
       } catch (err) {
         console.error("Failed to delete design from storage", err);
       }

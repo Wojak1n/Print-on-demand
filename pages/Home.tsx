@@ -37,7 +37,12 @@ const Home: React.FC = () => {
 
     // Reload when storage changes (e.g., when admin updates designs)
     window.addEventListener('storage', loadFeaturedDesigns);
-    return () => window.removeEventListener('storage', loadFeaturedDesigns);
+    window.addEventListener('catalogDesignsUpdated', loadFeaturedDesigns);
+
+    return () => {
+      window.removeEventListener('storage', loadFeaturedDesigns);
+      window.removeEventListener('catalogDesignsUpdated', loadFeaturedDesigns);
+    };
   }, []);
 
   useEffect(() => {
