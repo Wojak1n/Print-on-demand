@@ -111,36 +111,49 @@ const Checkout: React.FC = () => {
     e.preventDefault();
     setProcessing(true);
 
-    // Simulate payment processing
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    try {
+      // Simulate payment processing
+      await new Promise(resolve => setTimeout(resolve, 2000));
 
-    // Create order
-    const order = {
-      id: `ORD-${Date.now()}`,
-      date: new Date().toISOString(),
-      items: cartItems,
-      shippingInfo,
-      paymentInfo: {
-        cardLast4: paymentInfo.cardNumber.slice(-4),
-        cardName: paymentInfo.cardName
-      },
-      subtotal,
-      shipping,
-      tax,
-      total,
-      status: 'confirmed'
-    };
+      // Create order with payment info based on method
+      const orderPaymentInfo: any = {
+        method: paymentInfo.method
+      };
 
-    // Save order to localStorage
-    const orders = JSON.parse(localStorage.getItem('orders') || '[]');
-    orders.push(order);
-    localStorage.setItem('orders', JSON.stringify(orders));
+      // Only include card details if Credit Card was selected
+      if (paymentInfo.method === 'Credit Card' && paymentInfo.cardNumber) {
+        orderPaymentInfo.cardLast4 = paymentInfo.cardNumber.slice(-4);
+        orderPaymentInfo.cardName = paymentInfo.cardName;
+      }
 
-    // Clear cart
-    localStorage.setItem('cart', JSON.stringify([]));
+      const order = {
+        id: `ORD-${Date.now()}`,
+        date: new Date().toISOString(),
+        items: cartItems,
+        shippingInfo,
+        paymentInfo: orderPaymentInfo,
+        subtotal,
+        shipping,
+        tax,
+        total,
+        status: 'confirmed'
+      };
 
-    // Redirect to order confirmation
-    navigate(`/order-confirmation/${order.id}`);
+      // Save order to localStorage
+      const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+      orders.push(order);
+      localStorage.setItem('orders', JSON.stringify(orders));
+
+      // Clear cart
+      localStorage.setItem('cart', JSON.stringify([]));
+
+      // Redirect to order confirmation
+      navigate(`/order-confirmation/${order.id}`);
+    } catch (error) {
+      console.error('Payment processing error:', error);
+      alert('There was an error processing your payment. Please try again.');
+      setProcessing(false);
+    }
   };
 
   const formatCardNumber = (value: string) => {
