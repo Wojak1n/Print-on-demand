@@ -49,6 +49,7 @@ const Admin: React.FC = () => {
   const [newMockupX, setNewMockupX] = useState(50);
   const [newMockupY, setNewMockupY] = useState(50);
   const [newMockupWidth, setNewMockupWidth] = useState(30);
+  const [newMockupPrice, setNewMockupPrice] = useState(350.00);
   const mockupFileInputRef = useRef<HTMLInputElement>(null);
 
   // New Design Form State
@@ -154,6 +155,7 @@ const Admin: React.FC = () => {
                 overlayY: 50,
                 overlayWidth: 40,
                 cloudinaryId: img.public_id,
+                price: 350.00,
               };
             }
           });
@@ -341,7 +343,8 @@ const Admin: React.FC = () => {
             baseImage: ev.target.result as string,
             overlayX: 50,
             overlayY: 42,
-            overlayWidth: 35
+            overlayWidth: 35,
+            price: 350.00
           };
           newMockups.push(mockup);
           processedCount++;
@@ -376,7 +379,8 @@ const Admin: React.FC = () => {
       baseImage: newMockupImage,
       overlayX: newMockupX,
       overlayY: newMockupY,
-      overlayWidth: newMockupWidth
+      overlayWidth: newMockupWidth,
+      price: newMockupPrice
     };
 
     const updatedMockups = [...customMockups, newMockup];
@@ -389,6 +393,7 @@ const Admin: React.FC = () => {
     setNewMockupX(50);
     setNewMockupY(50);
     setNewMockupWidth(30);
+    setNewMockupPrice(350.00);
     alert("Mockup added! Refresh Design Studio to see changes.");
   };
 
@@ -1177,7 +1182,20 @@ const Admin: React.FC = () => {
                                 onChange={handleMockupImageUpload}
                              />
                           </div>
-                          
+
+                          <div>
+                             <label className="block text-sm font-medium text-gray-700 mb-1">Price (DH)</label>
+                             <input
+                                type="number"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                                placeholder="350.00"
+                                step="0.01"
+                                min="0"
+                                value={newMockupPrice}
+                                onChange={(e) => setNewMockupPrice(Number(e.target.value))}
+                             />
+                          </div>
+
                           {/* Sliders for Print Area */}
                           {newMockupImage && (
                              <div className="bg-gray-50 p-4 rounded-lg space-y-3">
@@ -1363,6 +1381,19 @@ const Admin: React.FC = () => {
                           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                           value={editingMockup.name}
                           onChange={(e) => setEditingMockup({...editingMockup, name: e.target.value})}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Price (DH)</label>
+                        <input
+                          type="number"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                          placeholder="350.00"
+                          step="0.01"
+                          min="0"
+                          value={editingMockup.price || 0}
+                          onChange={(e) => setEditingMockup({...editingMockup, price: Number(e.target.value)})}
                         />
                       </div>
 

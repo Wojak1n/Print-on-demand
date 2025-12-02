@@ -68,6 +68,7 @@ export const MOCKUPS: Mockup[] = [
     overlayX: 50,
     overlayY: 45,
     overlayWidth: 25,
+    price: 450.00,
     zones: [
       {
         id: 'zone-front',
@@ -100,6 +101,7 @@ export const MOCKUPS: Mockup[] = [
     overlayX: 50,
     overlayY: 55,
     overlayWidth: 20,
+    price: 350.00,
     zones: [
       {
         id: 'zone-front-left',

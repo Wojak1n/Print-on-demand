@@ -38,6 +38,7 @@ export interface Mockup {
   overlayWidth: number; // Default width % (for backward compatibility)
   zones?: DesignZone[]; // Multiple design zones for this mockup
   cloudinaryId?: string; // Cloudinary public_id for uploaded mockups
+  price?: number; // Price for this mockup
 }
 
 export interface Order {
