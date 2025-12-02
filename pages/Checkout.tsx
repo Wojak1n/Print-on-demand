@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CreditCard, Lock, ArrowLeft, CheckCircle } from 'lucide-react';
 import { formatPrice } from '../utils/currency';
+import { safeSetItem, logStorageInfo } from '../utils/storage';
 
 interface CartItem {
   id: string;
@@ -126,11 +127,29 @@ const Checkout: React.FC = () => {
         orderPaymentInfo.cardName = paymentInfo.cardName;
       }
 
+      // Create a lightweight order object (without heavy image data)
       const order = {
         id: `ORD-${Date.now()}`,
         date: new Date().toISOString(),
-        items: cartItems,
-        shippingInfo,
+        items: cartItems.map(item => ({
+          id: item.id,
+          designId: item.designId,
+          designTitle: item.designTitle,
+          mockupType: item.mockupType,
+          quantity: item.quantity,
+          size: item.size,
+          color: item.color,
+          price: item.price
+          // Exclude imageUrl to save space
+        })),
+        shippingInfo: {
+          fullName: shippingInfo.fullName,
+          email: shippingInfo.email,
+          phone: shippingInfo.phone,
+          address: shippingInfo.address,
+          city: shippingInfo.city
+          // Exclude optional fields to save space
+        },
         paymentInfo: orderPaymentInfo,
         subtotal,
         shipping,
@@ -139,13 +158,26 @@ const Checkout: React.FC = () => {
         status: 'confirmed'
       };
 
-      // Save order to localStorage
+      // Log storage info before saving
+      logStorageInfo();
+
+      // Save order to localStorage with safe handling
       const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+
+      // Keep only the last 20 orders to prevent quota issues
+      if (orders.length >= 20) {
+        orders.shift(); // Remove oldest order
+      }
+
       orders.push(order);
-      localStorage.setItem('orders', JSON.stringify(orders));
+      const ordersSaved = safeSetItem('orders', JSON.stringify(orders));
+
+      if (!ordersSaved) {
+        console.warn('Could not save order to localStorage, but order is still processed');
+      }
 
       // Clear cart
-      localStorage.setItem('cart', JSON.stringify([]));
+      safeSetItem('cart', JSON.stringify([]));
 
       // Redirect to order confirmation
       navigate(`/order-confirmation/${order.id}`);
