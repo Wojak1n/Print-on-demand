@@ -22,9 +22,9 @@ const Home: React.FC = () => {
       console.log('🔄 Loading featured designs from Cloudinary...');
 
       try {
-        // Fetch from Cloudinary featured-designs folder
+        // Fetch images starting with "featured-" from Cloudinary
         const { fetchImagesFromFolder } = await import('../services/cloudinaryService');
-        const cloudinaryImages = await fetchImagesFromFolder('featured-designs');
+        const cloudinaryImages = await fetchImagesFromFolder('featured-');
 
         console.log('� Featured designs from Cloudinary:', cloudinaryImages.length, 'images');
 
@@ -44,7 +44,7 @@ const Home: React.FC = () => {
           console.log('✅ Setting featured designs:', designs.length);
           setFeaturedDesigns(designs);
         } else {
-          console.log('⚠️ No images found in featured-designs folder');
+          console.log('⚠️ No images found with prefix "featured-"');
           setFeaturedDesigns([]);
         }
       } catch (error) {
