@@ -19,20 +19,39 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     const loadFeaturedDesigns = () => {
+      console.log('🔄 Loading featured designs...');
       const savedCatalog = localStorage.getItem('catalogDesigns');
+      console.log('📦 Raw catalog data:', savedCatalog);
 
       // Load only featured designs from admin catalog
       let allDesigns: any[] = [];
 
       if (savedCatalog) {
-        const customDesigns = JSON.parse(savedCatalog);
-        const customFeatured = customDesigns.filter((d: any) => d.featured === true);
-        allDesigns = customFeatured;
+        try {
+          const customDesigns = JSON.parse(savedCatalog);
+          console.log('📋 Parsed designs:', customDesigns);
+          console.log('📋 Total designs in catalog:', customDesigns.length);
+
+          const customFeatured = customDesigns.filter((d: any) => {
+            console.log(`Design "${d.title}" - featured:`, d.featured);
+            return d.featured === true;
+          });
+
+          console.log('⭐ Featured designs found:', customFeatured.length);
+          console.log('⭐ Featured designs:', customFeatured);
+          allDesigns = customFeatured;
+        } catch (e) {
+          console.error('❌ Error parsing catalog:', e);
+        }
+      } else {
+        console.log('⚠️ No catalogDesigns in localStorage');
       }
 
+      console.log('✅ Setting featured designs state:', allDesigns.length, 'designs');
       setFeaturedDesigns(allDesigns);
     };
 
+    // Load immediately
     loadFeaturedDesigns();
 
     // Reload when storage changes (e.g., when admin updates designs)
