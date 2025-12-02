@@ -72,7 +72,7 @@ const Checkout: React.FC = () => {
   }, [navigate]);
 
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const shipping = subtotal > 0 ? 5.99 : 0;
+  const shipping = subtotal > 0 ? 30.00 : 0;
   const tax = subtotal * 0.1;
   const total = subtotal + shipping + tax;
 
