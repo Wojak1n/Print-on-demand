@@ -46,14 +46,17 @@ export interface Order {
   id: string;
   customer: string;
   email: string;
+  phone?: string;
   total: number;
   status: 'Pending' | 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled';
   date: string;
   items: number;
   orderItems?: OrderItem[];
   shippingAddress?: string;
+  city?: string; // Moroccan city
   trackingNumber?: string;
-  paymentMethod?: string;
+  paymentMethod?: 'Cash on Delivery' | 'Credit Card' | 'Bank Transfer' | 'PayPal';
+  paymentStatus?: 'Pending' | 'Paid' | 'Failed';
 }
 
 export interface OrderItem {

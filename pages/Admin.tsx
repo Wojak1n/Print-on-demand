@@ -1660,15 +1660,26 @@ const Admin: React.FC = () => {
              {/* Order Detail Modal */}
              {selectedOrder && (
                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setSelectedOrder(null)}>
-                 <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                 <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()} id="order-ticket">
                    <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
                      <div>
                        <h2 className="text-2xl font-bold text-gray-900">Order #{selectedOrder.id}</h2>
                        <p className="text-sm text-gray-500 mt-1">Placed on {selectedOrder.date}</p>
                      </div>
-                     <button onClick={() => setSelectedOrder(null)} className="text-gray-400 hover:text-gray-600">
-                       <XCircle className="w-6 h-6" />
-                     </button>
+                     <div className="flex items-center gap-2">
+                       <button
+                         onClick={() => window.print()}
+                         className="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-lg font-medium flex items-center gap-2 transition-colors"
+                       >
+                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                         </svg>
+                         Print Ticket
+                       </button>
+                       <button onClick={() => setSelectedOrder(null)} className="text-gray-400 hover:text-gray-600">
+                         <XCircle className="w-6 h-6" />
+                       </button>
+                     </div>
                    </div>
 
                    <div className="p-6 space-y-6">
@@ -1682,7 +1693,9 @@ const Admin: React.FC = () => {
                          <div className="space-y-2 text-sm">
                            <p><span className="font-medium text-gray-700">Name:</span> {selectedOrder.customer}</p>
                            <p><span className="font-medium text-gray-700">Email:</span> {selectedOrder.email}</p>
-                           <p><span className="font-medium text-gray-700">Payment:</span> {selectedOrder.paymentMethod}</p>
+                           {selectedOrder.phone && (
+                             <p><span className="font-medium text-gray-700">Phone:</span> {selectedOrder.phone}</p>
+                           )}
                          </div>
                        </div>
 
@@ -1693,6 +1706,9 @@ const Admin: React.FC = () => {
                          </h3>
                          <div className="space-y-2 text-sm">
                            <p><span className="font-medium text-gray-700">Address:</span> {selectedOrder.shippingAddress}</p>
+                           {selectedOrder.city && (
+                             <p><span className="font-medium text-gray-700">City:</span> {selectedOrder.city}</p>
+                           )}
                            {selectedOrder.trackingNumber && (
                              <p><span className="font-medium text-gray-700">Tracking:</span> {selectedOrder.trackingNumber}</p>
                            )}
@@ -1705,6 +1721,35 @@ const Admin: React.FC = () => {
                                {selectedOrder.status}
                              </span>
                            </p>
+                         </div>
+                       </div>
+                     </div>
+
+                     {/* Payment Information */}
+                     <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200">
+                       <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                         <DollarSign className="w-5 h-5 text-green-600" />
+                         Payment Information
+                       </h3>
+                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                         <div>
+                           <p className="font-medium text-gray-700 mb-1">Payment Method:</p>
+                           <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-semibold text-sm
+                             ${selectedOrder.paymentMethod === 'Cash on Delivery' ? 'bg-orange-100 text-orange-800 border border-orange-200' :
+                               selectedOrder.paymentMethod === 'Credit Card' ? 'bg-blue-100 text-blue-800 border border-blue-200' :
+                               selectedOrder.paymentMethod === 'Bank Transfer' ? 'bg-purple-100 text-purple-800 border border-purple-200' :
+                               'bg-indigo-100 text-indigo-800 border border-indigo-200'}`}>
+                             {selectedOrder.paymentMethod || 'Cash on Delivery'}
+                           </span>
+                         </div>
+                         <div>
+                           <p className="font-medium text-gray-700 mb-1">Payment Status:</p>
+                           <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-semibold text-sm
+                             ${selectedOrder.paymentStatus === 'Paid' ? 'bg-green-100 text-green-800 border border-green-200' :
+                               selectedOrder.paymentStatus === 'Failed' ? 'bg-red-100 text-red-800 border border-red-200' :
+                               'bg-yellow-100 text-yellow-800 border border-yellow-200'}`}>
+                             {selectedOrder.paymentStatus || 'Pending'}
+                           </span>
                          </div>
                        </div>
                      </div>

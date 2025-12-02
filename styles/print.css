@@ -1,0 +1,94 @@
+/* Print Styles for Order Tickets */
+@media print {
+  /* Hide everything except the order ticket */
+  body * {
+    visibility: hidden;
+  }
+  
+  #order-ticket,
+  #order-ticket * {
+    visibility: visible;
+  }
+  
+  #order-ticket {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 20px;
+    background: white !important;
+  }
+  
+  /* Hide buttons and interactive elements */
+  button,
+  .no-print {
+    display: none !important;
+  }
+  
+  /* Optimize for printing */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+  
+  /* Page breaks */
+  .page-break {
+    page-break-after: always;
+  }
+  
+  /* Ensure backgrounds print */
+  .bg-gray-50,
+  .bg-green-50,
+  .bg-blue-50,
+  .bg-purple-50,
+  .bg-yellow-50,
+  .bg-orange-50 {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
+  /* Table styling for print */
+  table {
+    page-break-inside: avoid;
+  }
+  
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+  
+  /* Header styling */
+  h1, h2, h3 {
+    page-break-after: avoid;
+  }
+  
+  /* Remove shadows and rounded corners for cleaner print */
+  .shadow-sm,
+  .shadow-md,
+  .shadow-lg,
+  .shadow-xl,
+  .shadow-2xl {
+    box-shadow: none !important;
+  }
+  
+  .rounded-lg,
+  .rounded-xl,
+  .rounded-2xl {
+    border-radius: 4px !important;
+  }
+  
+  /* Ensure proper spacing */
+  .space-y-6 > * + * {
+    margin-top: 1.5rem !important;
+  }
+  
+  /* Print-specific header */
+  @page {
+    margin: 1cm;
+    size: A4;
+  }
+}
+

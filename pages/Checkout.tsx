@@ -27,17 +27,46 @@ interface ShippingInfo {
 }
 
 interface PaymentInfo {
-  cardNumber: string;
-  cardName: string;
-  expiryDate: string;
-  cvv: string;
+  method: 'Cash on Delivery' | 'Credit Card' | 'Bank Transfer' | 'PayPal';
+  cardNumber?: string;
+  cardName?: string;
+  expiryDate?: string;
+  cvv?: string;
 }
+
+// Moroccan cities
+const MOROCCAN_CITIES = [
+  'Casablanca',
+  'Rabat',
+  'Marrakech',
+  'Fès',
+  'Tanger',
+  'Agadir',
+  'Meknès',
+  'Oujda',
+  'Kenitra',
+  'Tétouan',
+  'Salé',
+  'Mohammedia',
+  'Khouribga',
+  'El Jadida',
+  'Béni Mellal',
+  'Nador',
+  'Safi',
+  'Ksar El Kebir',
+  'Larache',
+  'Guelmim',
+  'Berrechid',
+  'Khemisset',
+  'Settat',
+  'Taza'
+];
 
 const Checkout: React.FC = () => {
   const navigate = useNavigate();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [step, setStep] = useState<'shipping' | 'payment'>('shipping');
-  
+
   const [shippingInfo, setShippingInfo] = useState<ShippingInfo>({
     fullName: '',
     email: '',
@@ -46,14 +75,11 @@ const Checkout: React.FC = () => {
     city: '',
     state: '',
     zipCode: '',
-    country: 'United States'
+    country: 'Morocco'
   });
 
   const [paymentInfo, setPaymentInfo] = useState<PaymentInfo>({
-    cardNumber: '',
-    cardName: '',
-    expiryDate: '',
-    cvv: ''
+    method: 'Cash on Delivery'
   });
 
   const [processing, setProcessing] = useState(false);
@@ -203,7 +229,7 @@ const Checkout: React.FC = () => {
                       value={shippingInfo.phone}
                       onChange={(e) => setShippingInfo({...shippingInfo, phone: e.target.value})}
                       className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                      placeholder="+1 (555) 123-4567"
+                      placeholder="+212 6 12 34 56 78"
                     />
                   </div>
 
@@ -217,49 +243,50 @@ const Checkout: React.FC = () => {
                       value={shippingInfo.address}
                       onChange={(e) => setShippingInfo({...shippingInfo, address: e.target.value})}
                       className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                      placeholder="123 Main Street, Apt 4B"
+                      placeholder="123 Rue Mohammed V, Quartier Gauthier"
                     />
                   </div>
 
-                  <div>
+                  <div className="md:col-span-2">
                     <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                       City *
                     </label>
-                    <input
-                      type="text"
+                    <select
                       required
                       value={shippingInfo.city}
                       onChange={(e) => setShippingInfo({...shippingInfo, city: e.target.value})}
                       className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                      placeholder="New York"
-                    />
+                    >
+                      <option value="">Select a city</option>
+                      {MOROCCAN_CITIES.map(city => (
+                        <option key={city} value={city}>{city}</option>
+                      ))}
+                    </select>
                   </div>
 
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                      State *
+                      Region (Optional)
                     </label>
                     <input
                       type="text"
-                      required
                       value={shippingInfo.state}
                       onChange={(e) => setShippingInfo({...shippingInfo, state: e.target.value})}
                       className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                      placeholder="NY"
+                      placeholder="Casablanca-Settat"
                     />
                   </div>
 
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                      ZIP Code *
+                      Postal Code (Optional)
                     </label>
                     <input
                       type="text"
-                      required
                       value={shippingInfo.zipCode}
                       onChange={(e) => setShippingInfo({...shippingInfo, zipCode: e.target.value})}
                       className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                      placeholder="10001"
+                      placeholder="20000"
                     />
                   </div>
 
@@ -267,17 +294,12 @@ const Checkout: React.FC = () => {
                     <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                       Country *
                     </label>
-                    <select
-                      required
-                      value={shippingInfo.country}
-                      onChange={(e) => setShippingInfo({...shippingInfo, country: e.target.value})}
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                    >
-                      <option>United States</option>
-                      <option>Canada</option>
-                      <option>United Kingdom</option>
-                      <option>Australia</option>
-                    </select>
+                    <input
+                      type="text"
+                      value="Morocco"
+                      disabled
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 cursor-not-allowed"
+                    />
                   </div>
                 </div>
 
@@ -297,80 +319,159 @@ const Checkout: React.FC = () => {
                 </h2>
 
                 <div className="space-y-6">
+                  {/* Payment Method Selection */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                      Card Number *
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                      Payment Method *
                     </label>
-                    <input
-                      type="text"
-                      required
-                      maxLength={19}
-                      value={paymentInfo.cardNumber}
-                      onChange={(e) => setPaymentInfo({...paymentInfo, cardNumber: formatCardNumber(e.target.value)})}
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                      placeholder="1234 5678 9012 3456"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                      Cardholder Name *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={paymentInfo.cardName}
-                      onChange={(e) => setPaymentInfo({...paymentInfo, cardName: e.target.value})}
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                      placeholder="John Doe"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                        Expiry Date *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        maxLength={5}
-                        value={paymentInfo.expiryDate}
-                        onChange={(e) => {
-                          let value = e.target.value.replace(/\D/g, '');
-                          if (value.length >= 2) {
-                            value = value.slice(0, 2) + '/' + value.slice(2, 4);
-                          }
-                          setPaymentInfo({...paymentInfo, expiryDate: value});
-                        }}
-                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                        placeholder="MM/YY"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                        CVV *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        maxLength={4}
-                        value={paymentInfo.cvv}
-                        onChange={(e) => setPaymentInfo({...paymentInfo, cvv: e.target.value.replace(/\D/g, '')})}
-                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                        placeholder="123"
-                      />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {(['Cash on Delivery', 'Credit Card', 'Bank Transfer', 'PayPal'] as const).map((method) => (
+                        <button
+                          key={method}
+                          type="button"
+                          onClick={() => setPaymentInfo({...paymentInfo, method})}
+                          className={`p-4 border-2 rounded-lg text-left transition-all ${
+                            paymentInfo.method === method
+                              ? 'border-brand-600 bg-brand-50 dark:bg-brand-900/20'
+                              : 'border-gray-200 dark:border-gray-700 hover:border-brand-300'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                              paymentInfo.method === method
+                                ? 'border-brand-600'
+                                : 'border-gray-300 dark:border-gray-600'
+                            }`}>
+                              {paymentInfo.method === method && (
+                                <div className="w-3 h-3 rounded-full bg-brand-600"></div>
+                              )}
+                            </div>
+                            <span className="font-semibold text-gray-900 dark:text-white">{method}</span>
+                          </div>
+                          {method === 'Cash on Delivery' && (
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 ml-8">
+                              Pay when you receive your order
+                            </p>
+                          )}
+                        </button>
+                      ))}
                     </div>
                   </div>
 
-                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 flex items-start gap-3">
-                    <Lock className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-                    <div className="text-sm text-blue-800 dark:text-blue-300">
-                      <p className="font-semibold mb-1">Secure Payment</p>
-                      <p>Your payment information is encrypted and secure. We never store your card details.</p>
+                  {/* Credit Card Fields - Only show if Credit Card is selected */}
+                  {paymentInfo.method === 'Credit Card' && (
+                    <>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                          Card Number *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          maxLength={19}
+                          value={paymentInfo.cardNumber || ''}
+                          onChange={(e) => setPaymentInfo({...paymentInfo, cardNumber: formatCardNumber(e.target.value)})}
+                          className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                          placeholder="1234 5678 9012 3456"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                          Cardholder Name *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={paymentInfo.cardName || ''}
+                          onChange={(e) => setPaymentInfo({...paymentInfo, cardName: e.target.value})}
+                          className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                          placeholder="John Doe"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-6">
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                            Expiry Date *
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            maxLength={5}
+                            value={paymentInfo.expiryDate || ''}
+                            onChange={(e) => {
+                              let value = e.target.value.replace(/\D/g, '');
+                              if (value.length >= 2) {
+                                value = value.slice(0, 2) + '/' + value.slice(2, 4);
+                              }
+                              setPaymentInfo({...paymentInfo, expiryDate: value});
+                            }}
+                            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                            placeholder="MM/YY"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                            CVV *
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            maxLength={4}
+                            value={paymentInfo.cvv || ''}
+                            onChange={(e) => setPaymentInfo({...paymentInfo, cvv: e.target.value.replace(/\D/g, '')})}
+                            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                            placeholder="123"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 flex items-start gap-3">
+                        <Lock className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                        <div className="text-sm text-blue-800 dark:text-blue-300">
+                          <p className="font-semibold mb-1">Secure Payment</p>
+                          <p>Your payment information is encrypted and secure. We never store your card details.</p>
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {/* Cash on Delivery Info */}
+                  {paymentInfo.method === 'Cash on Delivery' && (
+                    <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 flex items-start gap-3">
+                      <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+                      <div className="text-sm text-green-800 dark:text-green-300">
+                        <p className="font-semibold mb-1">Cash on Delivery</p>
+                        <p>You will pay in cash when your order is delivered to your address. Please have the exact amount ready.</p>
+                      </div>
                     </div>
-                  </div>
+                  )}
+
+                  {/* Bank Transfer Info */}
+                  {paymentInfo.method === 'Bank Transfer' && (
+                    <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
+                      <div className="flex items-start gap-3 mb-3">
+                        <Lock className="w-5 h-5 text-purple-600 dark:text-purple-400 flex-shrink-0 mt-0.5" />
+                        <div className="text-sm text-purple-800 dark:text-purple-300">
+                          <p className="font-semibold mb-1">Bank Transfer Instructions</p>
+                          <p>After placing your order, you will receive bank details via email to complete the payment.</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* PayPal Info */}
+                  {paymentInfo.method === 'PayPal' && (
+                    <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-lg p-4 flex items-start gap-3">
+                      <Lock className="w-5 h-5 text-indigo-600 dark:text-indigo-400 flex-shrink-0 mt-0.5" />
+                      <div className="text-sm text-indigo-800 dark:text-indigo-300">
+                        <p className="font-semibold mb-1">PayPal Payment</p>
+                        <p>You will be redirected to PayPal to complete your payment securely.</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <button

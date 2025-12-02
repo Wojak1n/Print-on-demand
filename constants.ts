@@ -107,77 +107,92 @@ export const MOCKUPS: Mockup[] = [
 export const MOCK_ORDERS: Order[] = [
   {
     id: 'ORD-001',
-    customer: 'Alice Freeman',
-    email: 'alice.freeman@email.com',
-    total: 54.00,
+    customer: 'Fatima El Amrani',
+    email: 'fatima.elamrani@email.com',
+    phone: '+212 6 12 34 56 78',
+    total: 540.00,
     status: 'Processing',
     date: '2024-11-20',
     items: 2,
-    shippingAddress: '123 Main St, New York, NY 10001',
+    shippingAddress: '123 Rue Mohammed V, Quartier Gauthier',
+    city: 'Casablanca',
     trackingNumber: 'TRK-1234567890',
-    paymentMethod: 'Credit Card',
+    paymentMethod: 'Cash on Delivery',
+    paymentStatus: 'Pending',
     orderItems: [
-      { id: 'item-1', designId: '1', designTitle: 'Retro Sunset', mockupType: 't-shirt', quantity: 1, size: 'M', color: 'White', price: 25.00 },
-      { id: 'item-2', designId: '2', designTitle: 'Geometric Wolf', mockupType: 'hoodie', quantity: 1, size: 'L', color: 'Black', price: 29.00 }
+      { id: 'item-1', designId: '1', designTitle: 'Retro Sunset', mockupType: 't-shirt', quantity: 1, size: 'M', color: 'White', price: 250.00 },
+      { id: 'item-2', designId: '2', designTitle: 'Geometric Wolf', mockupType: 'hoodie', quantity: 1, size: 'L', color: 'Black', price: 290.00 }
     ]
   },
   {
     id: 'ORD-002',
-    customer: 'Bob Smith',
-    email: 'bob.smith@email.com',
-    total: 25.00,
+    customer: 'Youssef Benali',
+    email: 'youssef.benali@email.com',
+    phone: '+212 6 98 76 54 32',
+    total: 250.00,
     status: 'Shipped',
     date: '2024-11-19',
     items: 1,
-    shippingAddress: '456 Oak Ave, Los Angeles, CA 90001',
+    shippingAddress: '456 Avenue Hassan II',
+    city: 'Rabat',
     trackingNumber: 'TRK-0987654321',
-    paymentMethod: 'PayPal',
+    paymentMethod: 'Credit Card',
+    paymentStatus: 'Paid',
     orderItems: [
-      { id: 'item-3', designId: '3', designTitle: 'Urban Spray', mockupType: 't-shirt', quantity: 1, size: 'L', color: 'Gray', price: 25.00 }
+      { id: 'item-3', designId: '3', designTitle: 'Urban Spray', mockupType: 't-shirt', quantity: 1, size: 'L', color: 'Gray', price: 250.00 }
     ]
   },
   {
     id: 'ORD-003',
-    customer: 'Charlie Davis',
-    email: 'charlie.davis@email.com',
-    total: 120.50,
+    customer: 'Amina Chakir',
+    email: 'amina.chakir@email.com',
+    phone: '+212 6 55 44 33 22',
+    total: 1205.00,
     status: 'Delivered',
     date: '2024-11-15',
     items: 4,
-    shippingAddress: '789 Pine Rd, Chicago, IL 60601',
+    shippingAddress: '789 Boulevard Zerktouni, Guéliz',
+    city: 'Marrakech',
     trackingNumber: 'TRK-5555666677',
-    paymentMethod: 'Credit Card',
+    paymentMethod: 'Bank Transfer',
+    paymentStatus: 'Paid',
     orderItems: [
-      { id: 'item-4', designId: '1', designTitle: 'Retro Sunset', mockupType: 't-shirt', quantity: 2, size: 'M', color: 'White', price: 50.00 },
-      { id: 'item-5', designId: '4', designTitle: 'Minimalist Leaf', mockupType: 'sweater', quantity: 1, size: 'XL', color: 'Green', price: 35.00 },
-      { id: 'item-6', designId: '2', designTitle: 'Geometric Wolf', mockupType: 'cap', quantity: 1, size: 'One Size', color: 'Black', price: 35.50 }
+      { id: 'item-4', designId: '1', designTitle: 'Retro Sunset', mockupType: 't-shirt', quantity: 2, size: 'M', color: 'White', price: 500.00 },
+      { id: 'item-5', designId: '4', designTitle: 'Minimalist Leaf', mockupType: 'sweater', quantity: 1, size: 'XL', color: 'Green', price: 350.00 },
+      { id: 'item-6', designId: '2', designTitle: 'Geometric Wolf', mockupType: 'cap', quantity: 1, size: 'One Size', color: 'Black', price: 355.00 }
     ]
   },
   {
     id: 'ORD-004',
-    customer: 'Diana Prince',
-    email: 'diana.prince@email.com',
-    total: 45.00,
+    customer: 'Mehdi Alaoui',
+    email: 'mehdi.alaoui@email.com',
+    phone: '+212 6 11 22 33 44',
+    total: 450.00,
     status: 'Pending',
     date: '2024-11-22',
     items: 1,
-    shippingAddress: '321 Elm St, Miami, FL 33101',
-    paymentMethod: 'Credit Card',
+    shippingAddress: '321 Rue de Fès, Ville Nouvelle',
+    city: 'Fès',
+    paymentMethod: 'Cash on Delivery',
+    paymentStatus: 'Pending',
     orderItems: [
-      { id: 'item-7', designId: '3', designTitle: 'Urban Spray', mockupType: 'hoodie', quantity: 1, size: 'M', color: 'Black', price: 45.00 }
+      { id: 'item-7', designId: '3', designTitle: 'Urban Spray', mockupType: 'hoodie', quantity: 1, size: 'M', color: 'Black', price: 450.00 }
     ]
   },
   {
     id: 'ORD-005',
-    customer: 'Eve Martinez',
-    email: 'eve.martinez@email.com',
-    total: 78.00,
+    customer: 'Salma Idrissi',
+    email: 'salma.idrissi@email.com',
+    phone: '+212 6 77 88 99 00',
+    total: 780.00,
     status: 'Processing',
     date: '2024-11-21',
     items: 3,
-    shippingAddress: '555 Maple Dr, Seattle, WA 98101',
+    shippingAddress: '555 Corniche, Marina',
+    city: 'Agadir',
     trackingNumber: 'TRK-9999888877',
     paymentMethod: 'PayPal',
+    paymentStatus: 'Paid',
     orderItems: [
       { id: 'item-8', designId: '1', designTitle: 'Retro Sunset', mockupType: 't-shirt', quantity: 1, size: 'S', color: 'White', price: 25.00 },
       { id: 'item-9', designId: '2', designTitle: 'Geometric Wolf', mockupType: 't-shirt', quantity: 1, size: 'M', color: 'Gray', price: 28.00 },
