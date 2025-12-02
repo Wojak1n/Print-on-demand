@@ -102,7 +102,7 @@ export const fr = {
   about: {
     badge: 'Qui Nous Sommes',
     title: 'Nous Faisons le Lien Entre l\'Art et le Vêtement.',
-    description: 'Ink & Thread n\'a pas été conçu pour la production de masse. Il a été conçu pour les passionnés. Pour les créateurs qui passent des heures à perfectionner une seule ligne vectorielle. Pour ceux qui veulent que leurs vêtements disent quelque chose de significatif.',
+    description: 'Khayali n\'a pas été conçu pour la production de masse. Il a été conçu pour les passionnés. Pour les créateurs qui passent des heures à perfectionner une seule ligne vectorielle. Pour ceux qui veulent que leurs vêtements disent quelque chose de significatif.',
     feature1: 'Encres écologiques et emballages durables',
     feature2: 'Modèle de royalties axé sur les artistes',
     feature3: 'Contrôle qualité sur chaque point de couture',
